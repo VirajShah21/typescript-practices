@@ -1,0 +1,22 @@
+[
+  {
+    "id": "community",
+    "title": "TypeScript Best Practices",
+    "author": "André de Sousa",
+    "url": "https://github.com/andredesousa/typescript-best-practices",
+    "license": "MIT",
+    "licenseUrl": "https://github.com/andredesousa/typescript-best-practices/blob/aaedb9fadd42711e30a9eb984c2b10d4abaab71c/LICENSE",
+    "revision": "aaedb9fadd42711e30a9eb984c2b10d4abaab71c",
+    "checkedAt": "2026-11-25"
+  },
+  {
+    "id": "handbook",
+    "title": "TypeScript Handbook: Do’s and Don’ts",
+    "author": "Microsoft and TypeScript contributors",
+    "url": "https://www.typescriptlang.org/docs/handbook/declaration-files/do-s-and-don-ts.html",
+    "license": "CC-BY-4.0",
+    "licenseUrl": "https://github.com/microsoft/TypeScript-Website/blob/v2/LICENSE",
+    "revision": "a03790f13df45ca6302abae688432762121db3c8",
+    "checkedAt": "2026-11-25"
+  }
+]
