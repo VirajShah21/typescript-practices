@@ -2,7 +2,8 @@ import { createRequire } from 'node:module'
 import type { ESLint } from 'eslint'
 import { defineConfig } from 'eslint/config'
 
-// Use native CommonJS loading so FlatCompat and this config share plugin identities.
+// Use native CommonJS loading so FlatCompat and this config share
+// plugin identities.
 const requirePlugin = createRequire(__filename)
 const { FlatCompat }: typeof import('@eslint/eslintrc') =
     requirePlugin('@eslint/eslintrc')
@@ -81,7 +82,8 @@ export = defineConfig([
             'plugin:eslint-comments/recommended'
         ),
         languageOptions: {
-            // Preserve the legacy defaults; TypeScript parsing still supports modern syntax.
+            // Preserve the legacy defaults. TypeScript parsing still
+            // supports modern syntax.
             ecmaVersion: 5,
             parser: typescriptParser,
             parserOptions: {
@@ -95,7 +97,8 @@ export = defineConfig([
             reportUnusedDisableDirectives: 'off',
         },
         plugins: {
-            // The plugin's legacy config types allow null parsers; ESLint's types do not.
+            // The plugin's legacy config types allow null parsers;
+            // ESLint's types do not.
             '@typescript-eslint': typescript as unknown as ESLint.Plugin,
             'eslint-comments': eslintComments,
             import: importPlugin,
