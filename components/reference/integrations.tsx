@@ -16,10 +16,10 @@ import {
   Terminal,
 } from "lucide-react";
 import { CodeBlock, CopyButton, Github } from "./primitives";
+import { PUBLIC_API_URL, PUBLIC_MCP_URL } from "../../lib/config.ts";
 import "./integrations.css";
 
 const REPO_URL = "https://github.com/VirajShah21/typescript-practices";
-const LOCAL_ORIGIN = "http://127.0.0.1:3001";
 
 const tabs = [
   { id: "rest", label: "REST API", icon: Braces },
@@ -35,23 +35,36 @@ type ApiResult =
   | { state: "error"; message: string; status?: number };
 
 const endpoints = [
-  { path: "/api/v1/practices", description: "Search and filter practices", href: "/api/v1/practices?limit=2" },
-  { path: "/api/v1/practices/{id}", description: "Read a complete practice", href: "/api/v1/practices/raw-javascript-is-faster" },
-  { path: "/api/v1/categories", description: "List topics and practice counts", href: "/api/v1/categories" },
-  { path: "/api/v1/sources", description: "Read attribution and licenses", href: "/api/v1/sources" },
-  { path: "/api/v1/openapi.json", description: "Get the OpenAPI specification", href: "/api/v1/openapi.json" },
+  { method: "GET", path: "/api/v1/practices", description: "Search compact practice summaries", href: "/api/v1/practices?limit=2" },
+  { method: "GET", path: "/api/v1/practices/{id}", description: "Read a complete practice", href: "/api/v1/practices/raw-javascript-is-faster" },
+  { method: "POST", path: "/api/v1/practices/batch", description: "Read up to 20 practices by ID", href: "/api/v1/openapi.json" },
+  { method: "GET", path: "/api/v1/taxonomy", description: "List categories, contexts, environments, and tags", href: "/api/v1/taxonomy" },
+  { method: "GET", path: "/api/v1/sources", description: "Read attribution and source metadata", href: "/api/v1/sources" },
+  { method: "GET", path: "/api/v1/catalogue", description: "Download JSON or Markdown", href: "/api/v1/catalogue?format=json" },
+  { method: "GET", path: "/api/v1/catalogue/manifest", description: "Read dataset version and integrity metadata", href: "/api/v1/catalogue/manifest" },
+  { method: "GET", path: "/api/v1/schema.json", description: "Get the machine-readable catalogue schema", href: "/api/v1/schema.json" },
+  { method: "GET", path: "/api/v1/openapi.json", description: "Get the OpenAPI specification", href: "/api/v1/openapi.json" },
 ];
 
 const tools = [
-  { name: "search_practices", description: "Find guidance by keyword, topic, or source." },
-  { name: "get_practice", description: "Read a practice with examples and source links." },
-  { name: "list_categories", description: "List the available topics and their counts." },
-  { name: "list_sources", description: "Read licenses, attribution, and source revisions." },
+  { name: "search_practices", description: "Search compact results with match information and filters." },
+  { name: "get_practice", description: "Read one practice with examples, conditions, and citations." },
+  { name: "get_practices", description: "Read up to 20 practices by ID, in the requested order." },
+  { name: "get_taxonomy", description: "Read categories, contexts, environments, and tags." },
+  { name: "list_sources", description: "Read source attribution, revisions, and licenses." },
+  { name: "get_catalogue_manifest", description: "Read dataset version, counts, and integrity metadata." },
 ];
+
+type CatalogueMetadata = {
+  schemaVersion: string;
+  datasetVersion: string;
+  practiceCount: number;
+  sourceCount: number;
+};
 
 const remoteConfig = JSON.stringify({
   mcpServers: {
-    "typescript-practices": { url: `${LOCAL_ORIGIN}/mcp` },
+    "typescript-practices": { url: PUBLIC_MCP_URL },
   },
 }, null, 2);
 
@@ -68,16 +81,14 @@ const stdioConfig = JSON.stringify({
 }, null, 2);
 
 function responseMessage(value: unknown): string | undefined {
-  if (value && typeof value === "object" && "error" in value) {
-    const error = value.error;
-    if (error && typeof error === "object" && "message" in error && typeof error.message === "string") {
-      return error.message;
-    }
-  }
-  return undefined;
+  if (!value || typeof value !== "object" || !("detail" in value) || typeof value.detail !== "string") return undefined;
+  const errors = "errors" in value && Array.isArray(value.errors)
+    ? value.errors.flatMap(error => error && typeof error === "object" && "message" in error && typeof error.message === "string" ? [error.message] : [])
+    : [];
+  return [value.detail, ...errors].join(" ");
 }
 
-export default function Integrations({ origin }: { origin: string }) {
+export default function Integrations({ origin, metadata }: { origin: string; metadata: CatalogueMetadata }) {
   const [tab, setTab] = useState<Tab>("rest");
   const [query, setQuery] = useState("unknown");
   const [source, setSource] = useState("all");
@@ -134,7 +145,7 @@ export default function Integrations({ origin }: { origin: string }) {
         status: response.status,
         duration: Math.round(performance.now() - started),
         count: value.data.length,
-        total: "total" in value && typeof value.total === "number" ? value.total : value.data.length,
+        total: "meta" in value && value.meta && typeof value.meta === "object" && "total" in value.meta && typeof value.meta.total === "number" ? value.meta.total : value.data.length,
       });
     } catch {
       if (!controller.signal.aborted) {
@@ -149,6 +160,13 @@ export default function Integrations({ origin }: { origin: string }) {
         <h1>API & MCP</h1>
         <p>Use the same reference from your application, editor, or agent.</p>
       </header>
+
+      <div className="integration-catalogue-downloads">
+        <a href={`${PUBLIC_API_URL}/api/v1/catalogue?format=json`} download>Download JSON</a>
+        <a href={`${PUBLIC_API_URL}/api/v1/catalogue?format=markdown`} download>Download Markdown</a>
+        <span>Schema {metadata.schemaVersion} · {metadata.practiceCount} practices</span>
+        <details><summary>Dataset version</summary><code>{metadata.datasetVersion}</code></details>
+      </div>
 
       <div className="integrations-tablist" role="tablist" aria-label="Integration options">
         {tabs.map(({ id, label, icon: Icon }, index) => (
@@ -189,31 +207,40 @@ export default function Integrations({ origin }: { origin: string }) {
                 </div>
                 <div className="integration-endpoint-list">
                   {endpoints.map(endpoint => (
-                    <a key={endpoint.path} href={endpoint.href} target="_blank" rel="noreferrer">
-                      <span className="integration-method">GET</span>
+                    <a key={endpoint.path} href={`${PUBLIC_API_URL}${endpoint.href}`} target="_blank" rel="noreferrer">
+                      <span className="integration-method">{endpoint.method}</span>
                       <span><code>{endpoint.path}</code><span>{endpoint.description}</span></span>
                       <ExternalLink size={14} aria-hidden="true" />
                     </a>
                   ))}
                 </div>
-                <a className="integration-link" href="/api/v1/openapi.json" target="_blank" rel="noreferrer">
-                  <FileJson size={17} aria-hidden="true" /> Open API specification
+                <a className="integration-link" href={`${PUBLIC_API_URL}/api/v1/openapi.json`} target="_blank" rel="noreferrer">
+                  <FileJson size={17} aria-hidden="true" /> OpenAPI specification
                 </a>
               </section>
 
               <section className="integration-surface integration-request-guide">
                 <h2>Make a request</h2>
                 <p>Search by keyword. Add a category or source to narrow the results.</p>
-                <CodeBlock label="Example request" code={`curl '${origin}/api/v1/practices?q=unknown&limit=2'`} />
+                <CodeBlock label="Example request" code={`curl '${PUBLIC_API_URL}/api/v1/practices?q=unknown&limit=2'`} />
                 <dl className="integration-parameters">
                   <div><dt><code>q</code></dt><dd>Search text, up to 300 characters.</dd></div>
-                  <div><dt><code>category</code></dt><dd>A topic, such as <code>Types</code> or <code>Declarations</code>.</dd></div>
+                  <div><dt><code>category</code></dt><dd>A stable topic ID, such as <code>types</code> or <code>declarations</code>.</dd></div>
                   <div><dt><code>source</code></dt><dd><code>community</code> or <code>handbook</code>.</dd></div>
+                  <div><dt><code>context</code></dt><dd>Filter by where the guidance applies.</dd></div>
+                  <div><dt><code>environment</code></dt><dd>Filter by runtime or environment.</dd></div>
+                  <div><dt><code>tag</code></dt><dd>Filter by an exact tag ID.</dd></div>
                   <div><dt><code>limit / offset</code></dt><dd>Default limit 20. Maximum 100. Offset starts at 0.</dd></div>
                 </dl>
+                <h3>Retrieve several practices</h3>
+                <p>Send up to 20 unique IDs. Found practices keep the requested order; unknown IDs appear in <code>missingIds</code>.</p>
+                <CodeBlock label="Batch request" code={String.raw`curl '${PUBLIC_API_URL}/api/v1/practices/batch' \
+  -H 'Content-Type: application/json' \
+  -d '{"ids":["raw-javascript-is-faster","use-utility-types"]}'`} />
+                <p className="integration-small-print">Responses include <code>meta.schemaVersion</code> and <code>meta.datasetVersion</code>. Search pagination lives in <code>meta</code>. Validation failures use <code>application/problem+json</code> with parameter details.</p>
                 <div className="integration-access-note">
                   <LockKeyhole size={16} aria-hidden="true" />
-                  <p>The hosted site follows its access settings. A private site needs a signed-in browser or the Site plugin. Use curl with a public or self-hosted instance.</p>
+                  <p>The public API URL above works without a Site sign-in. This reference site keeps its own access settings. The playground uses your signed-in browser on this site.</p>
                 </div>
               </section>
             </div>
@@ -267,7 +294,7 @@ export default function Integrations({ origin }: { origin: string }) {
                   </>
                 )}
               </div>
-              <p className="integration-playground-note">The preview returns up to two practices. The API supports pagination.</p>
+              <p className="integration-playground-note">Search returns compact results with pagination and match information. Read a practice by ID for its full content.</p>
             </section>
           </div>
         ) : tab === "mcp" ? (
@@ -275,12 +302,12 @@ export default function Integrations({ origin }: { origin: string }) {
             <section className="integration-surface integration-tool-guide">
               <div className="integration-section-heading">
                 <span className="integration-icon"><Plug size={22} aria-hidden="true" /></span>
-                <div><h2>MCP tools</h2><p>Read-only access for your agents.</p></div>
+                <div><h2>MCP tools</h2><p>Read-only access with typed input and output schemas.</p></div>
               </div>
               <div className="integration-tool-list">
                 {tools.map(tool => <div key={tool.name}><code>{tool.name}</code><p>{tool.description}</p></div>)}
               </div>
-              <div className="integration-access-note"><FileJson size={17} aria-hidden="true" /><p>Results include the source, scope, examples, and context notes. Declaration-file guidance keeps its original scope.</p></div>
+              <div className="integration-access-note"><FileJson size={17} aria-hidden="true" /><p>Search returns compact summaries. Fetch a practice by ID for structured applicability, examples, notes, citations, and relationships. Every tool declares its input and output schemas.</p></div>
             </section>
             <div className="integrations-docs-column">
               <section className="integration-surface integration-connection-guide">
@@ -291,9 +318,9 @@ export default function Integrations({ origin }: { origin: string }) {
               </section>
               <section className="integration-surface integration-connection-guide">
                 <h2>Connect another MCP client</h2>
-                <p>Start the standalone HTTP server, then use a client that supports Streamable HTTP.</p>
+                <p>Use the public endpoint with a client that supports Streamable HTTP. No Site plugin is required for this connection.</p>
                 <CodeBlock label="Remote MCP configuration" code={remoteConfig} />
-                <p className="integration-small-print">This example connects to your local server. For a public or self-hosted deployment, replace the URL with its HTTPS origin and <code>/mcp</code>. The HTTP endpoint is stateless and returns JSON. Client configuration formats vary.</p>
+                <p className="integration-small-print">The public API service is separate from this reference site. The public endpoint uses <code>/api/mcp</code>; for a local server, use <code>http://127.0.0.1:3001/mcp</code>. The HTTP endpoint is stateless and returns JSON. Client configuration formats vary.</p>
                 <button className="integration-link" onClick={() => { setTab("self-host"); tabButtons.current[2]?.focus(); }}>View local setup</button>
               </section>
             </div>
@@ -305,18 +332,18 @@ export default function Integrations({ origin }: { origin: string }) {
                 <span className="integration-icon"><Server size={22} aria-hidden="true" /></span>
                 <div><h2>Run your own instance</h2><p>Node.js 22.13 or later.</p></div>
               </div>
-              <p>The standalone API and MCP server run from the checkout with no additional packages.</p>
-              <CodeBlock label="Get the source" code="git clone https://github.com/VirajShah21/typescript-practices.git\ncd typescript-practices" />
+              <p>Install the dependencies, then run the standalone API and MCP server from the checkout.</p>
+              <CodeBlock label="Get the source" code="git clone https://github.com/VirajShah21/typescript-practices.git\ncd typescript-practices\nnpm ci" />
               <CodeBlock label="Start the API and HTTP MCP server" code="node --experimental-strip-types server/http.mjs" />
               <p className="integration-small-print">The server listens at <code>http://127.0.0.1:3001</code>. The API lives at <code>/api/v1</code> and MCP at <code>/mcp</code>. Set <code>PORT</code> to use a different port.</p>
               <h3>Run the complete website</h3>
-              <CodeBlock label="Website development" code="npm install\nnpm run dev" />
+              <CodeBlock label="Website development" code="npm run dev" />
               <a className="integration-link" href={`${REPO_URL}#readme`} target="_blank" rel="noreferrer">Read the full setup guide <ExternalLink size={14} aria-hidden="true" /></a>
             </section>
             <div className="integrations-docs-column">
               <section className="integration-surface integration-setup-guide">
                 <h2>Use local stdio MCP</h2>
-                <p>Let your MCP client launch the server directly. Replace the path below with your checkout’s absolute path.</p>
+                <p>After running <code>npm ci</code>, let your MCP client launch the server directly. Replace the path below with your checkout’s absolute path.</p>
                 <CodeBlock label="Local MCP configuration" code={stdioConfig} />
                 <CodeBlock label="Run from the command line" code="node --experimental-strip-types server/stdio.mjs" />
                 <p className="integration-small-print">The stdio server uses the same catalogue and tools. It reads JSON-RPC from stdin and writes replies to stdout.</p>

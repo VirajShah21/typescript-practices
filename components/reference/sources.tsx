@@ -1,18 +1,10 @@
 import { Github } from "./primitives";
 import "./sources.css";
 
-type Source = {
-  id: string;
-  title: string;
-  author: string;
-  url: string;
-  license: string;
-  licenseUrl: string;
-  revision: string;
-  checkedAt: string;
-};
+import type { Practice, Source } from "../../lib/models.ts";
+import { PUBLIC_API_URL } from "../../lib/config.ts";
 
-type Practice = { source: string };
+type Metadata = { schemaVersion: string; datasetVersion: string; practiceCount: number; sourceCount: number };
 
 const REPOSITORY = "https://github.com/VirajShah21/typescript-practices";
 
@@ -34,9 +26,11 @@ function revisionUrl(source: Source) {
 export default function Sources({
   sources,
   practices,
+  metadata,
 }: {
   sources: Source[];
   practices: Practice[];
+  metadata: Metadata;
 }) {
   return (
     <div className="sources-page">
@@ -48,11 +42,21 @@ export default function Sources({
         </p>
       </header>
 
+      <section className="sources-dataset" aria-label="Catalogue downloads">
+        <div><strong>Catalogue schema {metadata.schemaVersion}</strong><span>{metadata.practiceCount} practices · {metadata.sourceCount} sources</span></div>
+        <div className="sources-dataset-links">
+          <a href={`${PUBLIC_API_URL}/api/v1/catalogue?format=json`} download>Download JSON</a>
+          <a href={`${PUBLIC_API_URL}/api/v1/catalogue?format=markdown`} download>Download Markdown</a>
+          <a href={`${PUBLIC_API_URL}/api/v1/schema.json`} target="_blank" rel="noreferrer">JSON Schema</a>
+        </div>
+        <details><summary>Dataset version</summary><code>{metadata.datasetVersion}</code></details>
+      </section>
+
       <div className="sources-grid">
         {sources.map((source) => {
           const isHandbook = source.id === "handbook";
           const count = practices.filter(
-            (practice) => practice.source === source.id,
+            (practice) => practice.citations.some(citation => citation.sourceId === source.id && citation.role === "origin"),
           ).length;
 
           return (
@@ -135,7 +139,9 @@ export default function Sources({
             Summaries and examples have been rewritten and grouped by topic.
             Context notes qualify advice that depends on the project, runtime,
             or TypeScript version. These are editorial additions, not quotations
-            or an endorsement by the original authors.
+            or an endorsement by the original authors. Notes distinguish editorial corrections,
+            exceptions, and historical context. Examples identify their language and are marked
+            as illustrative.
           </p>
           <p>
             The Handbook guidance applies to declaration files and public API

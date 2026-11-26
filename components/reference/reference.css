@@ -1,0 +1,44 @@
+.reference-filter-toggle { display: inline-flex; align-items: center; gap: 7px; min-height: 41px; padding: 10px 13px; border: 1px solid #e8e8ed; border-radius: 10px; background: #fff; color: #6e6e73; font-size: .8125rem; white-space: nowrap; }
+.reference-filter-toggle.is-active { background: #edf5ff; color: #0071e3; border-color: #dceafd; }
+.reference-filter-toggle > span { display: grid; place-items: center; min-width: 17px; height: 17px; padding: 0 4px; border-radius: 8px; background: #0071e3; color: white; font-size: .6875rem; }
+.reference-extra-filters { display: flex; flex-shrink: 0; align-items: flex-end; flex-wrap: wrap; gap: 14px; padding: 17px 32px 20px; border-bottom: 1px solid #e8e8ed; background: #fafafc; }
+.reference-extra-filters > label { flex: 1; min-width: 155px; color: #6e6e73; font-size: .8125rem; }
+.reference-extra-filters label > div { position: relative; margin-top: 7px; }
+.reference-extra-filters select { width: 100%; appearance: none; min-height: 39px; padding: 9px 32px 9px 11px; border: 1px solid #dedee5; border-radius: 9px; background: #fff; color: #424245; font-size: .8125rem; }
+.reference-extra-filters label svg { position: absolute; right: 11px; top: 12px; color: #86868b; pointer-events: none; }
+.reference-extra-filters > button { min-height: 39px; padding: 7px 0; color: #0071e3; font-size: .8125rem; }
+.reference-applicability { margin-top: 22px; }
+.reference-applicability > span { display: block; margin-bottom: 9px; font-size: .75rem; color: #86868b; }
+.reference-applicability > div { display: flex; gap: 6px; flex-wrap: wrap; }
+.reference-applicability > div > span { border: 1px solid #dfeaf8; border-radius: 7px; padding: 5px 8px; background: #f1f6fd; color: #4c719a; font-size: .75rem; line-height: 1.4; }
+.reference-applicability > div > span.environment-chip { background: #f5f5f7; border-color: #e8e8ed; color: #73737a; }
+.reference-conditions { margin-top: 25px; padding: 20px 21px; border: 1px solid #e8e8ed; border-radius: 12px; background: #fcfcfd; }
+.reference-conditions h4 { margin: 18px 0 9px; font-size: .8125rem; font-weight: 600; color: #6e6e73; }
+.reference-conditions ul { margin: 0; padding-left: 18px; color: #6e6e73; font-size: .875rem; line-height: 1.75; }
+.reference-conditions li + li { margin-top: 7px; }
+.reference-note.editorial-correction { background: #f1f6fd; border-color: #e1ebf8; }
+.reference-note.historical-context { background: #f7f5f1; border-color: #ece7dd; }
+.reference-note.historical-context strong { color: #7c7362; }
+.reference-note.historical-context p { color: #8b8271; }
+.reference-note-links { display: flex; flex-wrap: wrap; gap: 8px 15px; margin-top: 12px; }
+.reference-note-links > a { display: inline-flex; align-items: center; gap: 5px; font-size: .75rem; line-height: 1.6; }
+.reference-example { margin-top: 24px; }
+.reference-example-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; color: #86868b; font-size: .75rem; }
+.reference-example-heading > span:first-child { color: #6e6e73; }
+.reference-example > p { color: #6e6e73; font-size: .875rem; line-height: 1.75; margin-top: 13px; }
+.reference-citations > div + div { margin-top: 19px; }
+.reference-citations > div > a { display: inline-flex; align-items: center; gap: 7px; font-size: .875rem; }
+.reference-citations p { font-size: .75rem; color: #86868b; line-height: 1.7; margin-top: 6px; }
+.reference-attribution-link { color: #0071e3; padding: 0; margin-top: 17px; font-size: .75rem; }
+.reference-relations > div { flex-direction: column; gap: 9px; }
+.reference-relations button { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; text-align: left; padding: 12px 14px; background: #fafafc; border-radius: 10px; }
+.reference-relations button > span:first-child { color: #86868b; font-size: .6875rem; }
+.reference-relations button > strong { color: #4c719a; font-size: .8125rem; font-weight: 550; }
+.reference-relations button > span:last-child { color: #86868b; font-size: .75rem; line-height: 1.6; }
+.reference-tags { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 25px; }
+.reference-tags button { padding: 4px 7px; background: #f5f5f7; color: #86868b; border-radius: 5px; font-size: .6875rem; }
+.reader-meta { flex-wrap: wrap; }
+.reader-footer { flex-wrap: wrap; }
+@media (max-width: 1200px) { .reference-extra-filters { padding-inline: 26px; } .search-toolbar { gap: 10px; } .source-filter select { max-width: 160px; } }
+@media (max-width: 1000px) { .reference-filter-toggle { font-size: .75rem; padding-inline: 10px; } .reference-filter-toggle > svg { display: none; } .reference-extra-filters { padding-inline: 23px; } }
+@media (max-width: 760px) { .reference-extra-filters { padding: 17px 20px 20px; gap: 13px; } .reference-extra-filters > label { flex-basis: calc(50% - 7px); min-width: 115px; } .reference-extra-filters > label:last-of-type { flex-basis: 100%; } .reference-filter-toggle > svg { display: block; } .source-filter { margin-left: 0; margin-right: auto; max-width: calc(100% - 90px); } .source-filter select { max-width: 200px; } .reference-filter-toggle { border: 0; padding: 4px 0 4px 8px; min-height: 28px; } .reference-conditions { padding: 17px; } }

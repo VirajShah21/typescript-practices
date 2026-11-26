@@ -1,82 +1,211 @@
 # TypeScript Practices
 
-A searchable reference that combines André de Sousa’s TypeScript best practices with the TypeScript Handbook’s declaration-file guidelines. The website, REST API, and MCP server use the same catalogue.
+A searchable TypeScript reference with a REST API, an MCP server, and downloadable JSON and Markdown catalogues. All interfaces use the same validated dataset and search implementation.
 
-The catalogue contains 59 entries: 50 community practices and nine declaration-file guidelines. Each entry includes its source, scope, and explanation. Examples are written for this project. Context notes qualify source advice that is dated or depends on the project, including the claim that raw JavaScript is faster.
+- [Reference site](https://typescript-practices-reference.shahvirajd.chatgpt.site)
+- [Public API specification](https://typescript-practices-api.shahvirajd.chatgpt.site/api/v1/openapi.json)
+- [Catalogue manifest and download links](https://typescript-practices-api.shahvirajd.chatgpt.site/api/v1/catalogue/manifest)
 
-## Run the website
+The reference site retains its own access settings. The separate public API and MCP service can be used without signing in to the Site.
 
-Use Node.js 22.13 or later.
+The catalogue contains 59 practices: 50 originating in André de Sousa’s guide and nine originating in the TypeScript Handbook’s declaration-file guidelines. Supporting citations can connect a practice to either source. Each practice includes structured applicability, conditions and exceptions, citations, editorial notes, examples, and related practices.
+
+## Install and run
+
+Use Node.js 22.13 or later. Install dependencies before running the website, HTTP server, or stdio server. Runtime validation uses Zod.
 
 ```sh
-npm install
+npm ci
 npm run dev
 ```
 
-Open the local URL printed by the development server. The website includes search, category and source filters, code examples, and API and MCP setup instructions.
+Open the URL printed by the development server.
 
 ```sh
 npm test
-npx tsc --noEmit
+npm run typecheck
 npm run build
 ```
 
-The Sites deployment uses the included Vinext and Cloudflare Worker integration. `npm run start` previews a completed Worker build locally. The standalone server below does not need Sites hosting or credentials.
-
-## Run the API and remote MCP server
-
-```sh
-node --experimental-strip-types server/http.mjs
-```
-
-This starts a Node HTTP server at `http://127.0.0.1:3001`. It serves the API and MCP endpoint using the same handlers as the website. It does not serve the website’s HTML.
-
-Set `PORT` to change the port. `HOST` defaults to `127.0.0.1`. For a public deployment, run it behind HTTPS and set the bind address deliberately. The server reads only the bundled, public catalogue; it does not execute submitted code or access user data.
-
-No additional package is required to run this server on the supported Node version.
+The website uses Vinext and a Cloudflare Worker. `npm run start` previews a completed Worker build locally. The standalone servers below use the same catalogue and handlers without requiring Sites hosting or credentials.
 
 ## REST API
 
+Public base URL: `https://typescript-practices-api.shahvirajd.chatgpt.site`.
+
 | Method and path | Result |
 | --- | --- |
-| `GET /api/v1/practices` | Search and filter the catalogue |
+| `GET /api/v1/practices` | Search compact practice summaries |
 | `GET /api/v1/practices/{id}` | Retrieve a complete practice |
-| `GET /api/v1/categories` | List categories |
-| `GET /api/v1/sources` | Retrieve source and license metadata |
-| `GET /api/v1/openapi.json` | OpenAPI 3.1 specification |
+| `POST /api/v1/practices/batch` | Retrieve up to 20 practices by ID |
+| `GET /api/v1/taxonomy` | List category, context, environment, tag, and source IDs |
+| `GET /api/v1/sources` | Retrieve source revisions, attribution, and licenses |
+| `GET /api/v1/catalogue?format=json` | Download the complete structured catalogue |
+| `GET /api/v1/catalogue?format=markdown` | Download the complete readable catalogue |
+| `GET /api/v1/catalogue/manifest` | Read dataset version, counts, and download links |
+| `GET /api/v1/schema.json` | JSON Schema for the catalogue and API contracts |
+| `GET /api/v1/openapi.json` | OpenAPI specification |
 
-The practice list supports `q`, `category`, `source`, `limit`, and `offset` query parameters. Search is case insensitive and treats input as text rather than a regular expression. Category names are `Types`, `Functions`, `Code structure`, `Runtime`, `Tooling`, and `Declarations`. Source IDs are `community` and `handbook`.
+### Search
 
 ```sh
-curl 'http://127.0.0.1:3001/api/v1/practices?q=overload&source=handbook'
-curl 'http://127.0.0.1:3001/api/v1/practices/raw-javascript-is-faster'
-curl 'http://127.0.0.1:3001/api/v1/openapi.json'
+curl 'https://typescript-practices-api.shahvirajd.chatgpt.site/api/v1/practices?q=overload&context=declaration-file&limit=2'
 ```
 
-List responses use `{ "data": [...], "total": 59, "limit": 20, "offset": 0 }`. The default limit is 20 and the maximum is 100. Offset starts at zero and accepts integers through 100,000. Search accepts up to 300 characters. Unknown or repeated query parameters return `400`.
+Supported query parameters:
 
-Single-item and metadata responses use `{ "data": ... }`. Errors use `{ "error": { "code": "...", "message": "..." } }`; a missing practice returns `404`. Use the OpenAPI response for the complete schemas. Results include source URLs and scope so callers can retain the distinction between application guidance and declaration-file design.
+| Parameter | Values |
+| --- | --- |
+| `q` | Search text, up to 300 characters |
+| `category` | `types`, `functions`, `code-structure`, `runtime`, `tooling`, `declarations` |
+| `source` | `community` or `handbook`; matches any citation to that source |
+| `context` | `application`, `declaration-file`, `public-api`, `compiler-configuration` |
+| `environment` | `browser`, `node`, `runtime-independent` |
+| `tag` | An exact tag ID; discover IDs through `/taxonomy` |
+| `limit` | Integer from 1 to 100; default 20 |
+| `offset` | Integer from 0 to 100,000; default 0 |
+
+Search normalizes case, punctuation, common technical aliases, and limited spelling errors. Results are ranked deterministically. The website, REST API, and MCP tools share this implementation. A valid tag with no matches returns an empty list. Unknown or repeated query parameters are rejected.
+
+Search returns compact summaries rather than complete practices:
+
+```json
+{
+  "data": [
+    {
+      "id": "practice-id",
+      "title": "Practice title",
+      "summary": "Short guidance.",
+      "category": "types",
+      "contexts": ["application"],
+      "environments": ["runtime-independent"],
+      "sourceIds": ["community"],
+      "tags": ["tag-id"],
+      "match": {
+        "matchedFields": ["summary"],
+        "snippet": "The matching passage."
+      },
+      "links": {
+        "self": "/api/v1/practices/practice-id",
+        "page": "https://typescript-practices-reference.shahvirajd.chatgpt.site/?practice=practice-id"
+      }
+    }
+  ],
+  "meta": {
+    "schemaVersion": "2",
+    "datasetVersion": "sha256:<content hash>",
+    "total": 1,
+    "limit": 20,
+    "offset": 0,
+    "hasMore": false,
+    "nextOffset": null,
+    "query": { "text": "search text", "terms": ["search", "text"] }
+  }
+}
+```
+
+This example illustrates the response shape. Read `links.self` or use a stable practice ID to fetch full content. Use `meta.nextOffset` when `meta.hasMore` is true.
+
+### Full practices and batches
+
+```sh
+curl 'https://typescript-practices-api.shahvirajd.chatgpt.site/api/v1/practices/raw-javascript-is-faster'
+
+curl 'https://typescript-practices-api.shahvirajd.chatgpt.site/api/v1/practices/batch' \
+  -H 'Content-Type: application/json' \
+  -d '{"ids":["raw-javascript-is-faster","use-utility-types"]}'
+```
+
+A detail response uses `{ "data": <practice>, "meta": <version metadata> }`. A batch accepts 1–20 unique IDs and returns `{ "data": [...], "missingIds": [...], "meta": ... }`. Found practices preserve the requested order; unknown IDs appear in `missingIds`. A single missing practice returns `404`.
+
+A full practice contains:
+
+- `id`, `title`, `summary`, `explanation`, a category ID, and tags.
+- `applicability.contexts`, `applicability.environments`, conditions in `when`, and `exceptions`.
+- `citations` with a source ID, section, URL, and `origin` or `supports` role.
+- `notes` classified as `editorial-correction`, `exception`, or `historical-context`, with supporting references.
+- `examples` with a language, role-labelled variants, an explanation, and verification status.
+- `relations` with a practice ID, relationship kind, and reason.
+
+Examples are illustrative fragments. The verification status does not claim that they are complete or automatically tested programs.
+
+### Versions, schemas, and errors
+
+Current catalogue schema: `2`. Responses carry a content-derived SHA-256 `datasetVersion`. To verify it, recursively sort object keys in `{schemaVersion, sources, practices, licenseNotices}`, preserve array order, serialize compact JSON with UTF-8, and hash those bytes. The reference implementation is `canonicalJson` in `lib/canonical-json.ts`; the version field itself is excluded. The manifest also provides practice and source counts and links to complete downloads and schemas. JSON and Markdown exports retain source attribution, modification details, and full source license notices.
+
+GET responses support strong `ETag` values and conditional `If-None-Match` requests with `304 Not Modified`. Keep the version metadata when caching or distributing a snapshot.
+
+REST errors use `application/problem+json`:
+
+```json
+{
+  "type": "urn:typescript-practices:problem:invalid_query",
+  "title": "Bad request",
+  "status": 400,
+  "detail": "One or more query parameters are invalid.",
+  "instance": "/api/v1/practices?limit=0",
+  "code": "invalid_query",
+  "errors": [
+    { "parameter": "limit", "code": "too_small", "message": "Validation message." }
+  ]
+}
+```
+
+Consult the [OpenAPI document](https://typescript-practices-api.shahvirajd.chatgpt.site/api/v1/openapi.json) and [JSON Schema](https://typescript-practices-api.shahvirajd.chatgpt.site/api/v1/schema.json) for exact schemas and constraints. Runtime inputs and outputs use the same contracts.
 
 ## MCP
 
-The read-only tools are:
+Public Streamable HTTP endpoint: `https://typescript-practices-api.shahvirajd.chatgpt.site/api/mcp`. The public service uses `/api/mcp` because Sites reserves `/mcp` for its authenticated plugin. Self-hosted Node servers use `/mcp`.
+
+All six tools are read-only and declare input and output schemas:
 
 | Tool | Purpose |
 | --- | --- |
-| `search_practices` | Search and filter practices |
-| `get_practice` | Read one practice by its stable ID |
-| `list_categories` | List available categories |
-| `list_sources` | Read source and license metadata |
+| `search_practices` | Search compact summaries using the REST search filters and pagination |
+| `get_practice` | Retrieve one complete practice by `id` |
+| `get_practices` | Retrieve up to 20 complete practices using `ids` |
+| `get_taxonomy` | Discover filter IDs, labels, and counts |
+| `list_sources` | Read source metadata, revisions, and licenses |
+| `get_catalogue_manifest` | Get version metadata and complete catalogue download links |
 
-### Local stdio
+Successful tools return typed `structuredContent` and JSON text. Tool execution or argument failures set `isError: true` and return Problem Details in text content. Protocol errors use JSON-RPC errors.
 
-The stdio server requires Node.js 22.13 or later. It reads newline-delimited JSON-RPC from stdin and writes only JSON-RPC replies to stdout.
+For clients that use a `mcpServers` JSON configuration:
 
-```sh
-node --experimental-strip-types server/stdio.mjs
+```json
+{
+  "mcpServers": {
+    "typescript-practices": {
+      "url": "https://typescript-practices-api.shahvirajd.chatgpt.site/api/mcp"
+    }
+  }
+}
 ```
 
-For MCP clients that use a `mcpServers` JSON configuration, replace the path below with your checkout’s absolute path:
+Client configuration formats vary. The server returns JSON to POST requests, does not open an SSE stream, and does not require session IDs. GET on the MCP endpoint returns `405`. Supported initialization versions include `2025-06-18` and `2025-03-26`; the Sites integration also supports `server/discover` for `2026-07-28`.
+
+### Hosted Site plugin
+
+The reference site’s Sites plugin is a separate connection for ChatGPT or Codex. Install it under Plugins → Personal → Created by you. It follows the reference site’s access settings. Generic clients can use the public endpoint above, or a self-hosted instance.
+
+## Standalone servers
+
+Install dependencies first:
+
+```sh
+npm ci
+npm run api:serve
+```
+
+The HTTP server listens at `http://127.0.0.1:3001`. It serves the API and `/mcp`, using the same code as the hosted service. It does not serve the website’s HTML. `PORT` changes the port; `HOST` defaults to `127.0.0.1`. A public self-hosted deployment should use HTTPS.
+
+For local stdio:
+
+```sh
+npm run mcp:stdio
+```
+
+In an MCP client, use an absolute path to the checked-out server:
 
 ```json
 {
@@ -92,42 +221,19 @@ For MCP clients that use a `mcpServers` JSON configuration, replace the path bel
 }
 ```
 
-Configuration syntax depends on the client. The process uses paths relative to its source files, so it does not require a particular working directory.
-
-### Streamable HTTP
-
-Point a client that supports Streamable HTTP at `http://127.0.0.1:3001/mcp`, or your HTTPS deployment’s `/mcp` endpoint. The server returns JSON responses to POST requests, does not open an SSE stream, and does not require session IDs. GET requests return `405 Method Not Allowed`.
-
-Standard clients can initialize with MCP `2025-06-18` or `2025-03-26`. The hosted Sites integration also supports `server/discover` for `2026-07-28`.
-
-```sh
-curl 'http://127.0.0.1:3001/mcp' \
-  -H 'Content-Type: application/json' \
-  -H 'Accept: application/json, text/event-stream' \
-  -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"example","version":"1.0.0"}}}'
-
-curl 'http://127.0.0.1:3001/mcp' \
-  -H 'Content-Type: application/json' \
-  -H 'Accept: application/json, text/event-stream' \
-  -H 'MCP-Protocol-Version: 2025-06-18' \
-  -d '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"get_practice","arguments":{"id":"raw-javascript-is-faster"}}}'
-```
-
-The transport follows the official [MCP transport specification](https://modelcontextprotocol.io/specification/2025-06-18/basic/transports) and [initialization lifecycle](https://modelcontextprotocol.io/specification/2025-06-18/basic/lifecycle). Requests have a 64 KiB limit. Browser requests to `/mcp` must have an allowed origin.
-
-### Hosted Sites connection
-
-Publishing this project with the `mcp` capability lets Sites create its own private plugin for the owner. Use that plugin in ChatGPT or Codex. The hosted site’s access policy also applies to its API and MCP endpoint; it is separate from the self-hosted server above. A private Site URL is not a public unauthenticated API endpoint.
+The stdio server reads newline-delimited JSON-RPC from stdin and writes only JSON-RPC replies to stdout. It resolves data relative to its source files and does not require a particular working directory. HTTP and stdio requests have a 64 KiB message limit.
 
 ## Sources and content updates
 
 - [TypeScript Best Practices — André de Sousa](https://github.com/andredesousa/typescript-best-practices), MIT.
 - [TypeScript Handbook: Do’s and Don’ts](https://www.typescriptlang.org/docs/handbook/declaration-files/do-s-and-don-ts.html), CC BY 4.0.
 
-The catalogue is a snapshot reviewed on November 25, 2026. It does not synchronize automatically. `data/sources.json` records upstream revisions. To update it, review the upstream sources, revise the matching entries, and update their source metadata and modification notice. Keep stable entry IDs.
+The source snapshot was reviewed on November 25, 2026. It does not synchronize automatically. `data/sources.json` records upstream revisions and check dates. Preserve those dates when changing the presentation or adding editorial structure; update them when reviewing the sources again.
+
+`lib/models.ts` defines the structured content schemas. `lib/catalog.ts` validates the data and cross-references at load time. `lib/search.ts` provides shared search. `lib/contracts.ts` defines API and MCP contracts, and generates the machine-readable schemas.
 
 ## Licenses
 
-Original application and server code is available under the [MIT license](LICENSE). Community-derived guidance retains André de Sousa’s MIT notice. Handbook-derived guidance is adapted under CC BY 4.0 and retains that license. Attribution, modification notices, and full third-party licenses are in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) and `licenses/`.
+Original application, API, and MCP server code is available under the [MIT license](LICENSE). Community-derived guidance retains André de Sousa’s MIT notice. Handbook-derived guidance is adapted under CC BY 4.0 and retains that license. Attribution, modification notices, and full third-party licenses are in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md), `licenses/`, and the downloadable catalogue.
 
-The rewritten summaries, context notes, and project examples are adaptations. Neither upstream author has endorsed this project. Framework and package dependencies retain their own licenses.
+Rewritten summaries, editorial notes, and project examples are adaptations. Neither upstream author has endorsed this project. Framework and package dependencies retain their own licenses.

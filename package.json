@@ -1,6 +1,6 @@
 {
   "name": "typescript-practices",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
   "engines": {
     "node": ">=22.13.0"
@@ -14,13 +14,17 @@
     "api:serve": "node --experimental-strip-types server/http.mjs",
     "mcp:stdio": "node --experimental-strip-types server/stdio.mjs",
     "test": "node --experimental-strip-types --test tests/*.test.mjs",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "build:api": "node scripts/build-api.mjs",
+    "check:data": "node --experimental-strip-types --input-type=module -e 'import {metadata} from \"./lib/catalog.ts\"; console.log(JSON.stringify(metadata))'"
   },
   "dependencies": {
     "lucide-react": "^1.31.0",
     "next": "16.3.4",
     "react": "19.2.6",
-    "react-dom": "19.2.6"
+    "react-dom": "19.2.6",
+    "zod": "4.6.7",
+    "@noble/hashes": "2.4.0"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "1.37.1",
@@ -38,7 +42,8 @@
     "typescript": "5.9.3",
     "vinext": "1.0.0-beta.5",
     "vite": "8.0.13",
-    "wrangler": "4.92.0"
+    "wrangler": "4.92.0",
+    "esbuild": "0.28.2"
   },
   "type": "module",
   "overrides": {

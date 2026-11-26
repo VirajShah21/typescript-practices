@@ -70,3 +70,51 @@ test('stdio emits only JSON-RPC replies, ignores notifications, and exits on EOF
   assert.match(JSON.stringify(replies[1].result), /raw-javascript-is-faster/);
   assert.equal(replies[2].error.code, -32700);
 });
+
+test('portable HTTP exposes version 2 batch errors and public MCP alias', async () => {
+  await withServer(async origin => {
+    const response = await fetch(`${origin}/api/v1/practices/batch`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ids: [] }),
+    });
+    assert.equal(response.status, 400);
+    assert.match(response.headers.get('content-type'), /application\/problem\+json/);
+    const problem = await response.json();
+    assert.equal(problem.code, 'invalid_body');
+    assert.equal(problem.errors[0].parameter, 'ids');
+    const alias = await fetch(`${origin}/api/mcp`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json, text/event-stream' },
+      body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/list' }),
+    });
+    const tools = (await alias.json()).result.tools;
+    assert.equal(tools.length, 6);
+    assert.ok(tools.every(tool => tool.outputSchema));
+  });
+});
+
+test('stdio bounds messages, rejects invalid UTF-8, and recovers for subsequent requests', async () => {
+  const child = spawn(process.execPath, ['--experimental-strip-types', 'server/stdio.mjs'], {
+    cwd: new URL('..', import.meta.url), stdio: ['pipe', 'pipe', 'pipe'],
+  });
+  let stdout = '';
+  let stderr = '';
+  child.stdout.on('data', data => { stdout += data; });
+  child.stderr.on('data', data => { stderr += data; });
+  const exit = once(child, 'exit');
+  child.stdin.write(Buffer.from([0xff, 0x0a]));
+  child.stdin.write('x'.repeat(65537) + '\n');
+  const unicode = Buffer.from(JSON.stringify({ jsonrpc: '2.0', id: 'café', method: 'ping' }) + '\n');
+  const cut = unicode.indexOf(0xc3) + 1;
+  child.stdin.write(unicode.subarray(0, cut));
+  child.stdin.write(unicode.subarray(cut));
+  child.stdin.end(JSON.stringify({ jsonrpc: '2.0', id: 'bad-args', method: 'tools/call', params: { name: 'get_practices', arguments: { ids: [] } } }));
+  const [code] = await exit;
+  assert.equal(code, 0, stderr);
+  const replies = stdout.trim().split('\n').map(line => JSON.parse(line));
+  assert.equal(replies.length, 4);
+  assert.equal(replies[0].error.code, -32700);
+  assert.equal(replies[1].error.code, -32600);
+  assert.equal(replies[2].id, 'café');
+  assert.deepEqual(replies[2].result, {});
+  assert.equal(replies[3].result.isError, true);
+  assert.equal(JSON.parse(replies[3].result.content[0].text).code, 'invalid_arguments');
+});

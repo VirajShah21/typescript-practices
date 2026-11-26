@@ -1,6 +1,6 @@
 # Source notices
 
-The application, API, and MCP server implementation are distributed under the project’s MIT license. That license does not replace the upstream licenses below. Catalogue records identify their source with `source` and `sourceUrl`; retain those fields when redistributing the data.
+The application, API, and MCP server implementation are distributed under the project’s MIT license. That license does not replace the upstream licenses below. Catalogue records identify their sources with `citations`, including section links and an `origin` or `supports` role. Retain citations, source snapshots, these modification details, and the full license notices when redistributing the data.
 
 ## TypeScript Best Practices
 
@@ -11,7 +11,7 @@ The application, API, and MCP server implementation are distributed under the pr
 - Copyright: Copyright (c) 2021 André de Sousa
 - Full license: [licenses/andredesousa-MIT.txt](licenses/andredesousa-MIT.txt)
 
-The 50 catalogue entries with `source: "community"` adapt the source’s practices. Summaries and explanations have been rewritten, examples have been newly written, and caveats identify advice that needs context or updating. The source titles remain available as `sourceTitle`. These adaptations retain the MIT license and notice above.
+The 50 catalogue entries whose citations include `sourceId: "community"` and `role: "origin"` adapt the source’s practices. Summaries and explanations have been rewritten, examples have been newly written, and applicability conditions and notes identify advice that needs context or updating. Original section titles remain available as each citation’s `section`. These adaptations retain the MIT license and notice above.
 
 ## TypeScript Handbook: Do’s and Don’ts
 
@@ -24,7 +24,9 @@ The 50 catalogue entries with `source: "community"` adapt the source’s practic
 - Upstream license: https://github.com/microsoft/TypeScript-Website/blob/v2/LICENSE
 - Full license: [licenses/typescript-website-CC-BY-4.0.txt](licenses/typescript-website-CC-BY-4.0.txt)
 
-The 9 catalogue entries with `source: "handbook"` adapt the handbook’s declaration-file guidance. The prose has been condensed and rewritten, original examples replace the source examples, and scope and caveat fields clarify where the guidance applies. These adapted records are distributed under CC BY 4.0. Keep the attribution, source and license links, and this modification notice with copies or further adaptations.
+The 9 catalogue entries whose citations include `sourceId: "handbook"` and `role: "origin"` adapt the handbook’s declaration-file guidance. The prose has been condensed and rewritten, original examples replace the source examples, and structured applicability and notes clarify where the guidance applies. These adapted records are distributed under CC BY 4.0. Keep the attribution, source and license links, and this modification notice with copies or further adaptations.
+
+Supporting citations connect overlapping advice without changing which source supplied an entry’s adaptation. The `avoid-any` and `unknown-over-any` entries retain their separate IDs and originating licenses while citing each other’s source sections for support. Determine origin counts and the classifications above using citations with `role: "origin"`, rather than all appearances of a source.
 
 This project is an independent reference. The source authors do not endorse it.
 
@@ -40,4 +42,12 @@ The catalogue covers all 50 community practices and all 9 actionable handbook su
 - Module scripts defer by default; classic scripts can use `defer` or `async` according to their ordering requirements: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/script
 - Performance recommendations are treated as measurement decisions, rather than universal claims about native APIs, libraries, or loop syntax.
 
-The catalogue’s original good/bad examples are illustrative fragments. They may depend on the surrounding context named in the example; they are not a complete application or a static analyzer.
+## Structured catalogue
+
+Schema version 2 preserves all 59 practice IDs. It adds machine-readable contexts, environments, conditions, exceptions, citations, note types, example languages and variants, and typed relations with reasons. Categories use stable machine IDs with separate display labels. `runtime-independent` means a recommendation does not depend on a browser or Node-specific API; a browser-only example does not by itself limit a general recommendation to the browser.
+
+Notes distinguish source exceptions, historical context, and editorial corrections. References in editorial notes identify supporting documentation where available; an editorial placement or style preference does not imply an upstream endorsement. Editorial references were checked during the schema migration on 2026-11-26. The two originating source snapshots and their original checked date, 2026-11-25, remain unchanged.
+
+Examples are original illustrative fragments and have `verification.status: "illustrative"`. Their explanations record relevant surrounding context, API assumptions, and cases where both variants may be valid. No compiler version, successful compilation, benchmark result, or runtime execution is implied by that status.
+
+Full upstream license texts are also included in [data/license-notices.json](data/license-notices.json) for offline exports. Each notice identifies its source and license. A copy of the catalogue should carry both its source metadata and the complete applicable notices, even when there is no network access to follow a source link.

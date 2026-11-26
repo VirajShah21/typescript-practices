@@ -1,56 +1,99 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { BookOpen, Braces, ChevronDown, Code2, ExternalLink, FileCode2, Info, Layers, ListFilter, Menu, Plug, Search, SlidersHorizontal, X } from "lucide-react";
+import { BookOpen, Braces, ChevronDown, Code2, Download, ExternalLink, FileCode2, Info, Layers, ListFilter, Menu, Plug, Search, SlidersHorizontal, X } from "lucide-react";
+import type { Practice, Source } from "../../lib/models.ts";
+import { categories, contexts, environments } from "../../lib/taxonomy.ts";
+import { searchCatalogue } from "../../lib/search.ts";
+import { PUBLIC_API_URL, REFERENCE_SITE_URL } from "../../lib/config.ts";
 import { CodeBlock, CopyButton, Github } from "./primitives";
 import Integrations from "./integrations";
 import Sources from "./sources";
+import "./reference.css";
 
-type Practice = {
-  id: string; title: string; summary: string; explanation: string; category: string;
-  source: string; sourceUrl: string; sourceTitle: string; scope: string; tags: string[];
-  caveat?: string; bad?: string; good?: string; related: string[];
-};
-type Source = { id: string; title: string; author: string; url: string; license: string; licenseUrl: string; revision: string; checkedAt: string };
 type View = "reference" | "integrations" | "sources";
-const categories = ["Types", "Functions", "Code structure", "Runtime", "Tooling", "Declarations"];
-const categoryIcons = [Braces, Code2, Layers, SlidersHorizontal, ListFilter, FileCode2];
-const SITE_URL = "https://typescript-practices-reference.shahvirajd.chatgpt.site";
-const REPO_URL = "https://github.com/VirajShah21/typescript-practices";
-const sourceName = (id: string) => id === "handbook" ? "TypeScript Handbook" : "Community guide";
+type Metadata = { schemaVersion: string; datasetVersion: string; practiceCount: number; sourceCount: number };
+type Filters = {
+  q: string;
+  category: "" | Practice["category"];
+  source: "" | Source["id"];
+  context: "" | Practice["applicability"]["contexts"][number];
+  environment: "" | Practice["applicability"]["environments"][number];
+  tag: string;
+};
 
-function filterPractices(practices: Practice[], query: string, category: string, source: string) {
-  const terms = query.toLowerCase().trim().split(/\s+/).filter(Boolean);
-  return practices.filter(practice =>
-    (category === "All practices" || practice.category === category) &&
-    (source === "all" || practice.source === source) &&
-    terms.every(term => `${practice.id} ${practice.sourceTitle} ${practice.title} ${practice.summary} ${practice.explanation} ${practice.tags.join(" ")} ${practice.caveat || ""}`.toLowerCase().includes(term))
-  );
+const REPO_URL = "https://github.com/VirajShah21/typescript-practices";
+const categoryIcons = [Braces, Code2, Layers, SlidersHorizontal, ListFilter, FileCode2];
+const emptyFilters: Filters = { q: "", category: "", source: "", context: "", environment: "", tag: "" };
+const noteLabels = { "editorial-correction": "Editorial correction", exception: "Exception", "historical-context": "Historical context" };
+const variantLabels = { avoid: "Avoid", prefer: "Prefer", alternative: "Alternative", tradeoff: "Tradeoff" };
+const relationLabels = { related: "Related", complements: "Complements", alternative: "Alternative", prerequisite: "Prerequisite" };
+
+function labelFor(items: readonly { id: string; label: string }[], id: string) {
+  return items.find(item => item.id === id)?.label || id;
 }
 
-function updateUrl(view: View, id: string, query = "", category = "All practices", source = "all", push = false) {
+function readFilters(params: URLSearchParams, sources: Source[]): Filters {
+  const category = params.get("category") || "";
+  const source = params.get("source") || "";
+  const context = params.get("context") || "";
+  const environment = params.get("environment") || "";
+  return {
+    q: (params.get("q") || "").slice(0, 300),
+    category: categories.some(item => item.id === category) ? category as Filters["category"] : "",
+    source: sources.some(item => item.id === source) ? source as Filters["source"] : "",
+    context: contexts.some(item => item.id === context) ? context as Filters["context"] : "",
+    environment: environments.some(item => item.id === environment) ? environment as Filters["environment"] : "",
+    tag: params.get("tag") || "",
+  };
+}
+
+function findMatches(practices: Practice[], filters: Filters) {
+  return searchCatalogue(practices, {
+    q: filters.q,
+    category: filters.category || undefined,
+    source: filters.source || undefined,
+    context: filters.context || undefined,
+    environment: filters.environment || undefined,
+    tag: filters.tag || undefined,
+    limit: 100,
+  });
+}
+
+function updateUrl(view: View, id: string, filters: Filters, push = false) {
   const params = new URLSearchParams();
   if (view !== "reference") params.set("view", view);
   else {
     if (id) params.set("practice", id);
-    if (query) params.set("q", query);
-    if (category !== "All practices") params.set("topic", category);
-    if (source !== "all") params.set("source", source);
+    for (const [key, value] of Object.entries(filters)) if (value) params.set(key, value);
   }
   const url = params.size ? `?${params}` : "/";
-  if (push && `${location.search}${location.hash}` !== url) history.pushState(null, "", url);
+  if (push && location.search !== url) history.pushState(null, "", url);
   else history.replaceState(null, "", url);
 }
 
-export default function Reference({ practices, sources, initialView = "reference", initialPractice = "" }: { practices: Practice[]; sources: Source[]; initialView?: View; initialPractice?: string }) {
+export default function Reference({
+  practices,
+  sources,
+  metadata,
+  initialView = "reference",
+  initialPractice = "",
+  initialFilters = {},
+}: {
+  practices: Practice[];
+  sources: Source[];
+  metadata: Metadata;
+  initialView?: View;
+  initialPractice?: string;
+  initialFilters?: Record<string, string>;
+}) {
   const [view, setView] = useState<View>(initialView);
-  const [origin, setOrigin] = useState(SITE_URL);
-  const [query, setQuery] = useState("");
-  const [category, setCategory] = useState("All practices");
-  const [source, setSource] = useState("all");
+  const [origin, setOrigin] = useState(REFERENCE_SITE_URL);
+  const [filters, setFilters] = useState<Filters>(() => readFilters(new URLSearchParams(initialFilters), sources));
   const [selectedId, setSelectedId] = useState(initialPractice && practices.some(item => item.id === initialPractice) ? initialPractice : "raw-javascript-is-faster");
   const [mobileMenu, setMobileMenu] = useState(false);
   const [mobileReader, setMobileReader] = useState(Boolean(initialPractice));
+  const [expandedFilters, setExpandedFilters] = useState(Boolean(initialFilters.context || initialFilters.environment || initialFilters.tag));
   const searchRef = useRef<HTMLInputElement>(null);
   const readerRef = useRef<HTMLElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
@@ -63,20 +106,15 @@ export default function Reference({ practices, sources, initialView = "reference
     setOrigin(location.origin);
     function restoreUrl() {
       const params = new URLSearchParams(location.search);
-      const tab = params.get("view");
-      const nextView = tab === "integrations" || tab === "sources" ? tab : "reference";
-      const nextQuery = params.get("q") || "";
-      const topic = params.get("topic");
-      const nextCategory = topic && categories.includes(topic) ? topic : "All practices";
-      const sourceId = params.get("source");
-      const nextSource = sourceId === "community" || sourceId === "handbook" ? sourceId : "all";
+      const requestedView = params.get("view");
+      const nextView = requestedView === "integrations" || requestedView === "sources" ? requestedView : "reference";
+      const nextFilters = readFilters(params, sources);
       const nextId = params.get("practice") || "raw-javascript-is-faster";
-      const matches = filterPractices(practices, nextQuery, nextCategory, nextSource);
+      const matches = findMatches(practices, nextFilters).matches;
       setView(nextView);
-      setQuery(nextQuery);
-      setCategory(nextCategory);
-      setSource(nextSource);
-      setSelectedId(matches.find(item => item.id === nextId)?.id || matches[0]?.id || nextId);
+      setFilters(nextFilters);
+      setSelectedId(matches.find(item => item.practice.id === nextId)?.practice.id || matches[0]?.practice.id || nextId);
+      setExpandedFilters(Boolean(nextFilters.context || nextFilters.environment || nextFilters.tag));
       setMobileReader(params.has("practice"));
       setMobileMenu(false);
     }
@@ -98,20 +136,24 @@ export default function Reference({ practices, sources, initialView = "reference
       window.removeEventListener("popstate", restoreUrl);
       document.removeEventListener("keydown", handleKeyboard);
     };
-  }, [practices]);
+  }, [practices, sources]);
 
   useEffect(() => {
     if (view === "reference" && requestSearchFocus.current) {
       searchRef.current?.focus();
-      updateUrl("reference", selectedId, query, category, source);
+      updateUrl("reference", selectedId, filters);
       requestSearchFocus.current = false;
     }
   }, [view]);
 
-  const filtered = filterPractices(practices, query, category, source);
-  const selected = practices.find(practice => practice.id === selectedId) || practices[0];
+  const search = findMatches(practices, filters);
+  const selected = search.matches.find(item => item.practice.id === selectedId)?.practice || search.matches[0]?.practice || practices[0];
+  const tags = [...new Set(practices.flatMap(practice => practice.tags))].sort();
+  const activeFilterCount = [filters.context, filters.environment, filters.tag].filter(Boolean).length;
+  const categoryLabel = filters.category ? labelFor(categories, filters.category) : "All practices";
 
   useEffect(() => {
+    if (!selected) return;
     const list = listRef.current;
     const item = list?.querySelector<HTMLButtonElement>(`[data-practice="${selected.id}"]`);
     if (list && item && !matchMedia("(max-width: 760px)").matches) {
@@ -124,29 +166,27 @@ export default function Reference({ practices, sources, initialView = "reference
       if (matchMedia("(max-width: 760px)").matches) readerRef.current?.scrollIntoView({ block: "start" });
       requestReaderFocus.current = false;
     }
-  }, [selected.id, view, mobileReader]);
+  }, [selected?.id, view, mobileReader]);
 
-  function changeFilters(nextQuery: string, nextCategory: string, nextSource: string) {
-    const matches = filterPractices(practices, nextQuery, nextCategory, nextSource);
-    const id = matches.find(item => item.id === selectedId)?.id || matches[0]?.id || selectedId;
-    setQuery(nextQuery);
-    setCategory(nextCategory);
-    setSource(nextSource);
+  function changeFilters(next: Filters) {
+    const matches = findMatches(practices, next).matches;
+    const id = matches.find(item => item.practice.id === selectedId)?.practice.id || matches[0]?.practice.id || selectedId;
+    setFilters(next);
     setSelectedId(id);
     setMobileReader(false);
     setView("reference");
-    updateUrl("reference", id, nextQuery, nextCategory, nextSource);
+    updateUrl("reference", id, next);
   }
 
   function openPractice(id: string) {
-    const keepFilters = filtered.some(item => item.id === id);
-    if (!keepFilters) { setQuery(""); setCategory("All practices"); setSource("all"); }
+    const nextFilters = search.matches.some(item => item.practice.id === id) ? filters : emptyFilters;
+    if (nextFilters !== filters) setFilters(nextFilters);
     lastResultId.current = id;
     requestReaderFocus.current = true;
     setSelectedId(id);
     setMobileReader(true);
     setView("reference");
-    updateUrl("reference", id, keepFilters ? query : "", keepFilters ? category : "All practices", keepFilters ? source : "all", true);
+    updateUrl("reference", id, nextFilters, true);
   }
 
   function backToResults() {
@@ -161,7 +201,7 @@ export default function Reference({ practices, sources, initialView = "reference
   function navigate(next: View) {
     setView(next);
     setMobileMenu(false);
-    updateUrl(next, selectedId, query, category, source, true);
+    updateUrl(next, selectedId, filters, true);
     if (next !== "reference") window.scrollTo({ top: 0 });
   }
 
@@ -185,11 +225,11 @@ export default function Reference({ practices, sources, initialView = "reference
           {mobileMenu ? <button className="menu-backdrop" aria-label="Close topics" onClick={() => setMobileMenu(false)} /> : null}
           <aside className={`sidebar ${mobileMenu ? "is-open" : ""}`} aria-label="Topics">
             <div className="sidebar-heading">Library</div>
-            <button className={`category-button ${category === "All practices" ? "selected" : ""}`} onClick={() => { changeFilters(query, "All practices", source); setMobileMenu(false); }}><BookOpen size={17} /><span>All practices</span><span className="count">{practices.length}</span></button>
+            <button className={`category-button ${!filters.category ? "selected" : ""}`} onClick={() => { changeFilters({ ...filters, category: "" }); setMobileMenu(false); }}><BookOpen size={17} /><span>All practices</span><span className="count">{practices.length}</span></button>
             <div className="sidebar-heading topic-heading">Topics</div>
-            {categories.map((name, index) => {
+            {categories.map(({ id, label }, index) => {
               const Icon = categoryIcons[index];
-              return <button key={name} className={`category-button ${category === name ? "selected" : ""}`} onClick={() => { changeFilters(query, name, source); setMobileMenu(false); }}><Icon size={17} /><span>{name}</span><span className="count">{practices.filter(practice => practice.category === name).length}</span></button>;
+              return <button key={id} className={`category-button ${filters.category === id ? "selected" : ""}`} onClick={() => { changeFilters({ ...filters, category: id }); setMobileMenu(false); }}><Icon size={17} /><span>{label}</span><span className="count">{practices.filter(practice => practice.category === id).length}</span></button>;
             })}
             <div className="sidebar-bottom">
               <div className="connection-note"><span className="connection-icon"><Plug size={19} /></span><strong>In your workflow</strong><p>Reference the same guidance from your editor or agent.</p><button onClick={() => navigate("integrations")}>Connect your tools</button></div>
@@ -204,38 +244,52 @@ export default function Reference({ practices, sources, initialView = "reference
               <div className="intro-source"><div className="source-symbols"><span>TS</span><Github size={18} /></div><span>Community guide<br />& TypeScript Handbook</span></div>
             </section>
             <div className="search-toolbar">
-              <div className="search-field"><Search size={19} /><input ref={searchRef} type="search" aria-label="Search practices" placeholder="Search practices, types, or patterns" value={query} onChange={event => changeFilters(event.target.value, category, source)} /><kbd>/</kbd></div>
-              <div className="source-filter"><ListFilter size={16} /><select aria-label="Filter by source" value={source} onChange={event => changeFilters(query, "All practices", event.target.value)}><option value="all">All sources</option><option value="community">Community guide</option><option value="handbook">TypeScript Handbook</option></select><ChevronDown size={14} /></div>
+              <div className="search-field"><Search size={19} /><input ref={searchRef} type="search" aria-label="Search practices" placeholder="Search practices, types, or patterns" value={filters.q} maxLength={300} onChange={event => changeFilters({ ...filters, q: event.target.value })} /><kbd>/</kbd></div>
+              <div className="source-filter"><ListFilter size={16} /><select aria-label="Filter by source" value={filters.source} onChange={event => changeFilters({ ...filters, source: event.target.value as Filters["source"] })}><option value="">All sources</option>{sources.map(source => <option key={source.id} value={source.id}>{source.title}</option>)}</select><ChevronDown size={14} /></div>
+              <button className={`reference-filter-toggle ${expandedFilters ? "is-active" : ""}`} aria-expanded={expandedFilters} aria-controls="reference-extra-filters" onClick={() => setExpandedFilters(!expandedFilters)}><SlidersHorizontal size={16} />Filters{activeFilterCount ? <span>{activeFilterCount}</span> : null}</button>
             </div>
+            {expandedFilters ? <div className="reference-extra-filters" id="reference-extra-filters">
+              <label>Context<div><select aria-label="Context" value={filters.context} onChange={event => changeFilters({ ...filters, context: event.target.value as Filters["context"] })}><option value="">All contexts</option>{contexts.map(item => <option value={item.id} key={item.id}>{item.label}</option>)}</select><ChevronDown size={14} /></div></label>
+              <label>Environment<div><select aria-label="Environment" value={filters.environment} onChange={event => changeFilters({ ...filters, environment: event.target.value as Filters["environment"] })}><option value="">All environments</option>{environments.map(item => <option value={item.id} key={item.id}>{item.label}</option>)}</select><ChevronDown size={14} /></div></label>
+              <label>Tag<div><select aria-label="Tag" value={filters.tag} onChange={event => changeFilters({ ...filters, tag: event.target.value })}><option value="">All tags</option>{tags.map(tag => <option value={tag} key={tag}>{tag}</option>)}</select><ChevronDown size={14} /></div></label>
+              {activeFilterCount ? <button onClick={() => changeFilters({ ...filters, context: "", environment: "", tag: "" })}>Reset filters</button> : null}
+            </div> : null}
             <div className={`reference-grid ${mobileReader ? "show-reader" : ""}`}>
               <section className="results-pane" aria-label="Practices">
-                <div className="results-heading"><span>{category}</span><span aria-live="polite">{filtered.length} results</span></div>
+                <div className="results-heading"><span>{categoryLabel}</span><span aria-live="polite">{search.total} {search.total === 1 ? "result" : "results"}</span></div>
                 <div className="practice-list" ref={listRef}>
-                  {filtered.length ? filtered.map(practice => (
-                    <button key={practice.id} data-practice={practice.id} className={`practice-item ${selected.id === practice.id ? "current" : ""}`} onClick={() => openPractice(practice.id)} aria-pressed={selected.id === practice.id}>
-                      <span className="item-title">{practice.title}</span><span className="item-summary">{practice.summary}</span>
-                      <span className={`source-tag ${practice.source}`}>{practice.source === "handbook" ? <FileCode2 size={12} /> : <Github size={12} />}{sourceName(practice.source)}</span>
-                    </button>
-                  )) : <div className="empty-results"><Search size={27} /><h2>No practices found</h2><p>Try another phrase or clear the filters.</p><button className="primary-button" onClick={() => changeFilters("", "All practices", "all")}>Clear filters</button></div>}
+                  {search.matches.length ? search.matches.map(({ practice, match }) => {
+                    const originCitation = practice.citations.find(citation => citation.role === "origin");
+                    const source = sources.find(item => item.id === originCitation?.sourceId);
+                    return <button key={practice.id} data-practice={practice.id} className={`practice-item ${selected?.id === practice.id ? "current" : ""}`} onClick={() => openPractice(practice.id)} aria-pressed={selected?.id === practice.id}>
+                      <span className="item-title">{practice.title}</span><span className="item-summary">{filters.q && match.snippet ? match.snippet : practice.summary}</span>
+                      <span className={`source-tag ${source?.id}`}>{source?.id === "handbook" ? <FileCode2 size={12} /> : <Github size={12} />}{source?.id === "handbook" ? "TypeScript Handbook" : "Community guide"}</span>
+                    </button>;
+                  }) : <div className="empty-results"><Search size={27} /><h2>No practices found</h2><p>Try another phrase or clear the filters.</p><button className="primary-button" onClick={() => changeFilters(emptyFilters)}>Clear filters</button></div>}
                 </div>
               </section>
-              {filtered.length ? <article className="reader-pane" ref={readerRef} key={selected.id} aria-label={selected.title}>
+              {search.matches.length && selected ? <article className="reader-pane" ref={readerRef} key={selected.id} aria-label={selected.title}>
                 <button className="back-button" onClick={backToResults}>Back to results</button>
-                <div className="reader-meta"><span>{selected.category}</span><span className={`source-tag ${selected.source}`}>{sourceName(selected.source)}</span></div>
+                <div className="reader-meta"><span>{labelFor(categories, selected.category)}</span><span>{selected.citations.map(citation => citation.sourceId === "handbook" ? "TypeScript Handbook" : "Community guide").filter((name, index, names) => names.indexOf(name) === index).join(" + ")}</span></div>
                 <h2 ref={headingRef} tabIndex={-1}>{selected.title}</h2><p className="reader-summary">{selected.summary}</p>
-                <div className="scope-line"><FileCode2 size={15} /><span>{selected.scope}</span></div>
+                <div className="reference-applicability"><span>Applies to</span><div>{selected.applicability.contexts.map(id => <span key={id}>{labelFor(contexts, id)}</span>)}{selected.applicability.environments.map(id => <span className="environment-chip" key={id}>{labelFor(environments, id)}</span>)}</div></div>
                 <p className="explanation">{selected.explanation}</p>
-                {selected.caveat ? <aside className="context-note"><Info size={17} /><div><strong>Keep in mind</strong><p>{selected.caveat}</p></div></aside> : null}
-                {selected.bad || selected.good ? <section className="example-section"><h3>In practice</h3>{selected.bad ? <CodeBlock code={selected.bad} label="Avoid" kind="bad" /> : null}{selected.good ? <CodeBlock code={selected.good} label="Prefer" kind="good" /> : null}</section> : null}
-                <section className="reader-source"><h3>Original source</h3><a href={selected.sourceUrl} target="_blank" rel="noreferrer">{selected.sourceTitle}<ExternalLink size={13} /></a><p>{sourceName(selected.source)}. Rewritten with context. <button onClick={() => navigate("sources")}>Attribution & licenses</button></p></section>
-                {selected.related.length ? <section className="related"><h3>Related practices</h3><div>{selected.related.map(id => {
-                  const practice = practices.find(item => item.id === id);
-                  return practice ? <button key={id} onClick={() => openPractice(id)}>{practice.title}</button> : null;
+                {selected.applicability.when.length || selected.applicability.exceptions.length ? <section className="reference-conditions"><h3>When to apply this</h3>{selected.applicability.when.length ? <ul>{selected.applicability.when.map(condition => <li key={condition}>{condition}</li>)}</ul> : null}{selected.applicability.exceptions.length ? <><h4>Exceptions</h4><ul>{selected.applicability.exceptions.map(exception => <li key={exception}>{exception}</li>)}</ul></> : null}</section> : null}
+                {selected.notes.map((note, index) => <aside className={`context-note reference-note ${note.kind}`} key={`${note.kind}-${index}`}><Info size={17} /><div><strong>{noteLabels[note.kind]}</strong><p>{note.text}</p>{note.references.length ? <div className="reference-note-links">{note.references.map(reference => <a key={reference.url} href={reference.url} target="_blank" rel="noreferrer">{reference.title}<ExternalLink size={12} /></a>)}</div> : null}</div></aside>)}
+                {selected.examples.length ? <section className="example-section"><h3>Examples</h3>{selected.examples.map(example => <div className="reference-example" key={example.id}><div className="reference-example-heading"><span>{example.language}</span><span>Illustrative example</span></div>{example.variants.map(variant => <CodeBlock key={variant.role} code={variant.code} label={variantLabels[variant.role]} kind={variant.role === "avoid" ? "bad" : variant.role === "prefer" ? "good" : undefined} />)}<p>{example.explanation}</p></div>)}</section> : null}
+                <section className="reader-source reference-citations"><h3>Sources & citations</h3>{selected.citations.map(citation => {
+                  const source = sources.find(item => item.id === citation.sourceId);
+                  return <div key={`${citation.sourceId}-${citation.url}`}><a href={citation.url} target="_blank" rel="noreferrer">{citation.section}<ExternalLink size={13} /></a><p>{source?.title}. {citation.role === "origin" ? "Original guidance" : "Supporting reference"}.{source ? <> <a href={source.licenseUrl} target="_blank" rel="noreferrer">{source.license}</a></> : null}</p></div>;
+                })}<button className="reference-attribution-link" onClick={() => navigate("sources")}>Attribution & license notices</button></section>
+                {selected.relations.length ? <section className="related reference-relations"><h3>Related practices</h3><div>{selected.relations.map(relation => {
+                  const practice = practices.find(item => item.id === relation.practiceId);
+                  return practice ? <button key={relation.practiceId} onClick={() => openPractice(relation.practiceId)}><span>{relationLabels[relation.kind]}</span><strong>{practice.title}</strong><span>{relation.reason}</span></button> : null;
                 })}</div></section> : null}
-                <div className="reader-footer"><a href={`/api/v1/practices/${selected.id}`} target="_blank" rel="noreferrer"><Braces size={15} />View JSON</a><CopyButton text={`${origin}/?practice=${selected.id}`} label="Copy link" /></div>
+                {selected.tags.length ? <div className="reference-tags" aria-label="Practice tags">{selected.tags.map(tag => <button key={tag} onClick={() => { changeFilters({ ...emptyFilters, tag }); setExpandedFilters(true); }}>{tag}</button>)}</div> : null}
+                <div className="reader-footer"><a href={`${PUBLIC_API_URL}/api/v1/practices/${selected.id}`} target="_blank" rel="noreferrer"><Braces size={15} />View JSON</a><a href={`${PUBLIC_API_URL}/api/v1/catalogue?format=markdown`}><Download size={14} />Download catalogue</a><CopyButton text={`${origin}/?practice=${selected.id}`} label="Copy link" /></div>
               </article> : <div className="reader-placeholder"><BookOpen size={32} /><p>Try another search or clear the filters.</p></div>}
             </div>
-          </> : view === "integrations" ? <Integrations origin={origin} /> : <Sources sources={sources} practices={practices} />}
+          </> : view === "integrations" ? <Integrations origin={origin} metadata={metadata} /> : <Sources sources={sources} practices={practices} metadata={metadata} />}
         </main>
       </div>
     </div>

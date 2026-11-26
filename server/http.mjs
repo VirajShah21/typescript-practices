@@ -1,7 +1,7 @@
 import { createServer } from 'node:http';
 import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
-import { handleApiRequest } from '../lib/api.ts';
+import { handleApiRequest, makeProblem } from '../lib/api.ts';
 import { handleMcpRequest } from '../lib/mcp.ts';
 
 const MAX_BODY_BYTES = 64 * 1024;
@@ -13,16 +13,16 @@ export function createHttpServer({ host = '127.0.0.1' } = {}) {
       const hostname = incoming.headers.host;
       if (!hostname || !/^(?:localhost|127\.0\.0\.1|\[::1\])(?::\d+)?$/i.test(hostname)) {
         if (host === '127.0.0.1' || host === 'localhost' || host === '::1') {
-          outgoing.writeHead(400, { 'Content-Type': 'application/json' });
-          outgoing.end(JSON.stringify({ error: 'Invalid Host header.' }));
+          outgoing.writeHead(400, { 'Content-Type': 'application/problem+json', 'Cache-Control': 'no-store' });
+          outgoing.end(JSON.stringify(makeProblem('http://127.0.0.1/', 400, 'invalid_host', 'Invalid Host header.')));
           return;
         }
       }
       const base = `http://${hostname || '127.0.0.1'}`;
       const url = new URL(incoming.url || '/', base);
       if (url.origin !== new URL(base).origin) {
-        outgoing.writeHead(400, { 'Content-Type': 'application/json' });
-        outgoing.end(JSON.stringify({ error: 'Use an origin-relative request target.' }));
+        outgoing.writeHead(400, { 'Content-Type': 'application/problem+json', 'Cache-Control': 'no-store' });
+        outgoing.end(JSON.stringify(makeProblem(base, 400, 'invalid_target', 'Use an origin-relative request target.')));
         return;
       }
       const body = await new Promise((resolveBody, rejectBody) => {
@@ -44,8 +44,8 @@ export function createHttpServer({ host = '127.0.0.1' } = {}) {
         incoming.on('error', rejectBody);
       });
       if (body === null) {
-        outgoing.writeHead(413, { 'Content-Type': 'application/json' });
-        outgoing.end(JSON.stringify({ error: 'Request body exceeds 64 KiB.' }));
+        outgoing.writeHead(413, { 'Content-Type': ['/mcp', '/api/mcp'].includes(url.pathname) ? 'application/json' : 'application/problem+json', 'Cache-Control': 'no-store' });
+        outgoing.end(JSON.stringify(['/mcp', '/api/mcp'].includes(url.pathname) ? { jsonrpc: '2.0', id: null, error: { code: -32000, message: 'Request body exceeds 64 KiB.' } } : makeProblem(url.href, 413, 'body_too_large', 'Request body exceeds 64 KiB.')));
         return;
       }
       const headers = new Headers();
@@ -58,15 +58,15 @@ export function createHttpServer({ host = '127.0.0.1' } = {}) {
         ...(body.length ? { body } : {}),
       });
       let response;
-      if (url.pathname === '/mcp') response = await handleMcpRequest(request);
-      else if (url.pathname.startsWith('/api/')) response = handleApiRequest(request);
-      else response = Response.json({ error: 'Not found. See /api/v1/openapi.json or use POST /mcp.' }, { status: 404 });
+      if (['/mcp', '/api/mcp'].includes(url.pathname)) response = await handleMcpRequest(request);
+      else if (url.pathname.startsWith('/api/')) response = await handleApiRequest(request);
+      else response = new Response(JSON.stringify(makeProblem(request, 404, 'not_found', 'See /api/v1/openapi.json or use POST /mcp.')), { status: 404, headers: { 'Content-Type': 'application/problem+json', 'Cache-Control': 'no-store' } });
       outgoing.writeHead(response.status, Object.fromEntries(response.headers));
       outgoing.end(Buffer.from(await response.arrayBuffer()));
     } catch (error) {
       console.error('Request failed:', error instanceof Error ? error.message : 'Unknown error');
-      if (!outgoing.headersSent) outgoing.writeHead(500, { 'Content-Type': 'application/json' });
-      outgoing.end(JSON.stringify({ error: 'Internal server error.' }));
+      if (!outgoing.headersSent) outgoing.writeHead(500, { 'Content-Type': 'application/problem+json', 'Cache-Control': 'no-store' });
+      outgoing.end(JSON.stringify(makeProblem('http://127.0.0.1/', 500, 'internal_error', 'The server could not complete this request.')));
     }
   });
 }

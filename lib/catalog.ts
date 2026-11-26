@@ -1,130 +1,120 @@
+import { sha256 } from "@noble/hashes/sha2.js";
+import { bytesToHex } from "@noble/hashes/utils.js";
 import practiceData from "../data/practices.json" with { type: "json" };
 import sourceData from "../data/sources.json" with { type: "json" };
+import noticeData from "../data/license-notices.json" with { type: "json" };
+import { LicenseNoticesSchema, PracticesSchema, SourcesSchema, SCHEMA_VERSION } from "./models.ts";
+import type { Practice } from "./models.ts";
+import { categories, contexts, environments } from "./taxonomy.ts";
+import { searchCatalogue } from "./search.ts";
+import type { SearchOptions } from "./search.ts";
+import { PUBLIC_API_URL, REFERENCE_SITE_URL } from "./config.ts";
+import { canonicalJson } from "./canonical-json.ts";
 
-export const categories = ["Types", "Functions", "Code structure", "Runtime", "Tooling", "Declarations"] as const;
-export const sourceIds = ["community", "handbook"] as const;
-export type Category = (typeof categories)[number];
-export type SourceId = (typeof sourceIds)[number];
-export interface Practice {
-  id: string;
-  title: string;
-  summary: string;
-  explanation: string;
-  category: Category;
-  source: SourceId;
-  sourceUrl: string;
-  sourceTitle: string;
-  scope: string;
-  tags: string[];
-  caveat?: string;
-  bad?: string;
-  good?: string;
-  related: string[];
-}
-export interface Source {
-  id: SourceId;
-  title: string;
-  author: string;
-  url: string;
-  license: string;
-  licenseUrl: string;
-  revision: string;
-  checkedAt: string;
-}
-export const practices = practiceData as Practice[];
-export const sources = sourceData as Source[];
-
-export class InputError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = "InputError";
+export const practices = PracticesSchema.parse(practiceData);
+export const sources = SourcesSchema.parse(sourceData);
+export const licenseNotices = LicenseNoticesSchema.parse(noticeData);
+const practiceIds = new Set(practices.map(practice => practice.id));
+const knownSources = new Set(sources.map(source => source.id));
+for (const practice of practices) {
+  if (!practice.citations.some(citation => citation.role === "origin")) throw new Error(`Practice ${practice.id} must identify its originating source.`);
+  for (const citation of practice.citations) {
+    if (!knownSources.has(citation.sourceId)) throw new Error(`Unknown source ${citation.sourceId} in ${practice.id}.`);
+  }
+  for (const relation of practice.relations) {
+    if (!practiceIds.has(relation.practiceId) || relation.practiceId === practice.id) throw new Error(`Invalid relation ${relation.practiceId} in ${practice.id}.`);
   }
 }
-
-export interface PracticeQuery {
-  q?: string;
-  category?: Category;
-  source?: SourceId;
-  limit?: number;
-  offset?: number;
+for (const source of sources) {
+  const notice = licenseNotices.find(item => item.sourceId === source.id);
+  if (!notice || notice.license !== source.license) throw new Error(`Source ${source.id} must include its full matching license notice.`);
 }
 
-const queryKeys = new Set(["q", "category", "source", "limit", "offset"]);
+const datasetVersion = `sha256:${bytesToHex(sha256(new TextEncoder().encode(canonicalJson({ schemaVersion: SCHEMA_VERSION, sources, practices, licenseNotices }))))}`;
+export const metadata = Object.freeze({ schemaVersion: SCHEMA_VERSION, datasetVersion, practiceCount: practices.length, sourceCount: sources.length });
+function meta() { return { schemaVersion: metadata.schemaVersion, datasetVersion: metadata.datasetVersion }; }
 
-export function parseQuery(input: Record<string, unknown>): Required<Pick<PracticeQuery, "q" | "limit" | "offset">> & PracticeQuery {
-  for (const key of Object.keys(input)) {
-    if (!queryKeys.has(key)) throw new InputError(`Unknown parameter: ${key}.`);
+export function referenceSiteOrigin(_origin = REFERENCE_SITE_URL): string {
+  // The standalone HTTP API does not serve article pages. Link every transport
+  // to the canonical reference rather than to its own API-only origin.
+  return REFERENCE_SITE_URL;
+}
+
+export function listPractices(options: SearchOptions = {}, origin = REFERENCE_SITE_URL) {
+  const result = searchCatalogue(practices, options);
+  const nextOffset = result.offset + result.matches.length;
+  return {
+    data: result.matches.map(({ practice, match }) => ({
+      id: practice.id, title: practice.title, summary: practice.summary, category: practice.category,
+      contexts: practice.applicability.contexts, environments: practice.applicability.environments,
+      sourceIds: [...new Set(practice.citations.map(citation => citation.sourceId))], tags: practice.tags,
+      match,
+      links: { self: `/api/v1/practices/${practice.id}`, page: `${referenceSiteOrigin(origin)}/?practice=${practice.id}` },
+    })),
+    meta: { ...meta(), total: result.total, limit: result.limit, offset: result.offset, hasMore: nextOffset < result.total, nextOffset: nextOffset < result.total ? nextOffset : null, query: result.query },
+  };
+}
+
+export function getPractice(id: string): Practice | undefined { return practices.find(practice => practice.id === id); }
+export function getPractices(ids: string[]) {
+  const data: Practice[] = [];
+  const missingIds: string[] = [];
+  for (const id of ids) {
+    const practice = getPractice(id);
+    if (practice) data.push(practice);
+    else missingIds.push(id);
   }
-  if (input.q !== undefined && typeof input.q !== "string") throw new InputError("q must be a string.");
-  const q = (input.q as string | undefined)?.trim() ?? "";
-  if (q.length > 300) throw new InputError("q must contain at most 300 characters.");
-  const category = input.category;
-  if (category !== undefined && !categories.includes(category as Category)) {
-    throw new InputError(`category must be one of: ${categories.join(", ")}.`);
-  }
-  const source = input.source;
-  if (source !== undefined && !sourceIds.includes(source as SourceId)) {
-    throw new InputError(`source must be one of: ${sourceIds.join(", ")}.`);
-  }
-  function integer(name: "limit" | "offset", fallback: number, min: number, max: number): number {
-    const value = input[name];
-    if (value === undefined) return fallback;
-    if (typeof value !== "number" || !Number.isInteger(value) || value < min || value > max) {
-      throw new InputError(`${name} must be an integer from ${min} to ${max}.`);
+  return { data, missingIds, meta: meta() };
+}
+export function listSources() { return { data: sources, meta: meta() }; }
+export function listTaxonomy() {
+  const tags = [...new Set(practices.flatMap(practice => practice.tags))].sort();
+  return {
+    data: {
+      categories: categories.map(item => ({ ...item, count: practices.filter(practice => practice.category === item.id).length })),
+      contexts: contexts.map(item => ({ ...item, count: practices.filter(practice => practice.applicability.contexts.includes(item.id)).length })),
+      environments: environments.map(item => ({ ...item, count: practices.filter(practice => practice.applicability.environments.includes(item.id)).length })),
+      tags: tags.map(id => ({ id, label: id, count: practices.filter(practice => practice.tags.includes(id)).length })),
+      sources: sources.map(source => ({ id: source.id, label: source.title, count: practices.filter(practice => practice.citations.some(citation => citation.sourceId === source.id)).length })),
+    },
+    meta: meta(),
+  };
+}
+export function getCatalogue() { return { ...meta(), sources, practices, licenseNotices }; }
+export function getCatalogueManifest(origin = PUBLIC_API_URL) {
+  const base = new URL(origin).origin;
+  return { ...metadata, links: { json: `${base}/api/v1/catalogue`, markdown: `${base}/api/v1/catalogue?format=markdown`, schema: `${base}/api/v1/schema.json`, openapi: `${base}/api/v1/openapi.json` } };
+}
+
+function label(items: readonly { id: string; label: string }[], id: string) { return items.find(item => item.id === id)?.label || id; }
+function fence(code: string, language = "") {
+  const longest = Math.max(2, ...[...code.matchAll(/`+/g)].map(match => match[0].length));
+  const marker = "`".repeat(longest + 1);
+  return `${marker}${language}\n${code}\n${marker}`;
+}
+export function catalogueMarkdown(): string {
+  const lines = ["# TypeScript Practices", "", `Schema version: ${metadata.schemaVersion}`, `Dataset version: ${metadata.datasetVersion}`, "", "This is a reviewed snapshot. Examples are illustrative fragments, not verified executable programs.", "", "## Sources", ""];
+  for (const source of sources) lines.push(`- [${source.title}](${source.url}), by ${source.author}. License: [${source.license}](${source.licenseUrl}). Revision: ${source.revision}. Source checked: ${source.checkedAt}.`);
+  for (const practice of practices) {
+    lines.push("", `## ${practice.title}`, "", `ID: ${practice.id}`, `Category: ${label(categories, practice.category)}`, "", practice.summary, "", practice.explanation, "", `Contexts: ${practice.applicability.contexts.map(id => label(contexts, id)).join(", ")}`, `Environments: ${practice.applicability.environments.map(id => label(environments, id)).join(", ")}`);
+    if (practice.applicability.when.length) lines.push("", "### Applies when", "", ...practice.applicability.when.map(text => `- ${text}`));
+    if (practice.applicability.exceptions.length) lines.push("", "### Exceptions", "", ...practice.applicability.exceptions.map(text => `- ${text}`));
+    for (const note of practice.notes) {
+      lines.push("", `### ${note.kind.replace(/-/g, " ")}`, "", note.text);
+      for (const reference of note.references) lines.push(`- [${reference.title}](${reference.url})`);
     }
-    return value;
+    for (const example of practice.examples) {
+      lines.push("", `### Example: ${example.id}`, "", example.explanation, "", "Verification: illustrative.");
+      for (const variant of example.variants) lines.push("", `**${variant.role}**`, "", fence(variant.code, example.language));
+    }
+    lines.push("", "### Citations", "");
+    for (const citation of practice.citations) {
+      const source = sources.find(item => item.id === citation.sourceId)!;
+      lines.push(`- [${citation.section}](${citation.url}) — ${source.title}; ${citation.role}; [${source.license}](${source.licenseUrl}).`);
+    }
+    if (practice.relations.length) lines.push("", "### Related practices", "", ...practice.relations.map(relation => `- ${relation.practiceId} (${relation.kind}): ${relation.reason}`));
   }
-  return {
-    q,
-    category: category as Category | undefined,
-    source: source as SourceId | undefined,
-    limit: integer("limit", 20, 1, 100),
-    offset: integer("offset", 0, 0, 100000),
-  };
-}
-
-export function parseUrlQuery(params: URLSearchParams): ReturnType<typeof parseQuery> {
-  const input: Record<string, unknown> = {};
-  for (const [key, value] of params) {
-    if (Object.hasOwn(input, key)) throw new InputError(`Parameter ${key} must appear only once.`);
-    input[key] = key === "limit" || key === "offset"
-      ? (/^\d+$/.test(value) ? Number(value) : Number.NaN)
-      : value;
-  }
-  return parseQuery(input);
-}
-
-function searchScore(practice: Practice, query: string): number {
-  if (!query) return 1;
-  const title = practice.title.toLocaleLowerCase("en");
-  const tags = practice.tags.join(" ").toLocaleLowerCase("en");
-  const text = [practice.id, title, practice.summary, practice.explanation, practice.category, practice.scope, practice.caveat ?? "", tags]
-    .join(" ").toLocaleLowerCase("en");
-  const terms = query.toLocaleLowerCase("en").split(/\s+/).filter(Boolean);
-  if (!terms.every((term) => text.includes(term))) return 0;
-  return (title.includes(query.toLocaleLowerCase("en")) ? 20 : 0)
-    + terms.reduce((score, term) => score + (title.includes(term) ? 5 : 0) + (tags.includes(term) ? 3 : 0), 1);
-}
-
-export function listPractices(input: PracticeQuery = {}) {
-  const query = parseQuery(input as Record<string, unknown>);
-  const matches = practices
-    .filter((practice) => (!query.category || practice.category === query.category) && (!query.source || practice.source === query.source))
-    .map((practice, index) => ({ practice, score: searchScore(practice, query.q), index }))
-    .filter((entry) => entry.score > 0)
-    .sort((a, b) => b.score - a.score || a.index - b.index);
-  return {
-    data: matches.slice(query.offset, query.offset + query.limit).map((entry) => entry.practice),
-    total: matches.length,
-    limit: query.limit,
-    offset: query.offset,
-  };
-}
-
-export function getPractice(id: string): Practice | undefined {
-  return practices.find((practice) => practice.id === id);
-}
-
-export function listCategories() {
-  return categories.map((name) => ({ name, count: practices.filter((practice) => practice.category === name).length }));
+  lines.push("", "## Redistribution and modifications", "", "Community-origin practices retain André de Sousa’s MIT notice. Handbook-origin practices are adapted under CC BY 4.0 and credited to Microsoft and TypeScript contributors. Changes include rewritten summaries and explanations, new examples, grouping, structured applicability, and editorial corrections. Supporting citations do not imply endorsement. Keep all source attribution, license notices, and modification details when redistributing.", "", "## Full license notices");
+  for (const notice of licenseNotices) lines.push("", `### ${notice.sourceId}: ${notice.license}`, "", fence(notice.text));
+  return `${lines.join("\n")}\n`;
 }

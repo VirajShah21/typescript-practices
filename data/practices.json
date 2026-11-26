@@ -4,1009 +4,3135 @@
     "title": "Agree on team conventions",
     "summary": "Use a shared formatter, lint rules, and review process.",
     "explanation": "Choose conventions that make the codebase consistent and easy to change. Automate routine formatting so reviews can focus on behavior, and revisit rules when the project needs change.",
-    "category": "Tooling",
-    "source": "community",
-    "sourceUrl": "https://github.com/andredesousa/typescript-best-practices#follow-conventions",
-    "sourceTitle": "Follow conventions",
-    "scope": "Application code",
+    "category": "tooling",
+    "applicability": {
+      "contexts": [
+        "application",
+        "declaration-file",
+        "public-api"
+      ],
+      "environments": [
+        "runtime-independent"
+      ],
+      "when": [
+        "A team needs consistent naming, formatting, and review conventions."
+      ],
+      "exceptions": []
+    },
     "tags": [
       "lint",
       "formatting",
       "review"
     ],
-    "related": [
-      "organize-imports",
-      "modularization"
+    "citations": [
+      {
+        "sourceId": "community",
+        "section": "Follow conventions",
+        "url": "https://github.com/andredesousa/typescript-best-practices#follow-conventions",
+        "role": "origin"
+      }
     ],
-    "bad": "// Different naming for the same concept\nconst user_id = 12;\nconst customerId = 18;",
-    "good": "// One naming convention across the module\nconst userId = 12;\nconst customerId = 18;"
+    "notes": [],
+    "examples": [
+      {
+        "id": "follow-conventions-example",
+        "language": "typescript",
+        "variants": [
+          {
+            "role": "avoid",
+            "code": "// Different naming for the same concept\nconst user_id = 12;\nconst customerId = 18;"
+          },
+          {
+            "role": "prefer",
+            "code": "// One naming convention across the module\nconst userId = 12;\nconst customerId = 18;"
+          }
+        ],
+        "explanation": "Illustrative naming comparison. Choose one convention for equivalent concepts and automate it in the project.",
+        "verification": {
+          "status": "illustrative"
+        }
+      }
+    ],
+    "relations": [
+      {
+        "practiceId": "organize-imports",
+        "kind": "complements",
+        "reason": "Import cleanup is a concrete convention that can be automated consistently."
+      },
+      {
+        "practiceId": "modularization",
+        "kind": "complements",
+        "reason": "Clear module boundaries make responsibilities and dependencies easier to maintain."
+      }
+    ]
   },
   {
     "id": "testing",
     "title": "Test important behavior",
     "summary": "Cover the behavior that users and other modules depend on.",
     "explanation": "Use tests to check expected results, important failure paths, and regressions. Match the level of testing to the change: a small pure function and an integration boundary need different checks.",
-    "category": "Tooling",
-    "source": "community",
-    "sourceUrl": "https://github.com/andredesousa/typescript-best-practices#testing",
-    "sourceTitle": "Testing",
-    "scope": "Application code",
+    "category": "tooling",
+    "applicability": {
+      "contexts": [
+        "application",
+        "public-api"
+      ],
+      "environments": [
+        "runtime-independent"
+      ],
+      "when": [
+        "Behavior, integrations, or failure paths need regression protection."
+      ],
+      "exceptions": []
+    },
     "tags": [
       "tests",
       "regressions",
       "quality"
     ],
-    "related": [
-      "pure-functions",
-      "handle-errors"
+    "citations": [
+      {
+        "sourceId": "community",
+        "section": "Testing",
+        "url": "https://github.com/andredesousa/typescript-best-practices#testing",
+        "role": "origin"
+      }
     ],
-    "caveat": "The source recommends tests for every new module. Test depth should reflect behavior and risk; a line-count target alone does not establish useful coverage."
+    "notes": [
+      {
+        "kind": "exception",
+        "text": "The source recommends tests for every new module. Test depth should reflect behavior and risk; a line-count target alone does not establish useful coverage.",
+        "references": []
+      }
+    ],
+    "examples": [],
+    "relations": [
+      {
+        "practiceId": "pure-functions",
+        "kind": "complements",
+        "reason": "Separating calculations from effects makes behavior easier to reason about and test."
+      },
+      {
+        "practiceId": "handle-errors",
+        "kind": "complements",
+        "reason": "Explicit failure handling keeps boundary assumptions from turning into silent errors."
+      }
+    ]
   },
   {
     "id": "strict-configuration",
     "title": "Enable strict checking",
     "summary": "Start with strict mode and choose additional checks deliberately.",
     "explanation": "Set strict in tsconfig.json to enable the strict checking family. Add noImplicitReturns, noUnusedLocals, and casing checks when they suit the project. Existing projects can tighten checks in stages.",
-    "category": "Tooling",
-    "source": "community",
-    "sourceUrl": "https://github.com/andredesousa/typescript-best-practices#strict-configuration",
-    "sourceTitle": "Strict configuration",
-    "scope": "Application code",
+    "category": "tooling",
+    "applicability": {
+      "contexts": [
+        "compiler-configuration"
+      ],
+      "environments": [
+        "runtime-independent"
+      ],
+      "when": [
+        "Creating or tightening a TypeScript compiler configuration."
+      ],
+      "exceptions": [
+        "An existing project may adopt stricter checks in stages instead of enabling every check at once."
+      ]
+    },
     "tags": [
       "tsconfig",
       "strict",
       "compiler"
     ],
-    "related": [
-      "avoid-any",
-      "validate-data"
+    "citations": [
+      {
+        "sourceId": "community",
+        "section": "Strict configuration",
+        "url": "https://github.com/andredesousa/typescript-best-practices#strict-configuration",
+        "role": "origin"
+      }
     ],
-    "caveat": "The source lists four strict options. The strict family has grown; check the compiler version rather than treating that list as complete. noImplicitReturns and noUnusedLocals are separate options.",
-    "bad": "{\n  \"compilerOptions\": { \"strict\": false }\n}",
-    "good": "{\n  \"compilerOptions\": {\n    \"strict\": true,\n    \"noImplicitReturns\": true,\n    \"noUnusedLocals\": true,\n    \"forceConsistentCasingInFileNames\": true\n  }\n}"
+    "notes": [
+      {
+        "kind": "historical-context",
+        "text": "The community source’s list of strict-family options reflects its older snapshot. The family can change with the compiler version; noImplicitReturns and noUnusedLocals remain separately selected checks.",
+        "references": [
+          {
+            "title": "TypeScript TSConfig: strict",
+            "url": "https://www.typescriptlang.org/tsconfig/strict.html"
+          }
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "id": "strict-configuration-example",
+        "language": "json",
+        "variants": [
+          {
+            "role": "avoid",
+            "code": "{\n  \"compilerOptions\": { \"strict\": false }\n}"
+          },
+          {
+            "role": "prefer",
+            "code": "{\n  \"compilerOptions\": {\n    \"strict\": true,\n    \"noImplicitReturns\": true,\n    \"noUnusedLocals\": true,\n    \"forceConsistentCasingInFileNames\": true\n  }\n}"
+          }
+        ],
+        "explanation": "Illustrative tsconfig.json fragments. Select strict mode and the additional project checks deliberately; this is not a complete compiler configuration.",
+        "verification": {
+          "status": "illustrative"
+        }
+      }
+    ],
+    "relations": [
+      {
+        "practiceId": "avoid-any",
+        "kind": "complements",
+        "reason": "Useful inferred types and deliberate annotations preserve checking without redundant declarations."
+      },
+      {
+        "practiceId": "validate-data",
+        "kind": "complements",
+        "reason": "Runtime validation establishes the shape of values before code relies on their declared types."
+      }
+    ]
   },
   {
     "id": "avoid-any",
     "title": "Keep type checking useful",
     "summary": "Avoid unnecessary any; use inference and explicit types where they help.",
     "explanation": "Let TypeScript infer straightforward local values. Add annotations at boundaries or where they clarify a contract. For untrusted or unspecified inputs, use unknown and narrow it before use.",
-    "category": "Types",
-    "source": "community",
-    "sourceUrl": "https://github.com/andredesousa/typescript-best-practices#avoid-any-type-everything",
-    "sourceTitle": "Avoid any. Type everything",
-    "scope": "Application code",
+    "category": "types",
+    "applicability": {
+      "contexts": [
+        "application",
+        "declaration-file",
+        "public-api"
+      ],
+      "environments": [
+        "runtime-independent"
+      ],
+      "when": [
+        "A value is typed as any or an API boundary needs an explicit contract."
+      ],
+      "exceptions": [
+        "An unmigrated boundary may temporarily use any during a deliberate JavaScript-to-TypeScript migration."
+      ]
+    },
     "tags": [
       "any",
       "unknown",
       "inference"
     ],
-    "related": [
-      "unknown-over-any",
-      "strict-configuration"
+    "citations": [
+      {
+        "sourceId": "community",
+        "section": "Avoid any. Type everything",
+        "url": "https://github.com/andredesousa/typescript-best-practices#avoid-any-type-everything",
+        "role": "origin"
+      },
+      {
+        "sourceId": "handbook",
+        "section": "any",
+        "url": "https://www.typescriptlang.org/docs/handbook/declaration-files/do-s-and-don-ts.html#any",
+        "role": "supports"
+      }
     ],
-    "caveat": "The source discourages inferred variable types. Type inference is an intended TypeScript feature; redundant annotations are not required for sound everyday code.",
-    "bad": "function label(value: any) {\n  return value.toUpperCase();\n}",
-    "good": "function label(value: unknown): string {\n  return typeof value === \"string\"\n    ? value.toUpperCase()\n    : \"Unknown\";\n}"
+    "notes": [
+      {
+        "kind": "editorial-correction",
+        "text": "The community source discourages inferred variable types. This reference instead recommends useful inference and explicit annotations at boundaries; redundant annotations are not required for ordinary inferred values.",
+        "references": [
+          {
+            "title": "TypeScript Handbook: Type annotations and inference",
+            "url": "https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#type-annotations-on-variables"
+          }
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "id": "avoid-any-example",
+        "language": "typescript",
+        "variants": [
+          {
+            "role": "avoid",
+            "code": "function label(value: any) {\n  return value.toUpperCase();\n}"
+          },
+          {
+            "role": "prefer",
+            "code": "function label(value: unknown): string {\n  return typeof value === \"string\"\n    ? value.toUpperCase()\n    : \"Unknown\";\n}"
+          }
+        ],
+        "explanation": "Illustrative TypeScript functions. The second function narrows an unknown input before calling a string method.",
+        "verification": {
+          "status": "illustrative"
+        }
+      }
+    ],
+    "relations": [
+      {
+        "practiceId": "unknown-over-any",
+        "kind": "related",
+        "reason": "These entries overlap on any and unknown while preserving project-inference and declaration-contract contexts from their different originating sources."
+      },
+      {
+        "practiceId": "strict-configuration",
+        "kind": "complements",
+        "reason": "Compiler checks expose implicit unchecked values and other contract mistakes."
+      }
+    ]
   },
   {
     "id": "string-unions",
     "title": "Describe fixed string choices",
     "summary": "Use a literal union when only a known set of strings is valid.",
     "explanation": "A union makes allowed values visible to callers and lets the compiler catch misspellings. Keep a plain string when the value is genuinely open-ended, such as user-entered text.",
-    "category": "Types",
-    "source": "community",
-    "sourceUrl": "https://github.com/andredesousa/typescript-best-practices#strings-should-be-safe",
-    "sourceTitle": "Strings should be safe",
-    "scope": "Application code",
+    "category": "types",
+    "applicability": {
+      "contexts": [
+        "application",
+        "declaration-file",
+        "public-api"
+      ],
+      "environments": [
+        "runtime-independent"
+      ],
+      "when": [
+        "A string has a finite set of valid domain values."
+      ],
+      "exceptions": [
+        "Use string when the allowed values are genuinely open-ended, such as user-entered text."
+      ]
+    },
     "tags": [
       "unions",
       "strings",
       "domain-modeling"
     ],
-    "related": [
-      "union-overloads",
-      "meaningful-names"
+    "citations": [
+      {
+        "sourceId": "community",
+        "section": "Strings should be safe",
+        "url": "https://github.com/andredesousa/typescript-best-practices#strings-should-be-safe",
+        "role": "origin"
+      }
     ],
-    "bad": "type Job = { status: string };\nconst job: Job = { status: \"finshed\" };",
-    "good": "type JobStatus = \"queued\" | \"running\" | \"finished\";\ntype Job = { status: JobStatus };\nconst job: Job = { status: \"finished\" };"
+    "notes": [],
+    "examples": [
+      {
+        "id": "string-unions-example",
+        "language": "typescript",
+        "variants": [
+          {
+            "role": "avoid",
+            "code": "type Job = { status: string };\nconst job: Job = { status: \"finshed\" };"
+          },
+          {
+            "role": "prefer",
+            "code": "type JobStatus = \"queued\" | \"running\" | \"finished\";\ntype Job = { status: JobStatus };\nconst job: Job = { status: \"finished\" };"
+          }
+        ],
+        "explanation": "Illustrative TypeScript domain types. A fixed set of status strings catches misspellings at the type boundary.",
+        "verification": {
+          "status": "illustrative"
+        }
+      }
+    ],
+    "relations": [
+      {
+        "practiceId": "union-overloads",
+        "kind": "complements",
+        "reason": "Union parameters express accepted alternatives without redundant equivalent overloads."
+      },
+      {
+        "practiceId": "meaningful-names",
+        "kind": "complements",
+        "reason": "Domain names communicate why a value or operation exists."
+      }
+    ]
   },
   {
     "id": "meaningful-names",
     "title": "Name things by their purpose",
     "summary": "Choose names that explain the role of a value or function.",
     "explanation": "Use the language of the problem and keep names precise. A name should explain why the value exists without repeating the entire implementation or encoding a policy that may change.",
-    "category": "Code structure",
-    "source": "community",
-    "sourceUrl": "https://github.com/andredesousa/typescript-best-practices#call-things-by-their-name",
-    "sourceTitle": "Call things by their name",
-    "scope": "Application code",
+    "category": "code-structure",
+    "applicability": {
+      "contexts": [
+        "application",
+        "declaration-file",
+        "public-api"
+      ],
+      "environments": [
+        "runtime-independent"
+      ],
+      "when": [
+        "Choosing names for values, functions, and domain concepts."
+      ],
+      "exceptions": []
+    },
     "tags": [
       "naming",
       "readability"
     ],
-    "related": [
-      "boolean-names",
-      "magic-numbers"
+    "citations": [
+      {
+        "sourceId": "community",
+        "section": "Call things by their name",
+        "url": "https://github.com/andredesousa/typescript-best-practices#call-things-by-their-name",
+        "role": "origin"
+      }
     ],
-    "bad": "const d = 30;\nfunction chk(n: number) { return n >= d; }",
-    "good": "const retentionDays = 30;\nfunction isExpired(ageInDays: number) {\n  return ageInDays >= retentionDays;\n}"
+    "notes": [],
+    "examples": [
+      {
+        "id": "meaningful-names-example",
+        "language": "typescript",
+        "variants": [
+          {
+            "role": "avoid",
+            "code": "const d = 30;\nfunction chk(n: number) { return n >= d; }"
+          },
+          {
+            "role": "prefer",
+            "code": "const retentionDays = 30;\nfunction isExpired(ageInDays: number) {\n  return ageInDays >= retentionDays;\n}"
+          }
+        ],
+        "explanation": "Illustrative TypeScript declarations. Domain names explain the retention policy instead of hiding it behind abbreviations.",
+        "verification": {
+          "status": "illustrative"
+        }
+      }
+    ],
+    "relations": [
+      {
+        "practiceId": "boolean-names",
+        "kind": "complements",
+        "reason": "Question-shaped names clarify boolean conditions and options."
+      },
+      {
+        "practiceId": "magic-numbers",
+        "kind": "complements",
+        "reason": "Named constants explain the policy behind otherwise unexplained values."
+      }
+    ]
   },
   {
     "id": "utility-types",
     "title": "Reuse type transformations",
     "summary": "Use built-in utility types for common changes to a type.",
     "explanation": "Partial, Pick, Omit, and Readonly express relationships between types without manually duplicating their properties. Keep the resulting types readable and tied to the domain.",
-    "category": "Types",
-    "source": "community",
-    "sourceUrl": "https://github.com/andredesousa/typescript-best-practices#use-utility-types",
-    "sourceTitle": "Use utility types",
-    "scope": "Application code",
+    "category": "types",
+    "applicability": {
+      "contexts": [
+        "application",
+        "declaration-file",
+        "public-api"
+      ],
+      "environments": [
+        "runtime-independent"
+      ],
+      "when": [
+        "A type is a recognizable transformation of another type."
+      ],
+      "exceptions": [
+        "Use a separately named domain type when a transformation would hide a different contract."
+      ]
+    },
     "tags": [
       "utility-types",
       "readonly",
       "partial"
     ],
-    "related": [
-      "immutability",
-      "string-unions"
+    "citations": [
+      {
+        "sourceId": "community",
+        "section": "Use utility types",
+        "url": "https://github.com/andredesousa/typescript-best-practices#use-utility-types",
+        "role": "origin"
+      }
     ],
-    "caveat": "Readonly is a compile-time restriction and is shallow. It does not freeze an object or recursively make nested values immutable.",
-    "bad": "type Profile = { name: string; email: string };\ntype ProfileUpdate = { name?: string; email?: string };",
-    "good": "type Profile = { name: string; email: string };\ntype ProfileUpdate = Partial<Profile>;\ntype PublicProfile = Pick<Profile, \"name\">;"
+    "notes": [
+      {
+        "kind": "exception",
+        "text": "Readonly is a compile-time restriction and is shallow. It does not freeze an object or recursively make nested values immutable.",
+        "references": [
+          {
+            "title": "TypeScript Handbook: readonly properties",
+            "url": "https://www.typescriptlang.org/docs/handbook/2/objects.html#readonly-properties"
+          }
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "id": "utility-types-example",
+        "language": "typescript",
+        "variants": [
+          {
+            "role": "avoid",
+            "code": "type Profile = { name: string; email: string };\ntype ProfileUpdate = { name?: string; email?: string };"
+          },
+          {
+            "role": "prefer",
+            "code": "type Profile = { name: string; email: string };\ntype ProfileUpdate = Partial<Profile>;\ntype PublicProfile = Pick<Profile, \"name\">;"
+          }
+        ],
+        "explanation": "Illustrative TypeScript type declarations. Built-in utility types preserve their relationship to Profile.",
+        "verification": {
+          "status": "illustrative"
+        }
+      }
+    ],
+    "relations": [
+      {
+        "practiceId": "immutability",
+        "kind": "complements",
+        "reason": "Predictable state updates help calculations avoid surprising changes to shared data."
+      },
+      {
+        "practiceId": "string-unions",
+        "kind": "complements",
+        "reason": "A closed set of string values expresses a more specific domain contract."
+      }
+    ]
   },
   {
     "id": "const-and-let",
     "title": "Use const and let",
     "summary": "Prefer const for bindings you will not reassign, and let when reassignment is needed.",
     "explanation": "Block-scoped declarations make a value’s lifetime easier to follow. A const binding cannot be reassigned, while the contents of an object referenced by that binding can still change.",
-    "category": "Code structure",
-    "source": "community",
-    "sourceUrl": "https://github.com/andredesousa/typescript-best-practices#use-const-and-let",
-    "sourceTitle": "Use const and let",
-    "scope": "Application code",
+    "category": "code-structure",
+    "applicability": {
+      "contexts": [
+        "application"
+      ],
+      "environments": [
+        "runtime-independent"
+      ],
+      "when": [
+        "Declaring local JavaScript or TypeScript bindings."
+      ],
+      "exceptions": []
+    },
     "tags": [
       "scope",
       "const",
       "let"
     ],
-    "related": [
-      "initialize-variables",
-      "avoid-globals"
+    "citations": [
+      {
+        "sourceId": "community",
+        "section": "Use const and let",
+        "url": "https://github.com/andredesousa/typescript-best-practices#use-const-and-let",
+        "role": "origin"
+      }
     ],
-    "bad": "var total = 0;\nfor (var index = 0; index < 3; index++) {\n  total += index;\n}",
-    "good": "let total = 0;\nfor (let index = 0; index < 3; index++) {\n  total += index;\n}\nconst result = total;"
+    "notes": [],
+    "examples": [
+      {
+        "id": "const-and-let-example",
+        "language": "javascript",
+        "variants": [
+          {
+            "role": "avoid",
+            "code": "var total = 0;\nfor (var index = 0; index < 3; index++) {\n  total += index;\n}"
+          },
+          {
+            "role": "prefer",
+            "code": "let total = 0;\nfor (let index = 0; index < 3; index++) {\n  total += index;\n}\nconst result = total;"
+          }
+        ],
+        "explanation": "Illustrative JavaScript bindings. The loop uses block scope, while result is never reassigned.",
+        "verification": {
+          "status": "illustrative"
+        }
+      }
+    ],
+    "relations": [
+      {
+        "practiceId": "initialize-variables",
+        "kind": "complements",
+        "reason": "Deliberate initialization complements choosing a clear declaration scope."
+      },
+      {
+        "practiceId": "avoid-globals",
+        "kind": "complements",
+        "reason": "Explicit dependencies reduce accidental coupling through shared global state."
+      }
+    ]
   },
   {
     "id": "strict-equality",
     "title": "Prefer strict equality",
     "summary": "Use === and !== for comparisons without implicit coercion.",
     "explanation": "Strict equality keeps comparisons easier to reason about because it does not convert unrelated operand types. If coercion is intentional, make the conversion visible and validate its result.",
-    "category": "Runtime",
-    "source": "community",
-    "sourceUrl": "https://github.com/andredesousa/typescript-best-practices#use--instead-of-",
-    "sourceTitle": "Use === instead of ==",
-    "scope": "Application code",
+    "category": "runtime",
+    "applicability": {
+      "contexts": [
+        "application"
+      ],
+      "environments": [
+        "runtime-independent"
+      ],
+      "when": [
+        "Comparing values without intentional implicit type conversion."
+      ],
+      "exceptions": []
+    },
     "tags": [
       "equality",
       "coercion",
       "operators"
     ],
-    "related": [
-      "validate-data"
+    "citations": [
+      {
+        "sourceId": "community",
+        "section": "Use === instead of ==",
+        "url": "https://github.com/andredesousa/typescript-best-practices#use--instead-of-",
+        "role": "origin"
+      }
     ],
-    "bad": "const input = \"0\";\nif (input == 0) {\n  console.log(\"Matched after coercion\");\n}",
-    "good": "const input = \"0\";\nif (input === \"0\") {\n  console.log(\"Matched a string\");\n}"
+    "notes": [],
+    "examples": [
+      {
+        "id": "strict-equality-example",
+        "language": "javascript",
+        "variants": [
+          {
+            "role": "avoid",
+            "code": "const input = \"0\";\nif (input == 0) {\n  console.log(\"Matched after coercion\");\n}"
+          },
+          {
+            "role": "prefer",
+            "code": "const input = \"0\";\nif (input === \"0\") {\n  console.log(\"Matched a string\");\n}"
+          }
+        ],
+        "explanation": "Illustrative JavaScript comparison. The first form coerces the string to compare it with a number; the second compares strings directly.",
+        "verification": {
+          "status": "illustrative"
+        }
+      }
+    ],
+    "relations": [
+      {
+        "practiceId": "validate-data",
+        "kind": "complements",
+        "reason": "Runtime validation establishes the shape of values before code relies on their declared types."
+      }
+    ]
   },
   {
     "id": "literal-syntax",
     "title": "Use clear literal syntax",
     "summary": "Prefer literals to unnecessary constructor calls.",
     "explanation": "Object, array, string, number, and boolean literals communicate the value directly. Use constructors when they provide behavior you need, such as building a regular expression from a dynamic pattern.",
-    "category": "Code structure",
-    "source": "community",
-    "sourceUrl": "https://github.com/andredesousa/typescript-best-practices#use-shortcut-notation-sparingly",
-    "sourceTitle": "Use shortcut notation sparingly",
-    "scope": "Application code",
+    "category": "code-structure",
+    "applicability": {
+      "contexts": [
+        "application"
+      ],
+      "environments": [
+        "runtime-independent"
+      ],
+      "when": [
+        "Creating ordinary object, array, or primitive values."
+      ],
+      "exceptions": [
+        "Use a constructor when it provides needed behavior, such as creating a regular expression from a dynamic pattern."
+      ]
+    },
     "tags": [
       "literals",
       "constructors",
       "readability"
     ],
-    "related": [
-      "primitive-types",
-      "clear-blocks"
+    "citations": [
+      {
+        "sourceId": "community",
+        "section": "Use shortcut notation sparingly",
+        "url": "https://github.com/andredesousa/typescript-best-practices#use-shortcut-notation-sparingly",
+        "role": "origin"
+      }
     ],
-    "bad": "const title = new String(\"Report\");\nconst rows = new Array();",
-    "good": "const title = \"Report\";\nconst rows: string[] = [];"
+    "notes": [],
+    "examples": [
+      {
+        "id": "literal-syntax-example",
+        "language": "typescript",
+        "variants": [
+          {
+            "role": "avoid",
+            "code": "const title = new String(\"Report\");\nconst rows = new Array();"
+          },
+          {
+            "role": "prefer",
+            "code": "const title = \"Report\";\nconst rows: string[] = [];"
+          }
+        ],
+        "explanation": "Illustrative TypeScript declarations. Prefer primitive and collection literals over unnecessary wrapper constructors.",
+        "verification": {
+          "status": "illustrative"
+        }
+      }
+    ],
+    "relations": [
+      {
+        "practiceId": "primitive-types",
+        "kind": "complements",
+        "reason": "Primitive type annotations describe ordinary values without boxed-object contracts."
+      },
+      {
+        "practiceId": "clear-blocks",
+        "kind": "complements",
+        "reason": "Consistent block boundaries make related control flow easier to inspect."
+      }
+    ]
   },
   {
     "id": "avoid-globals",
     "title": "Keep state out of the global scope",
     "summary": "Use modules and explicit dependencies instead of shared global variables.",
     "explanation": "Global state can couple unrelated code and create collisions. Export only the values a module needs to expose, and pass dependencies into code that uses them.",
-    "category": "Code structure",
-    "source": "community",
-    "sourceUrl": "https://github.com/andredesousa/typescript-best-practices#avoid-globals",
-    "sourceTitle": "Avoid globals",
-    "scope": "Application code",
+    "category": "code-structure",
+    "applicability": {
+      "contexts": [
+        "application"
+      ],
+      "environments": [
+        "runtime-independent"
+      ],
+      "when": [
+        "State or dependencies would otherwise be shared through the global scope."
+      ],
+      "exceptions": [
+        "A documented integration with a platform or external script may require an explicitly managed global value."
+      ]
+    },
     "tags": [
       "modules",
       "scope",
       "state"
     ],
-    "related": [
-      "modularization",
-      "side-effects"
+    "citations": [
+      {
+        "sourceId": "community",
+        "section": "Avoid globals",
+        "url": "https://github.com/andredesousa/typescript-best-practices#avoid-globals",
+        "role": "origin"
+      }
     ],
-    "caveat": "The source describes classic scripts sharing a global scope. ES modules have their own module scope, but explicitly attaching state to globalThis still creates shared global state.",
-    "bad": "globalThis.currentUser = { name: \"Alex\" };",
-    "good": "export type User = { name: string };\nexport function greeting(user: User): string {\n  return `Hello, ${user.name}`;\n}"
+    "notes": [
+      {
+        "kind": "exception",
+        "text": "The source describes classic scripts sharing a global scope. ES modules have their own module scope, but explicitly attaching state to globalThis still creates shared global state.",
+        "references": []
+      }
+    ],
+    "examples": [
+      {
+        "id": "avoid-globals-example",
+        "language": "typescript",
+        "variants": [
+          {
+            "role": "avoid",
+            "code": "globalThis.currentUser = { name: \"Alex\" };"
+          },
+          {
+            "role": "prefer",
+            "code": "export type User = { name: string };\nexport function greeting(user: User): string {\n  return `Hello, ${user.name}`;\n}"
+          }
+        ],
+        "explanation": "Illustrative TypeScript fragments. A declared User parameter makes the dependency visible instead of attaching an undeclared property to globalThis.",
+        "verification": {
+          "status": "illustrative"
+        }
+      }
+    ],
+    "relations": [
+      {
+        "practiceId": "modularization",
+        "kind": "complements",
+        "reason": "Clear module boundaries make responsibilities and dependencies easier to maintain."
+      },
+      {
+        "practiceId": "side-effects",
+        "kind": "complements",
+        "reason": "Naming effect boundaries makes changes to external or shared state visible."
+      }
+    ]
   },
   {
     "id": "separate-concerns",
     "title": "Separate responsibilities",
     "summary": "Organize code around responsibilities with clear boundaries.",
     "explanation": "Keep rendering, data access, and domain logic understandable and independently changeable. Choose file and component boundaries that suit the framework and the code’s behavior.",
-    "category": "Code structure",
-    "source": "community",
-    "sourceUrl": "https://github.com/andredesousa/typescript-best-practices#avoid-mixing-with-other-technologies",
-    "sourceTitle": "Avoid mixing with other technologies",
-    "scope": "Application code",
+    "category": "code-structure",
+    "applicability": {
+      "contexts": [
+        "application",
+        "public-api"
+      ],
+      "environments": [
+        "runtime-independent"
+      ],
+      "when": [
+        "Rendering, data access, and domain logic are becoming difficult to change independently."
+      ],
+      "exceptions": []
+    },
     "tags": [
       "architecture",
       "components",
       "separation"
     ],
-    "related": [
-      "modularization",
-      "small-functions"
+    "citations": [
+      {
+        "sourceId": "community",
+        "section": "Avoid mixing with other technologies",
+        "url": "https://github.com/andredesousa/typescript-best-practices#avoid-mixing-with-other-technologies",
+        "role": "origin"
+      }
     ],
-    "caveat": "The source treats mixing HTML, CSS, and JavaScript as dangerous. Colocation in a component is a valid design choice; responsibility boundaries matter more than separating file extensions."
+    "notes": [
+      {
+        "kind": "editorial-correction",
+        "text": "The community source warns against mixing HTML, CSS, and JavaScript in one file. This reference treats separation as a responsibility boundary: a component may intentionally colocate those technologies.",
+        "references": []
+      }
+    ],
+    "examples": [],
+    "relations": [
+      {
+        "practiceId": "modularization",
+        "kind": "complements",
+        "reason": "Clear module boundaries make responsibilities and dependencies easier to maintain."
+      },
+      {
+        "practiceId": "small-functions",
+        "kind": "complements",
+        "reason": "Focused helpers give a name and boundary to independently meaningful behavior."
+      }
+    ]
   },
   {
     "id": "reduce-nesting",
     "title": "Keep control flow easy to follow",
     "summary": "Use early returns and small helpers to reduce deep nesting.",
     "explanation": "Handle exceptional or empty cases near the start, then leave the main path clear. Extract a helper when it gives a meaningful name to a piece of behavior.",
-    "category": "Functions",
-    "source": "community",
-    "sourceUrl": "https://github.com/andredesousa/typescript-best-practices#avoid-heavy-nesting",
-    "sourceTitle": "Avoid heavy nesting",
-    "scope": "Application code",
+    "category": "functions",
+    "applicability": {
+      "contexts": [
+        "application"
+      ],
+      "environments": [
+        "runtime-independent"
+      ],
+      "when": [
+        "Nested branches obscure the main execution path."
+      ],
+      "exceptions": [
+        "Keep nested control flow when it expresses the rule more clearly than extraction or early returns."
+      ]
+    },
     "tags": [
       "control-flow",
       "guard-clauses",
       "readability"
     ],
-    "related": [
-      "small-functions",
-      "conditionals"
+    "citations": [
+      {
+        "sourceId": "community",
+        "section": "Avoid heavy nesting",
+        "url": "https://github.com/andredesousa/typescript-best-practices#avoid-heavy-nesting",
+        "role": "origin"
+      }
     ],
-    "bad": "function name(user?: { active: boolean; name: string }) {\n  if (user) {\n    if (user.active) {\n      return user.name;\n    }\n  }\n  return \"Guest\";\n}",
-    "good": "function name(user?: { active: boolean; name: string }) {\n  if (!user?.active) return \"Guest\";\n  return user.name;\n}"
+    "notes": [],
+    "examples": [
+      {
+        "id": "reduce-nesting-example",
+        "language": "typescript",
+        "variants": [
+          {
+            "role": "avoid",
+            "code": "function name(user?: { active: boolean; name: string }) {\n  if (user) {\n    if (user.active) {\n      return user.name;\n    }\n  }\n  return \"Guest\";\n}"
+          },
+          {
+            "role": "prefer",
+            "code": "function name(user?: { active: boolean; name: string }) {\n  if (!user?.active) return \"Guest\";\n  return user.name;\n}"
+          }
+        ],
+        "explanation": "Illustrative TypeScript functions. The early return makes the active-user path easier to see.",
+        "verification": {
+          "status": "illustrative"
+        }
+      }
+    ],
+    "relations": [
+      {
+        "practiceId": "small-functions",
+        "kind": "complements",
+        "reason": "Focused helpers give a name and boundary to independently meaningful behavior."
+      },
+      {
+        "practiceId": "conditionals",
+        "kind": "complements",
+        "reason": "Choose a simple branch or a stable mapping according to the rule being expressed."
+      }
+    ]
   },
   {
     "id": "small-functions",
     "title": "Keep functions focused",
     "summary": "Give each function one clear responsibility.",
     "explanation": "A focused function is easier to read, test, and reuse. Split a function when the extracted piece has a useful purpose or name, rather than to satisfy a fixed number of lines.",
-    "category": "Functions",
-    "source": "community",
-    "sourceUrl": "https://github.com/andredesousa/typescript-best-practices#avoid-long-functions",
-    "sourceTitle": "Avoid long functions",
-    "scope": "Application code",
+    "category": "functions",
+    "applicability": {
+      "contexts": [
+        "application",
+        "public-api"
+      ],
+      "environments": [
+        "runtime-independent"
+      ],
+      "when": [
+        "A function contains independently meaningful responsibilities."
+      ],
+      "exceptions": []
+    },
     "tags": [
       "functions",
       "readability",
       "refactoring"
     ],
-    "related": [
-      "reduce-nesting",
-      "parameter-objects",
-      "pure-functions"
+    "citations": [
+      {
+        "sourceId": "community",
+        "section": "Avoid long functions",
+        "url": "https://github.com/andredesousa/typescript-best-practices#avoid-long-functions",
+        "role": "origin"
+      }
     ],
-    "caveat": "The source suggests functions of 5–10 lines. Treat that as a prompt to review complexity, not a universal limit."
+    "notes": [
+      {
+        "kind": "exception",
+        "text": "The source suggests functions of 5–10 lines. Treat that as a prompt to review complexity, not a universal limit.",
+        "references": []
+      }
+    ],
+    "examples": [],
+    "relations": [
+      {
+        "practiceId": "reduce-nesting",
+        "kind": "complements",
+        "reason": "Guard clauses and focused helpers keep the main control path visible."
+      },
+      {
+        "practiceId": "parameter-objects",
+        "kind": "complements",
+        "reason": "Named options clarify choices that become ambiguous as positional arguments."
+      },
+      {
+        "practiceId": "pure-functions",
+        "kind": "complements",
+        "reason": "Separating calculations from effects makes behavior easier to reason about and test."
+      }
+    ]
   },
   {
     "id": "parameter-objects",
     "title": "Make function arguments clear",
     "summary": "Group related options when positional arguments become hard to understand.",
     "explanation": "A small options object can name each setting at the call site and make optional settings easier to add. Keep the object cohesive instead of hiding an unrelated collection of values behind one parameter.",
-    "category": "Functions",
-    "source": "community",
-    "sourceUrl": "https://github.com/andredesousa/typescript-best-practices#reduce-function-parameters",
-    "sourceTitle": "Reduce function parameters",
-    "scope": "Application code",
+    "category": "functions",
+    "applicability": {
+      "contexts": [
+        "application",
+        "declaration-file",
+        "public-api"
+      ],
+      "environments": [
+        "runtime-independent"
+      ],
+      "when": [
+        "Several positional arguments are hard to distinguish at the call site."
+      ],
+      "exceptions": [
+        "Keep cohesive positional arguments when their meaning is clear at the call site."
+      ]
+    },
     "tags": [
       "parameters",
       "options",
       "api-design"
     ],
-    "related": [
-      "boolean-parameters",
-      "default-parameters"
+    "citations": [
+      {
+        "sourceId": "community",
+        "section": "Reduce function parameters",
+        "url": "https://github.com/andredesousa/typescript-best-practices#reduce-function-parameters",
+        "role": "origin"
+      }
     ],
-    "caveat": "The source recommends one or two parameters. Argument count is a readability signal, not a correctness rule.",
-    "bad": "function exportReport(format: string, name: string, archived: boolean) {}\nexportReport(\"csv\", \"orders\", false);",
-    "good": "type ExportOptions = {\n  format: \"csv\" | \"json\";\n  name: string;\n  includeArchived?: boolean;\n};\nfunction exportReport(options: ExportOptions) {}\nexportReport({ format: \"csv\", name: \"orders\" });"
+    "notes": [
+      {
+        "kind": "exception",
+        "text": "The source recommends one or two parameters. Argument count is a readability signal, not a correctness rule.",
+        "references": []
+      }
+    ],
+    "examples": [
+      {
+        "id": "parameter-objects-example",
+        "language": "typescript",
+        "variants": [
+          {
+            "role": "avoid",
+            "code": "function exportReport(format: string, name: string, archived: boolean) {}\nexportReport(\"csv\", \"orders\", false);"
+          },
+          {
+            "role": "prefer",
+            "code": "type ExportOptions = {\n  format: \"csv\" | \"json\";\n  name: string;\n  includeArchived?: boolean;\n};\nfunction exportReport(options: ExportOptions) {}\nexportReport({ format: \"csv\", name: \"orders\" });"
+          }
+        ],
+        "explanation": "Illustrative TypeScript API fragments. Named properties make the export settings visible at the call site.",
+        "verification": {
+          "status": "illustrative"
+        }
+      }
+    ],
+    "relations": [
+      {
+        "practiceId": "boolean-parameters",
+        "kind": "complements",
+        "reason": "Named boolean choices prevent call sites from hiding what true or false means."
+      },
+      {
+        "practiceId": "default-parameters",
+        "kind": "complements",
+        "reason": "Defaults document a meaningful omitted-argument contract."
+      }
+    ]
   },
   {
     "id": "boolean-parameters",
     "title": "Avoid unclear boolean arguments",
     "summary": "Use a named option or separate operation when a boolean hides intent.",
     "explanation": "A call such as save(true) is hard to interpret. Name the choice at the call site, or split separate behaviors into separately named functions when that makes the API clearer.",
-    "category": "Functions",
-    "source": "community",
-    "sourceUrl": "https://github.com/andredesousa/typescript-best-practices#do-not-use-flags-as-function-parameters",
-    "sourceTitle": "Do not use flags as function parameters",
-    "scope": "Application code",
+    "category": "functions",
+    "applicability": {
+      "contexts": [
+        "application",
+        "declaration-file",
+        "public-api"
+      ],
+      "environments": [
+        "runtime-independent"
+      ],
+      "when": [
+        "A boolean argument hides the choice a caller is making."
+      ],
+      "exceptions": []
+    },
     "tags": [
       "booleans",
       "parameters",
       "api-design"
     ],
-    "related": [
-      "parameter-objects",
-      "boolean-names"
+    "citations": [
+      {
+        "sourceId": "community",
+        "section": "Do not use flags as function parameters",
+        "url": "https://github.com/andredesousa/typescript-best-practices#do-not-use-flags-as-function-parameters",
+        "role": "origin"
+      }
     ],
-    "caveat": "Boolean options can be appropriate for a genuine on/off setting. The issue is unclear meaning or unrelated behavior, not the boolean type itself.",
-    "bad": "function save(force: boolean) {}\nsave(true);",
-    "good": "function save(options: { overwrite: boolean }) {}\nsave({ overwrite: true });"
+    "notes": [
+      {
+        "kind": "exception",
+        "text": "Boolean options can be appropriate for a genuine on/off setting. The issue is unclear meaning or unrelated behavior, not the boolean type itself.",
+        "references": []
+      }
+    ],
+    "examples": [
+      {
+        "id": "boolean-parameters-example",
+        "language": "typescript",
+        "variants": [
+          {
+            "role": "avoid",
+            "code": "function save(force: boolean) {}\nsave(true);"
+          },
+          {
+            "role": "prefer",
+            "code": "function save(options: { overwrite: boolean }) {}\nsave({ overwrite: true });"
+          }
+        ],
+        "explanation": "Illustrative TypeScript API fragments. The named overwrite option explains the boolean choice.",
+        "verification": {
+          "status": "illustrative"
+        }
+      }
+    ],
+    "relations": [
+      {
+        "practiceId": "parameter-objects",
+        "kind": "complements",
+        "reason": "Named options clarify choices that become ambiguous as positional arguments."
+      },
+      {
+        "practiceId": "boolean-names",
+        "kind": "complements",
+        "reason": "Question-shaped names clarify boolean conditions and options."
+      }
+    ]
   },
   {
     "id": "useful-comments",
     "title": "Write comments that explain decisions",
     "summary": "Explain constraints and intent; remove redundant or stale comments.",
     "explanation": "Keep comments for information the code cannot express clearly, such as a protocol requirement or a deliberate tradeoff. Delete commented-out code and update comments when behavior changes.",
-    "category": "Code structure",
-    "source": "community",
-    "sourceUrl": "https://github.com/andredesousa/typescript-best-practices#comment-as-much-as-needed-but-not-more",
-    "sourceTitle": "Comment as much as needed but not more",
-    "scope": "Application code",
+    "category": "code-structure",
+    "applicability": {
+      "contexts": [
+        "application",
+        "declaration-file"
+      ],
+      "environments": [
+        "runtime-independent"
+      ],
+      "when": [
+        "A constraint, decision, or tradeoff is not apparent from the code."
+      ],
+      "exceptions": []
+    },
     "tags": [
       "comments",
       "documentation",
       "readability"
     ],
-    "related": [
-      "meaningful-names",
-      "magic-numbers"
+    "citations": [
+      {
+        "sourceId": "community",
+        "section": "Comment as much as needed but not more",
+        "url": "https://github.com/andredesousa/typescript-best-practices#comment-as-much-as-needed-but-not-more",
+        "role": "origin"
+      }
     ],
-    "bad": "// Add one to attempts\nattempts += 1;",
-    "good": "// The provider counts the initial request toward the retry limit.\nconst retriesLeft = Math.max(0, requestLimit - attempts);"
+    "notes": [],
+    "examples": [
+      {
+        "id": "useful-comments-example",
+        "language": "javascript",
+        "variants": [
+          {
+            "role": "avoid",
+            "code": "// Add one to attempts\nattempts += 1;"
+          },
+          {
+            "role": "prefer",
+            "code": "// The provider counts the initial request toward the retry limit.\nconst retriesLeft = Math.max(0, requestLimit - attempts);"
+          }
+        ],
+        "explanation": "Illustrative fragments. The preferred comment records the provider’s counting rule; the first only repeats the assignment. Surrounding attempts and requestLimit values are omitted.",
+        "verification": {
+          "status": "illustrative"
+        }
+      }
+    ],
+    "relations": [
+      {
+        "practiceId": "meaningful-names",
+        "kind": "complements",
+        "reason": "Domain names communicate why a value or operation exists."
+      },
+      {
+        "practiceId": "magic-numbers",
+        "kind": "complements",
+        "reason": "Named constants explain the policy behind otherwise unexplained values."
+      }
+    ]
   },
   {
     "id": "measure-loops",
     "title": "Measure loop performance",
     "summary": "Choose readable iteration, then profile real bottlenecks.",
     "explanation": "Use for, for...of, or an array method according to the operation. When iteration matters to performance, compare complete workloads on the runtime you ship and include allocation and early-exit behavior.",
-    "category": "Runtime",
-    "source": "community",
-    "sourceUrl": "https://github.com/andredesousa/typescript-best-practices#use-the-fastest-way-to-loop-arrays",
-    "sourceTitle": "Use the fastest way to loop arrays",
-    "scope": "Application code",
+    "category": "runtime",
+    "applicability": {
+      "contexts": [
+        "application"
+      ],
+      "environments": [
+        "runtime-independent"
+      ],
+      "when": [
+        "Choosing an iteration strategy or investigating a measured iteration bottleneck."
+      ],
+      "exceptions": [
+        "Choose a less concise iteration strategy when measurement on the shipped workload justifies the performance tradeoff."
+      ]
+    },
     "tags": [
       "performance",
       "loops",
       "profiling"
     ],
-    "related": [
-      "array-methods",
-      "raw-javascript-is-faster"
+    "citations": [
+      {
+        "sourceId": "community",
+        "section": "Use the fastest way to loop arrays",
+        "url": "https://github.com/andredesousa/typescript-best-practices#use-the-fastest-way-to-loop-arrays",
+        "role": "origin"
+      }
     ],
-    "caveat": "The source calls for the fastest loop and caching length. No loop form is universally fastest; engine, data shape, workload, and semantics affect results.",
-    "bad": "// An assumed micro-optimization without a measured problem\nfor (let index = 0, size = values.length; index < size; index++) {\n  consume(values[index]);\n}",
-    "good": "// Choose this when you need to stop after a match.\nfor (const value of values) {\n  if (matches(value)) {\n    consume(value);\n    break;\n  }\n}"
+    "notes": [
+      {
+        "kind": "editorial-correction",
+        "text": "The community source identifies a for loop as fastest and suggests caching length. This reference recommends choosing for the required semantics and measuring the actual engine, data, and workload instead of applying a universal speed rule.",
+        "references": [
+          {
+            "title": "V8 documentation: Array element kinds and optimization",
+            "url": "https://v8.dev/blog/elements-kinds"
+          },
+          {
+            "title": "Chrome DevTools: Analyze runtime performance",
+            "url": "https://developer.chrome.com/docs/devtools/performance"
+          }
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "id": "measure-loops-example",
+        "language": "typescript",
+        "variants": [
+          {
+            "role": "tradeoff",
+            "code": "// An assumed micro-optimization without a measured problem\nfor (let index = 0, size = values.length; index < size; index++) {\n  consume(values[index]);\n}"
+          },
+          {
+            "role": "prefer",
+            "code": "// Choose this when you need to stop after a match.\nfor (const value of values) {\n  if (matches(value)) {\n    consume(value);\n    break;\n  }\n}"
+          }
+        ],
+        "explanation": "Illustrative iteration tradeoff with surrounding values, matches, and consume definitions omitted. Both loops can be valid; the second is useful when early exit is required, and the first is not evidence of better performance.",
+        "verification": {
+          "status": "illustrative"
+        }
+      }
+    ],
+    "relations": [
+      {
+        "practiceId": "array-methods",
+        "kind": "alternative",
+        "reason": "Choose array methods for a clear transformation, or a loop when early exit or the measured workload calls for it."
+      },
+      {
+        "practiceId": "raw-javascript-is-faster",
+        "kind": "complements",
+        "reason": "Dependency choices should be based on equivalent behavior and measured costs."
+      }
+    ]
   },
   {
     "id": "array-methods",
     "title": "Use array methods for their purpose",
     "summary": "Use map, filter, find, and other methods when they describe the operation.",
     "explanation": "Choose map to transform items, filter to select items, and find to retrieve the first match. A loop may be clearer for early exits or complex control flow. Avoid creating an unused array just to run side effects.",
-    "category": "Runtime",
-    "source": "community",
-    "sourceUrl": "https://github.com/andredesousa/typescript-best-practices#prefer-array-methods",
-    "sourceTitle": "Prefer array methods",
-    "scope": "Application code",
+    "category": "runtime",
+    "applicability": {
+      "contexts": [
+        "application"
+      ],
+      "environments": [
+        "runtime-independent"
+      ],
+      "when": [
+        "Transforming, selecting, or finding elements in an array."
+      ],
+      "exceptions": [
+        "Use a loop when early exit or complex control flow is clearer."
+      ]
+    },
     "tags": [
       "arrays",
       "iteration",
       "readability"
     ],
-    "related": [
-      "measure-loops",
-      "pure-functions"
+    "citations": [
+      {
+        "sourceId": "community",
+        "section": "Prefer array methods",
+        "url": "https://github.com/andredesousa/typescript-best-practices#prefer-array-methods",
+        "role": "origin"
+      }
     ],
-    "bad": "const names: string[] = [];\nusers.map(user => { names.push(user.name); });",
-    "good": "const names = users.map(user => user.name);\nconst activeUsers = users.filter(user => user.active);"
+    "notes": [],
+    "examples": [
+      {
+        "id": "array-methods-example",
+        "language": "typescript",
+        "variants": [
+          {
+            "role": "avoid",
+            "code": "const names: string[] = [];\nusers.map(user => { names.push(user.name); });"
+          },
+          {
+            "role": "prefer",
+            "code": "const names = users.map(user => user.name);\nconst activeUsers = users.filter(user => user.active);"
+          }
+        ],
+        "explanation": "Illustrative fragments assuming an existing users array with name and active properties. map produces transformed values and filter selects items; avoid using map just to push side effects into another array.",
+        "verification": {
+          "status": "illustrative"
+        }
+      }
+    ],
+    "relations": [
+      {
+        "practiceId": "measure-loops",
+        "kind": "alternative",
+        "reason": "Choose array methods for a clear transformation, or a loop when early exit or the measured workload calls for it."
+      },
+      {
+        "practiceId": "pure-functions",
+        "kind": "complements",
+        "reason": "Separating calculations from effects makes behavior easier to reason about and test."
+      }
+    ]
   },
   {
     "id": "validate-data",
     "title": "Validate data at boundaries",
     "summary": "Check external data at runtime before trusting its shape.",
     "explanation": "Treat network responses, form submissions, stored values, and URL parameters as untrusted inputs. Use a schema validator or a focused type guard. A type assertion only changes compiler assumptions; it does not inspect a value.",
-    "category": "Runtime",
-    "source": "community",
-    "sourceUrl": "https://github.com/andredesousa/typescript-best-practices#do-not-trust-any-data",
-    "sourceTitle": "Do not trust any data",
-    "scope": "Application code",
+    "category": "runtime",
+    "applicability": {
+      "contexts": [
+        "application",
+        "public-api"
+      ],
+      "environments": [
+        "runtime-independent"
+      ],
+      "when": [
+        "Data crosses a network, storage, form, URL, or other untrusted boundary."
+      ],
+      "exceptions": []
+    },
     "tags": [
       "validation",
       "unknown",
       "boundaries"
     ],
-    "related": [
-      "unknown-over-any",
-      "handle-errors"
+    "citations": [
+      {
+        "sourceId": "community",
+        "section": "Do not trust any data",
+        "url": "https://github.com/andredesousa/typescript-best-practices#do-not-trust-any-data",
+        "role": "origin"
+      }
     ],
-    "bad": "type Profile = { name: string };\nconst profile = JSON.parse(payload) as Profile;\nconsole.log(profile.name.toUpperCase());",
-    "good": "const value: unknown = JSON.parse(payload);\nif (\n  typeof value !== \"object\" || value === null ||\n  !(\"name\" in value) || typeof value.name !== \"string\"\n) {\n  throw new Error(\"Expected a profile name\");\n}\nconsole.log(value.name.toUpperCase());"
+    "notes": [],
+    "examples": [
+      {
+        "id": "validate-data-example",
+        "language": "typescript",
+        "variants": [
+          {
+            "role": "avoid",
+            "code": "type Profile = { name: string };\nconst profile = JSON.parse(payload) as Profile;\nconsole.log(profile.name.toUpperCase());"
+          },
+          {
+            "role": "prefer",
+            "code": "const value: unknown = JSON.parse(payload);\nif (\n  typeof value !== \"object\" || value === null ||\n  !(\"name\" in value) || typeof value.name !== \"string\"\n) {\n  throw new Error(\"Expected a profile name\");\n}\nconsole.log(value.name.toUpperCase());"
+          }
+        ],
+        "explanation": "Illustrative TypeScript fragments assuming a payload string. JSON.parse may fail; after parsing, the second fragment checks the object’s name property before using it.",
+        "verification": {
+          "status": "illustrative"
+        }
+      }
+    ],
+    "relations": [
+      {
+        "practiceId": "unknown-over-any",
+        "kind": "complements",
+        "reason": "Unknown preserves checking while an unspecified input is narrowed or validated."
+      },
+      {
+        "practiceId": "handle-errors",
+        "kind": "complements",
+        "reason": "Explicit failure handling keeps boundary assumptions from turning into silent errors."
+      }
+    ]
   },
   {
     "id": "clear-blocks",
     "title": "Use consistent, clear blocks",
     "summary": "Keep control flow formatting predictable.",
     "explanation": "Use braces and a formatter to make branch boundaries obvious. Agree on semicolon and one-line conventions as a team, then automate them instead of revisiting them in each review.",
-    "category": "Code structure",
-    "source": "community",
-    "sourceUrl": "https://github.com/andredesousa/typescript-best-practices#do-not-use-short-hand",
-    "sourceTitle": "Do not use short-hand",
-    "scope": "Application code",
+    "category": "code-structure",
+    "applicability": {
+      "contexts": [
+        "application"
+      ],
+      "environments": [
+        "runtime-independent"
+      ],
+      "when": [
+        "Formatting branches and statement boundaries."
+      ],
+      "exceptions": []
+    },
     "tags": [
       "formatting",
       "braces",
       "control-flow"
     ],
-    "related": [
-      "follow-conventions",
-      "reduce-nesting"
+    "citations": [
+      {
+        "sourceId": "community",
+        "section": "Do not use short-hand",
+        "url": "https://github.com/andredesousa/typescript-best-practices#do-not-use-short-hand",
+        "role": "origin"
+      }
     ],
-    "caveat": "JavaScript supports automatic semicolon insertion. The source’s blanket criticism of omitted semicolons is a style opinion; consistency and syntax awareness are what matter.",
-    "bad": "if (isReady)\n  start();\n  recordStart();",
-    "good": "if (isReady) {\n  start();\n  recordStart();\n}"
+    "notes": [
+      {
+        "kind": "editorial-correction",
+        "text": "The community source treats omitted semicolons as a dangerous practice. This reference treats semicolon conventions as a team choice while retaining clear block structure and awareness of automatic semicolon insertion.",
+        "references": [
+          {
+            "title": "MDN: Automatic semicolon insertion",
+            "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#automatic_semicolon_insertion"
+          }
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "id": "clear-blocks-example",
+        "language": "javascript",
+        "variants": [
+          {
+            "role": "avoid",
+            "code": "if (isReady)\n  start();\n  recordStart();"
+          },
+          {
+            "role": "prefer",
+            "code": "if (isReady) {\n  start();\n  recordStart();\n}"
+          }
+        ],
+        "explanation": "Illustrative JavaScript fragments with surrounding isReady, start, and recordStart definitions omitted. Braces ensure both operations belong to the same branch.",
+        "verification": {
+          "status": "illustrative"
+        }
+      }
+    ],
+    "relations": [
+      {
+        "practiceId": "follow-conventions",
+        "kind": "complements",
+        "reason": "Shared conventions keep routine readability decisions consistent across a project."
+      },
+      {
+        "practiceId": "reduce-nesting",
+        "kind": "complements",
+        "reason": "Guard clauses and focused helpers keep the main control path visible."
+      }
+    ]
   },
   {
     "id": "default-parameters",
     "title": "Use meaningful parameter defaults",
     "summary": "Provide a default when omitting an argument has a sensible meaning.",
     "explanation": "A default value documents normal behavior and reduces repeated fallback code. Leave an argument required when a guessed value would hide a caller error. Defaults apply to undefined, not to null or every falsy value.",
-    "category": "Functions",
-    "source": "community",
-    "sourceUrl": "https://github.com/andredesousa/typescript-best-practices#use-parameter-defaults",
-    "sourceTitle": "Use parameter defaults",
-    "scope": "Application code",
+    "category": "functions",
+    "applicability": {
+      "contexts": [
+        "application",
+        "public-api"
+      ],
+      "environments": [
+        "runtime-independent"
+      ],
+      "when": [
+        "An omitted argument has a sensible documented meaning."
+      ],
+      "exceptions": [
+        "Keep an argument required when choosing a default would hide a caller error."
+      ]
+    },
     "tags": [
       "parameters",
       "defaults",
       "undefined"
     ],
-    "related": [
-      "parameter-objects",
-      "optional-overloads"
+    "citations": [
+      {
+        "sourceId": "community",
+        "section": "Use parameter defaults",
+        "url": "https://github.com/andredesousa/typescript-best-practices#use-parameter-defaults",
+        "role": "origin"
+      }
     ],
-    "bad": "function pageSize(size?: number) {\n  return size || 25;\n}",
-    "good": "function pageSize(size = 25): number {\n  return size;\n}"
+    "notes": [],
+    "examples": [
+      {
+        "id": "default-parameters-example",
+        "language": "typescript",
+        "variants": [
+          {
+            "role": "avoid",
+            "code": "function pageSize(size?: number) {\n  return size || 25;\n}"
+          },
+          {
+            "role": "prefer",
+            "code": "function pageSize(size = 25): number {\n  return size;\n}"
+          }
+        ],
+        "explanation": "Illustrative TypeScript functions. A default parameter preserves an explicit zero; the boolean-or fallback does not.",
+        "verification": {
+          "status": "illustrative"
+        }
+      }
+    ],
+    "relations": [
+      {
+        "practiceId": "parameter-objects",
+        "kind": "complements",
+        "reason": "Named options clarify choices that become ambiguous as positional arguments."
+      },
+      {
+        "practiceId": "optional-overloads",
+        "kind": "complements",
+        "reason": "Optional trailing parameters can replace overloads with the same result contract."
+      }
+    ]
   },
   {
     "id": "spread-and-destructuring",
     "title": "Use spread and destructuring clearly",
     "summary": "Unpack values and copy structures when it improves readability.",
     "explanation": "Destructuring can name the properties a function needs. Spread can combine arrays and object properties without modifying the original container. Keep the operation simple enough that its result is apparent.",
-    "category": "Code structure",
-    "source": "community",
-    "sourceUrl": "https://github.com/andredesousa/typescript-best-practices#use-spread-and-destructuring",
-    "sourceTitle": "Use spread and destructuring",
-    "scope": "Application code",
+    "category": "code-structure",
+    "applicability": {
+      "contexts": [
+        "application"
+      ],
+      "environments": [
+        "runtime-independent"
+      ],
+      "when": [
+        "Unpacking data or creating a shallow copy improves clarity."
+      ],
+      "exceptions": []
+    },
     "tags": [
       "spread",
       "destructuring",
       "objects"
     ],
-    "related": [
-      "immutability",
-      "utility-types"
+    "citations": [
+      {
+        "sourceId": "community",
+        "section": "Use spread and destructuring",
+        "url": "https://github.com/andredesousa/typescript-best-practices#use-spread-and-destructuring",
+        "role": "origin"
+      }
     ],
-    "caveat": "Array and object spread create shallow copies. Nested objects remain shared, and only iterable values can be spread into an array or function argument list.",
-    "bad": "const nextSettings = settings;\nnextSettings.theme = \"dark\";",
-    "good": "const nextSettings = { ...settings, theme: \"dark\" };\nconst { theme, language } = nextSettings;"
+    "notes": [
+      {
+        "kind": "exception",
+        "text": "Array and object spread create shallow copies. Nested objects remain shared, and only iterable values can be spread into an array or function argument list.",
+        "references": [
+          {
+            "title": "MDN: Spread syntax and shallow copies",
+            "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax"
+          }
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "id": "spread-and-destructuring-example",
+        "language": "javascript",
+        "variants": [
+          {
+            "role": "avoid",
+            "code": "const nextSettings = settings;\nnextSettings.theme = \"dark\";"
+          },
+          {
+            "role": "prefer",
+            "code": "const nextSettings = { ...settings, theme: \"dark\" };\nconst { theme, language } = nextSettings;"
+          }
+        ],
+        "explanation": "Illustrative JavaScript fragments assuming an existing settings object. The preferred variant copies its top-level properties instead of mutating the same object through an alias.",
+        "verification": {
+          "status": "illustrative"
+        }
+      }
+    ],
+    "relations": [
+      {
+        "practiceId": "immutability",
+        "kind": "complements",
+        "reason": "Predictable state updates help calculations avoid surprising changes to shared data."
+      },
+      {
+        "practiceId": "utility-types",
+        "kind": "complements",
+        "reason": "Utility types express reusable compile-time relationships without duplicating properties."
+      }
+    ]
   },
   {
     "id": "template-literals",
     "title": "Use template literals for interpolation",
     "summary": "Build strings with visible interpolation when it is clearer than concatenation.",
     "explanation": "Template literals keep embedded expressions near the text they belong to and support multiline strings. They do not escape HTML, SQL, or shell syntax; use the destination’s safe encoding or parameterization.",
-    "category": "Code structure",
-    "source": "community",
-    "sourceUrl": "https://github.com/andredesousa/typescript-best-practices#use-template-literals",
-    "sourceTitle": "Use template literals",
-    "scope": "Application code",
+    "category": "code-structure",
+    "applicability": {
+      "contexts": [
+        "application"
+      ],
+      "environments": [
+        "runtime-independent"
+      ],
+      "when": [
+        "Interpolating expressions into strings."
+      ],
+      "exceptions": []
+    },
     "tags": [
       "strings",
       "interpolation",
       "readability"
     ],
-    "related": [
-      "meaningful-names",
-      "validate-data"
+    "citations": [
+      {
+        "sourceId": "community",
+        "section": "Use template literals",
+        "url": "https://github.com/andredesousa/typescript-best-practices#use-template-literals",
+        "role": "origin"
+      }
     ],
-    "bad": "const label = name + \" has \" + count + \" tasks\";",
-    "good": "const label = `${name} has ${count} tasks`;"
+    "notes": [],
+    "examples": [
+      {
+        "id": "template-literals-example",
+        "language": "javascript",
+        "variants": [
+          {
+            "role": "alternative",
+            "code": "const label = name + \" has \" + count + \" tasks\";"
+          },
+          {
+            "role": "prefer",
+            "code": "const label = `${name} has ${count} tasks`;"
+          }
+        ],
+        "explanation": "Illustrative JavaScript fragments with surrounding name and count values omitted. Interpolation keeps values alongside their text; concatenation can also be valid.",
+        "verification": {
+          "status": "illustrative"
+        }
+      }
+    ],
+    "relations": [
+      {
+        "practiceId": "meaningful-names",
+        "kind": "complements",
+        "reason": "Domain names communicate why a value or operation exists."
+      },
+      {
+        "practiceId": "validate-data",
+        "kind": "complements",
+        "reason": "Runtime validation establishes the shape of values before code relies on their declared types."
+      }
+    ]
   },
   {
     "id": "switch-defaults",
     "title": "Handle unexpected switch inputs",
     "summary": "Choose an explicit fallback or an exhaustive type check.",
     "explanation": "A switch over open input should account for unexpected values. A switch over a closed union can use never to make a newly added case fail at compile time instead of silently taking a fallback.",
-    "category": "Runtime",
-    "source": "community",
-    "sourceUrl": "https://github.com/andredesousa/typescript-best-practices#end-the-switches-with-defaults",
-    "sourceTitle": "End the switches with defaults",
-    "scope": "Application code",
+    "category": "runtime",
+    "applicability": {
+      "contexts": [
+        "application"
+      ],
+      "environments": [
+        "runtime-independent"
+      ],
+      "when": [
+        "A switch handles open input or a closed union of cases."
+      ],
+      "exceptions": []
+    },
     "tags": [
       "switch",
       "exhaustiveness",
       "never"
     ],
-    "related": [
-      "string-unions",
-      "handle-errors"
+    "citations": [
+      {
+        "sourceId": "community",
+        "section": "End the switches with defaults",
+        "url": "https://github.com/andredesousa/typescript-best-practices#end-the-switches-with-defaults",
+        "role": "origin"
+      }
     ],
-    "caveat": "A default that silently returns a normal result can conceal missing union cases. Match the fallback to the domain and error behavior.",
-    "bad": "function label(state: string) {\n  switch (state) {\n    case \"ready\": return \"Ready\";\n  }\n}",
-    "good": "type State = \"ready\" | \"waiting\";\nfunction label(state: State): string {\n  switch (state) {\n    case \"ready\": return \"Ready\";\n    case \"waiting\": return \"Waiting\";\n    default: {\n      const unexpected: never = state;\n      throw new Error(`Unexpected state: ${unexpected}`);\n    }\n  }\n}"
+    "notes": [
+      {
+        "kind": "exception",
+        "text": "A default that silently returns a normal result can conceal missing union cases. Match the fallback to the domain and error behavior.",
+        "references": []
+      }
+    ],
+    "examples": [
+      {
+        "id": "switch-defaults-example",
+        "language": "typescript",
+        "variants": [
+          {
+            "role": "avoid",
+            "code": "function label(state: string) {\n  switch (state) {\n    case \"ready\": return \"Ready\";\n  }\n}"
+          },
+          {
+            "role": "prefer",
+            "code": "type State = \"ready\" | \"waiting\";\nfunction label(state: State): string {\n  switch (state) {\n    case \"ready\": return \"Ready\";\n    case \"waiting\": return \"Waiting\";\n    default: {\n      const unexpected: never = state;\n      throw new Error(`Unexpected state: ${unexpected}`);\n    }\n  }\n}"
+          }
+        ],
+        "explanation": "Illustrative TypeScript functions. The preferred variant handles every declared state and uses never to expose a newly unhandled union member.",
+        "verification": {
+          "status": "illustrative"
+        }
+      }
+    ],
+    "relations": [
+      {
+        "practiceId": "string-unions",
+        "kind": "complements",
+        "reason": "A closed set of string values expresses a more specific domain contract."
+      },
+      {
+        "practiceId": "handle-errors",
+        "kind": "complements",
+        "reason": "Explicit failure handling keeps boundary assumptions from turning into silent errors."
+      }
+    ]
   },
   {
     "id": "boolean-names",
     "title": "Name booleans as questions",
     "summary": "Use names such as isReady, hasAccess, or canEdit when they fit the meaning.",
     "explanation": "A boolean name should make the true and false cases easy to read in a condition. Favor positive names when a double negative would obscure the branch.",
-    "category": "Code structure",
-    "source": "community",
-    "sourceUrl": "https://github.com/andredesousa/typescript-best-practices#use-the-prefix-is-and-has-for-booleans",
-    "sourceTitle": "Use the prefix \"is\" and \"has\" for Booleans",
-    "scope": "Application code",
+    "category": "code-structure",
+    "applicability": {
+      "contexts": [
+        "application",
+        "declaration-file",
+        "public-api"
+      ],
+      "environments": [
+        "runtime-independent"
+      ],
+      "when": [
+        "Naming a boolean property, variable, or predicate."
+      ],
+      "exceptions": []
+    },
     "tags": [
       "booleans",
       "naming"
     ],
-    "related": [
-      "meaningful-names",
-      "boolean-parameters"
+    "citations": [
+      {
+        "sourceId": "community",
+        "section": "Use the prefix \"is\" and \"has\" for Booleans",
+        "url": "https://github.com/andredesousa/typescript-best-practices#use-the-prefix-is-and-has-for-booleans",
+        "role": "origin"
+      }
     ],
-    "bad": "const access = user.role === \"editor\";\nif (access) openEditor();",
-    "good": "const canEdit = user.role === \"editor\";\nif (canEdit) openEditor();"
+    "notes": [],
+    "examples": [
+      {
+        "id": "boolean-names-example",
+        "language": "javascript",
+        "variants": [
+          {
+            "role": "avoid",
+            "code": "const access = user.role === \"editor\";\nif (access) openEditor();"
+          },
+          {
+            "role": "prefer",
+            "code": "const canEdit = user.role === \"editor\";\nif (canEdit) openEditor();"
+          }
+        ],
+        "explanation": "Illustrative JavaScript fragments assuming a user and openEditor function. canEdit makes the branch’s condition explicit.",
+        "verification": {
+          "status": "illustrative"
+        }
+      }
+    ],
+    "relations": [
+      {
+        "practiceId": "meaningful-names",
+        "kind": "complements",
+        "reason": "Domain names communicate why a value or operation exists."
+      },
+      {
+        "practiceId": "boolean-parameters",
+        "kind": "complements",
+        "reason": "Named boolean choices prevent call sites from hiding what true or false means."
+      }
+    ]
   },
   {
     "id": "declarations-near-use",
     "title": "Declare values near where they are used",
     "summary": "Keep declarations close to their purpose and within the smallest useful scope.",
     "explanation": "Grouping a value with the work that uses it reduces the distance a reader needs to search. Initialize it when meaningful, and lift a declaration only when its scope or lifecycle requires that.",
-    "category": "Code structure",
-    "source": "community",
-    "sourceUrl": "https://github.com/andredesousa/typescript-best-practices#declarations-on-top",
-    "sourceTitle": "Declarations on top",
-    "scope": "Application code",
+    "category": "code-structure",
+    "applicability": {
+      "contexts": [
+        "application"
+      ],
+      "environments": [
+        "runtime-independent"
+      ],
+      "when": [
+        "Choosing the scope and placement of a local binding."
+      ],
+      "exceptions": [
+        "Lift a declaration when its lifecycle or use across branches requires a wider scope."
+      ]
+    },
     "tags": [
       "scope",
       "declarations",
       "readability"
     ],
-    "related": [
-      "const-and-let",
-      "initialize-variables"
+    "citations": [
+      {
+        "sourceId": "community",
+        "section": "Declarations on top",
+        "url": "https://github.com/andredesousa/typescript-best-practices#declarations-on-top",
+        "role": "origin"
+      }
     ],
-    "caveat": "The source recommends putting declarations at the top of every function. With block-scoped const and let, declaring near use is often clearer; this is an editorial update to the original advice."
+    "notes": [
+      {
+        "kind": "editorial-correction",
+        "text": "The community source recommends declarations at the top of each function. This reference instead favors declarations near use for block-scoped bindings, with wider scope when the value’s lifecycle requires it. This is an editorial placement preference.",
+        "references": []
+      }
+    ],
+    "examples": [],
+    "relations": [
+      {
+        "practiceId": "const-and-let",
+        "kind": "complements",
+        "reason": "Block-scoped bindings make declaration lifetime and reassignment intent clearer."
+      },
+      {
+        "practiceId": "initialize-variables",
+        "kind": "complements",
+        "reason": "Deliberate initialization complements choosing a clear declaration scope."
+      }
+    ]
   },
   {
     "id": "initialize-variables",
     "title": "Initialize values deliberately",
     "summary": "Give a variable a useful starting value when it is declared.",
     "explanation": "Prefer creating a fully usable value over declaring a variable and assigning it much later. If absence is a real state, model it with an optional or union type rather than a misleading placeholder.",
-    "category": "Code structure",
-    "source": "community",
-    "sourceUrl": "https://github.com/andredesousa/typescript-best-practices#initialize-variables",
-    "sourceTitle": "Initialize variables",
-    "scope": "Application code",
+    "category": "code-structure",
+    "applicability": {
+      "contexts": [
+        "application"
+      ],
+      "environments": [
+        "runtime-independent"
+      ],
+      "when": [
+        "Creating a local value that should be usable immediately."
+      ],
+      "exceptions": []
+    },
     "tags": [
       "initialization",
       "undefined",
       "scope"
     ],
-    "related": [
-      "declarations-near-use",
-      "const-and-let"
+    "citations": [
+      {
+        "sourceId": "community",
+        "section": "Initialize variables",
+        "url": "https://github.com/andredesousa/typescript-best-practices#initialize-variables",
+        "role": "origin"
+      }
     ],
-    "caveat": "Do not invent empty strings, zeroes, or empty objects solely to avoid an uninitialized variable. Those values may have valid domain meanings.",
-    "bad": "let title: string;\n// Unrelated work happens here.\ntitle = \"Report\";",
-    "good": "const title = \"Report\";\nconst selectedId: string | undefined = undefined;"
+    "notes": [
+      {
+        "kind": "exception",
+        "text": "Do not invent empty strings, zeroes, or empty objects solely to avoid an uninitialized variable. Those values may have valid domain meanings.",
+        "references": []
+      }
+    ],
+    "examples": [
+      {
+        "id": "initialize-variables-example",
+        "language": "typescript",
+        "variants": [
+          {
+            "role": "avoid",
+            "code": "let title: string;\n// Unrelated work happens here.\ntitle = \"Report\";"
+          },
+          {
+            "role": "prefer",
+            "code": "const title = \"Report\";\nconst selectedId: string | undefined = undefined;"
+          }
+        ],
+        "explanation": "Illustrative TypeScript declarations. The title is initialized at declaration, while selectedId explicitly represents absence.",
+        "verification": {
+          "status": "illustrative"
+        }
+      }
+    ],
+    "relations": [
+      {
+        "practiceId": "declarations-near-use",
+        "kind": "complements",
+        "reason": "A binding’s placement and scope should match where its value is needed."
+      },
+      {
+        "practiceId": "const-and-let",
+        "kind": "complements",
+        "reason": "Block-scoped bindings make declaration lifetime and reassignment intent clearer."
+      }
+    ]
   },
   {
     "id": "iterators-and-generators",
     "title": "Use iterators for streamed sequences",
     "summary": "Use a generator when values can be produced on demand.",
     "explanation": "An iterator exposes one value at a time and works with for...of. A generator can express that process without materializing a complete collection. Use an async generator when producing each item requires asynchronous work.",
-    "category": "Runtime",
-    "source": "community",
-    "sourceUrl": "https://github.com/andredesousa/typescript-best-practices#use-iterators-and-generators",
-    "sourceTitle": "Use iterators and generators",
-    "scope": "Application code",
+    "category": "runtime",
+    "applicability": {
+      "contexts": [
+        "application",
+        "public-api"
+      ],
+      "environments": [
+        "runtime-independent"
+      ],
+      "when": [
+        "A sequence can be produced and consumed on demand."
+      ],
+      "exceptions": []
+    },
     "tags": [
       "iterators",
       "generators",
       "streaming"
     ],
-    "related": [
-      "measure-loops",
-      "array-methods"
+    "citations": [
+      {
+        "sourceId": "community",
+        "section": "Use iterators and generators",
+        "url": "https://github.com/andredesousa/typescript-best-practices#use-iterators-and-generators",
+        "role": "origin"
+      }
     ],
-    "good": "function* range(start: number, end: number) {\n  for (let value = start; value < end; value++) {\n    yield value;\n  }\n}\nfor (const value of range(1, 4)) {\n  console.log(value);\n}"
+    "notes": [],
+    "examples": [
+      {
+        "id": "iterators-and-generators-example",
+        "language": "typescript",
+        "variants": [
+          {
+            "role": "prefer",
+            "code": "function* range(start: number, end: number) {\n  for (let value = start; value < end; value++) {\n    yield value;\n  }\n}\nfor (const value of range(1, 4)) {\n  console.log(value);\n}"
+          }
+        ],
+        "explanation": "Illustrative TypeScript generator and consumer. The generator yields one range value at a time rather than building an entire array first.",
+        "verification": {
+          "status": "illustrative"
+        }
+      }
+    ],
+    "relations": [
+      {
+        "practiceId": "measure-loops",
+        "kind": "complements",
+        "reason": "Loop choice depends on the required semantics and measured workload."
+      },
+      {
+        "practiceId": "array-methods",
+        "kind": "complements",
+        "reason": "Array methods describe common transformations and selections directly."
+      }
+    ]
   },
   {
     "id": "pure-functions",
     "title": "Keep calculations pure where practical",
     "summary": "Make calculations depend on inputs and return results without changing outside state.",
     "explanation": "Separate calculation from effects such as network requests, logging, and persistence. Pure calculations are straightforward to test because the result does not depend on hidden mutable state.",
-    "category": "Functions",
-    "source": "community",
-    "sourceUrl": "https://github.com/andredesousa/typescript-best-practices#prefer-pure-functions",
-    "sourceTitle": "Prefer pure functions",
-    "scope": "Application code",
+    "category": "functions",
+    "applicability": {
+      "contexts": [
+        "application"
+      ],
+      "environments": [
+        "runtime-independent"
+      ],
+      "when": [
+        "A calculation can be separated from external effects."
+      ],
+      "exceptions": [
+        "Use an explicitly effectful function at a boundary that must perform I/O or update external state."
+      ]
+    },
     "tags": [
       "pure-functions",
       "state",
       "testability"
     ],
-    "related": [
-      "side-effects",
-      "testing",
-      "immutability"
+    "citations": [
+      {
+        "sourceId": "community",
+        "section": "Prefer pure functions",
+        "url": "https://github.com/andredesousa/typescript-best-practices#prefer-pure-functions",
+        "role": "origin"
+      }
     ],
-    "caveat": "Purity does not imply idempotence. A pure function that adds one is deterministic, but applying it twice changes the result twice.",
-    "bad": "let balance = 100;\nfunction addPayment(amount: number) {\n  balance += amount;\n}",
-    "good": "function addPayment(balance: number, amount: number): number {\n  return balance + amount;\n}"
+    "notes": [
+      {
+        "kind": "editorial-correction",
+        "text": "The community source lists idempotence as a benefit of pure functions. Purity means consistent results for the same inputs without outside mutation; it does not imply that applying the result as input again gives the same result. A pure add-one function is a counterexample.",
+        "references": [
+          {
+            "title": "React documentation: Keeping components pure",
+            "url": "https://react.dev/learn/keeping-components-pure"
+          }
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "id": "pure-functions-example",
+        "language": "typescript",
+        "variants": [
+          {
+            "role": "avoid",
+            "code": "let balance = 100;\nfunction addPayment(amount: number) {\n  balance += amount;\n}"
+          },
+          {
+            "role": "prefer",
+            "code": "function addPayment(balance: number, amount: number): number {\n  return balance + amount;\n}"
+          }
+        ],
+        "explanation": "Illustrative TypeScript functions. Passing the balance as input keeps the calculation independent of outside mutable state.",
+        "verification": {
+          "status": "illustrative"
+        }
+      }
+    ],
+    "relations": [
+      {
+        "practiceId": "side-effects",
+        "kind": "complements",
+        "reason": "Naming effect boundaries makes changes to external or shared state visible."
+      },
+      {
+        "practiceId": "testing",
+        "kind": "complements",
+        "reason": "Behavior-focused tests verify contracts and important failure paths."
+      },
+      {
+        "practiceId": "immutability",
+        "kind": "complements",
+        "reason": "Predictable state updates help calculations avoid surprising changes to shared data."
+      }
+    ]
   },
   {
     "id": "immutability",
     "title": "Prefer predictable state updates",
     "summary": "Avoid mutating shared values when a new value makes changes clearer.",
     "explanation": "Immutable updates can make ownership and change detection easier to understand. Use readonly types to express intent, and copy only the parts that must change. Local mutation can still be appropriate when it is contained and clear.",
-    "category": "Code structure",
-    "source": "community",
-    "sourceUrl": "https://github.com/andredesousa/typescript-best-practices#prefer-immutability",
-    "sourceTitle": "Prefer immutability",
-    "scope": "Application code",
+    "category": "code-structure",
+    "applicability": {
+      "contexts": [
+        "application",
+        "public-api"
+      ],
+      "environments": [
+        "runtime-independent"
+      ],
+      "when": [
+        "Shared mutable values make ownership or change detection difficult to reason about."
+      ],
+      "exceptions": [
+        "Use contained local mutation when it is clearer and does not expose surprising changes to shared values."
+      ]
+    },
     "tags": [
       "immutability",
       "readonly",
       "state"
     ],
-    "related": [
-      "utility-types",
-      "spread-and-destructuring",
-      "pure-functions"
+    "citations": [
+      {
+        "sourceId": "community",
+        "section": "Prefer immutability",
+        "url": "https://github.com/andredesousa/typescript-best-practices#prefer-immutability",
+        "role": "origin"
+      }
     ],
-    "caveat": "Immutability is not an automatic performance improvement. Copying has a cost, and readonly types do not enforce runtime or deep immutability.",
-    "bad": "function rename(user: { name: string }, name: string) {\n  user.name = name;\n  return user;\n}",
-    "good": "function rename(user: Readonly<{ name: string }>, name: string) {\n  return { ...user, name };\n}"
+    "notes": [
+      {
+        "kind": "editorial-correction",
+        "text": "The community source presents immutability as a performance improvement. This reference recommends predictable ownership and updates without promising a speedup; copying has a cost, and readonly does not freeze values at runtime.",
+        "references": [
+          {
+            "title": "TypeScript Handbook: readonly properties",
+            "url": "https://www.typescriptlang.org/docs/handbook/2/objects.html#readonly-properties"
+          }
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "id": "immutability-example",
+        "language": "typescript",
+        "variants": [
+          {
+            "role": "avoid",
+            "code": "function rename(user: { name: string }, name: string) {\n  user.name = name;\n  return user;\n}"
+          },
+          {
+            "role": "prefer",
+            "code": "function rename(user: Readonly<{ name: string }>, name: string) {\n  return { ...user, name };\n}"
+          }
+        ],
+        "explanation": "Illustrative TypeScript functions. The preferred function returns a new top-level object; this is not a deep-freezing example.",
+        "verification": {
+          "status": "illustrative"
+        }
+      }
+    ],
+    "relations": [
+      {
+        "practiceId": "utility-types",
+        "kind": "complements",
+        "reason": "Utility types express reusable compile-time relationships without duplicating properties."
+      },
+      {
+        "practiceId": "spread-and-destructuring",
+        "kind": "complements",
+        "reason": "Shallow copies and unpacking can make data updates explicit without mutating an alias."
+      },
+      {
+        "practiceId": "pure-functions",
+        "kind": "complements",
+        "reason": "Separating calculations from effects makes behavior easier to reason about and test."
+      }
+    ]
   },
   {
     "id": "side-effects",
     "title": "Keep side effects explicit",
     "summary": "Make state changes and external operations easy to locate.",
     "explanation": "Keep effects at clear boundaries and avoid surprising changes to shared inputs. Explicit dependencies make code easier to test and help readers see where network, storage, and user-interface work occurs.",
-    "category": "Functions",
-    "source": "community",
-    "sourceUrl": "https://github.com/andredesousa/typescript-best-practices#avoid-side-effects",
-    "sourceTitle": "Avoid side effects",
-    "scope": "Application code",
+    "category": "functions",
+    "applicability": {
+      "contexts": [
+        "application",
+        "public-api"
+      ],
+      "environments": [
+        "runtime-independent"
+      ],
+      "when": [
+        "Code changes external state, performs I/O, or mutates shared inputs."
+      ],
+      "exceptions": []
+    },
     "tags": [
       "side-effects",
       "dependencies",
       "state"
     ],
-    "related": [
-      "pure-functions",
-      "avoid-globals",
-      "separate-concerns"
+    "citations": [
+      {
+        "sourceId": "community",
+        "section": "Avoid side effects",
+        "url": "https://github.com/andredesousa/typescript-best-practices#avoid-side-effects",
+        "role": "origin"
+      }
     ],
-    "caveat": "Useful programs need effects. The goal is to control and name them, not remove every effect."
+    "notes": [
+      {
+        "kind": "exception",
+        "text": "Useful programs need effects. The goal is to control and name them, not remove every effect.",
+        "references": []
+      }
+    ],
+    "examples": [],
+    "relations": [
+      {
+        "practiceId": "pure-functions",
+        "kind": "complements",
+        "reason": "Separating calculations from effects makes behavior easier to reason about and test."
+      },
+      {
+        "practiceId": "avoid-globals",
+        "kind": "complements",
+        "reason": "Explicit dependencies reduce accidental coupling through shared global state."
+      },
+      {
+        "practiceId": "separate-concerns",
+        "kind": "complements",
+        "reason": "Responsibility boundaries keep related domain, rendering, and I/O logic changeable."
+      }
+    ]
   },
   {
     "id": "magic-numbers",
     "title": "Name meaningful constants",
     "summary": "Replace unexplained domain values with names that describe their purpose.",
     "explanation": "A named constant documents the rule and gives maintainers a single place to update it. Keep obvious arithmetic values inline when a name would add noise rather than meaning.",
-    "category": "Code structure",
-    "source": "community",
-    "sourceUrl": "https://github.com/andredesousa/typescript-best-practices#avoid-magic-numbers",
-    "sourceTitle": "Avoid magic numbers",
-    "scope": "Application code",
+    "category": "code-structure",
+    "applicability": {
+      "contexts": [
+        "application",
+        "public-api"
+      ],
+      "environments": [
+        "runtime-independent"
+      ],
+      "when": [
+        "An unexplained value encodes a domain rule or changeable policy."
+      ],
+      "exceptions": [
+        "Keep obvious arithmetic values inline when a name would add noise rather than explain a domain rule."
+      ]
+    },
     "tags": [
       "constants",
       "naming",
       "configuration"
     ],
-    "related": [
-      "meaningful-names",
-      "configuration"
+    "citations": [
+      {
+        "sourceId": "community",
+        "section": "Avoid magic numbers",
+        "url": "https://github.com/andredesousa/typescript-best-practices#avoid-magic-numbers",
+        "role": "origin"
+      }
     ],
-    "bad": "const expiresAt = createdAt + 86400000;",
-    "good": "const millisecondsPerDay = 24 * 60 * 60 * 1000;\nconst expiresAt = createdAt + millisecondsPerDay;"
+    "notes": [],
+    "examples": [
+      {
+        "id": "magic-numbers-example",
+        "language": "javascript",
+        "variants": [
+          {
+            "role": "avoid",
+            "code": "const expiresAt = createdAt + 86400000;"
+          },
+          {
+            "role": "prefer",
+            "code": "const millisecondsPerDay = 24 * 60 * 60 * 1000;\nconst expiresAt = createdAt + millisecondsPerDay;"
+          }
+        ],
+        "explanation": "Illustrative JavaScript fragments assuming createdAt is a timestamp in milliseconds. The named unit conversion makes the retention arithmetic visible.",
+        "verification": {
+          "status": "illustrative"
+        }
+      }
+    ],
+    "relations": [
+      {
+        "practiceId": "meaningful-names",
+        "kind": "complements",
+        "reason": "Domain names communicate why a value or operation exists."
+      },
+      {
+        "practiceId": "configuration",
+        "kind": "complements",
+        "reason": "Configuration gives a clear home to values expected to change independently."
+      }
+    ]
   },
   {
     "id": "conditionals",
     "title": "Simplify repeated branching",
     "summary": "Use clear conditions, lookup tables, or polymorphism when they fit the problem.",
     "explanation": "Keep a straightforward if statement when it expresses the rule well. Consider a lookup table or separate implementation when repeated branching makes related behavior hard to maintain.",
-    "category": "Functions",
-    "source": "community",
-    "sourceUrl": "https://github.com/andredesousa/typescript-best-practices#avoid-conditionals",
-    "sourceTitle": "Avoid conditionals",
-    "scope": "Application code",
+    "category": "functions",
+    "applicability": {
+      "contexts": [
+        "application"
+      ],
+      "environments": [
+        "runtime-independent"
+      ],
+      "when": [
+        "Repeated branching obscures a stable mapping or distinct implementations."
+      ],
+      "exceptions": []
+    },
     "tags": [
       "conditionals",
       "control-flow",
       "refactoring"
     ],
-    "related": [
-      "reduce-nesting",
-      "small-functions"
+    "citations": [
+      {
+        "sourceId": "community",
+        "section": "Avoid conditionals",
+        "url": "https://github.com/andredesousa/typescript-best-practices#avoid-conditionals",
+        "role": "origin"
+      }
     ],
-    "caveat": "The source presents avoiding conditionals as a general goal. A conditional does not by itself mean a function has too many responsibilities.",
-    "bad": "function icon(status: \"queued\" | \"running\") {\n  if (status === \"queued\") return \"clock\";\n  if (status === \"running\") return \"spinner\";\n}",
-    "good": "const icons = { queued: \"clock\", running: \"spinner\" } as const;\nfunction icon(status: keyof typeof icons) {\n  return icons[status];\n}"
+    "notes": [
+      {
+        "kind": "editorial-correction",
+        "text": "The community source suggests avoiding conditionals and associates branching with doing too much. This reference retains simple conditionals and recommends alternatives only where they make a repeated mapping or separate behavior clearer.",
+        "references": []
+      }
+    ],
+    "examples": [
+      {
+        "id": "conditionals-example",
+        "language": "typescript",
+        "variants": [
+          {
+            "role": "alternative",
+            "code": "function icon(status: \"queued\" | \"running\") {\n  if (status === \"queued\") return \"clock\";\n  if (status === \"running\") return \"spinner\";\n}"
+          },
+          {
+            "role": "prefer",
+            "code": "const icons = { queued: \"clock\", running: \"spinner\" } as const;\nfunction icon(status: keyof typeof icons) {\n  return icons[status];\n}"
+          }
+        ],
+        "explanation": "Illustrative TypeScript alternatives. The lookup table expresses this fixed mapping directly; a conditional can be clearer for other rules.",
+        "verification": {
+          "status": "illustrative"
+        }
+      }
+    ],
+    "relations": [
+      {
+        "practiceId": "reduce-nesting",
+        "kind": "complements",
+        "reason": "Guard clauses and focused helpers keep the main control path visible."
+      },
+      {
+        "practiceId": "small-functions",
+        "kind": "complements",
+        "reason": "Focused helpers give a name and boundary to independently meaningful behavior."
+      }
+    ]
   },
   {
     "id": "handle-errors",
     "title": "Handle errors at useful boundaries",
     "summary": "Throw Error objects and decide where failures can be recovered or reported.",
     "explanation": "Keep useful context when propagating failures. Treat caught values as unknown and narrow them before reading properties. Avoid swallowing errors or returning a success-shaped value when an operation failed.",
-    "category": "Runtime",
-    "source": "community",
-    "sourceUrl": "https://github.com/andredesousa/typescript-best-practices#handle-javascript-errors",
-    "sourceTitle": "Handle JavaScript errors",
-    "scope": "Application code",
+    "category": "runtime",
+    "applicability": {
+      "contexts": [
+        "application",
+        "public-api"
+      ],
+      "environments": [
+        "runtime-independent"
+      ],
+      "when": [
+        "An operation can fail and a boundary can recover, add context, or report the failure."
+      ],
+      "exceptions": []
+    },
     "tags": [
       "errors",
       "unknown",
       "exceptions"
     ],
-    "related": [
-      "validate-data",
-      "promises-and-async",
-      "testing"
+    "citations": [
+      {
+        "sourceId": "community",
+        "section": "Handle JavaScript errors",
+        "url": "https://github.com/andredesousa/typescript-best-practices#handle-javascript-errors",
+        "role": "origin"
+      }
     ],
-    "bad": "try {\n  await saveReport();\n} catch {\n  // Ignore the failure.\n}",
-    "good": "try {\n  await saveReport();\n} catch (error: unknown) {\n  const message = error instanceof Error ? error.message : String(error);\n  throw new Error(`Could not save report: ${message}`);\n}"
+    "notes": [],
+    "examples": [
+      {
+        "id": "handle-errors-example",
+        "language": "typescript",
+        "variants": [
+          {
+            "role": "avoid",
+            "code": "try {\n  await saveReport();\n} catch {\n  // Ignore the failure.\n}"
+          },
+          {
+            "role": "prefer",
+            "code": "try {\n  await saveReport();\n} catch (error: unknown) {\n  const message = error instanceof Error ? error.message : String(error);\n  throw new Error(`Could not save report: ${message}`);\n}"
+          }
+        ],
+        "explanation": "Illustrative TypeScript fragments assuming an async saveReport function in an async context. The preferred fragment preserves failure and adds context rather than silently continuing.",
+        "verification": {
+          "status": "illustrative"
+        }
+      }
+    ],
+    "relations": [
+      {
+        "practiceId": "validate-data",
+        "kind": "complements",
+        "reason": "Runtime validation establishes the shape of values before code relies on their declared types."
+      },
+      {
+        "practiceId": "promises-and-async",
+        "kind": "complements",
+        "reason": "Promise-based results make asynchronous sequencing and failure propagation explicit."
+      },
+      {
+        "practiceId": "testing",
+        "kind": "complements",
+        "reason": "Behavior-focused tests verify contracts and important failure paths."
+      }
+    ]
   },
   {
     "id": "promises-and-async",
     "title": "Use promises for asynchronous results",
     "summary": "Use promises and async/await to make asynchronous flow clear.",
     "explanation": "Await operations when their results are needed and handle rejections. Use Promise.all for independent work when appropriate. Keep callback-based APIs when they model repeated events rather than a single eventual result.",
-    "category": "Runtime",
-    "source": "community",
-    "sourceUrl": "https://github.com/andredesousa/typescript-best-practices#prefer-promises-over-callbacks",
-    "sourceTitle": "Prefer promises over callbacks",
-    "scope": "Application code",
+    "category": "runtime",
+    "applicability": {
+      "contexts": [
+        "application",
+        "public-api"
+      ],
+      "environments": [
+        "runtime-independent"
+      ],
+      "when": [
+        "Representing a single eventual result or coordinating asynchronous operations."
+      ],
+      "exceptions": [
+        "Use callbacks or another event-oriented API for repeated events rather than representing them as a single promise."
+      ]
+    },
     "tags": [
       "promises",
       "async",
       "callbacks"
     ],
-    "related": [
-      "handle-errors",
-      "web-workers",
-      "callback-return-void"
+    "citations": [
+      {
+        "sourceId": "community",
+        "section": "Prefer promises over callbacks",
+        "url": "https://github.com/andredesousa/typescript-best-practices#prefer-promises-over-callbacks",
+        "role": "origin"
+      }
     ],
-    "caveat": "The source says callbacks are synchronous and promises speed up code. Callbacks can be synchronous or asynchronous. Promises describe eventual results; they do not make CPU work parallel or inherently faster.",
-    "bad": "loadUser(id, user => {\n  loadOrders(user.id, orders => {\n    render(user, orders);\n  });\n});",
-    "good": "const user = await loadUser(id);\nconst orders = await loadOrders(user.id);\nrender(user, orders);"
+    "notes": [
+      {
+        "kind": "editorial-correction",
+        "text": "The community source describes callbacks as synchronous and promises as faster. Callbacks can be synchronous or asynchronous. This reference recommends promises for single eventual results without claiming that they make CPU work parallel or inherently faster.",
+        "references": [
+          {
+            "title": "MDN: Synchronous and asynchronous callbacks",
+            "url": "https://developer.mozilla.org/en-US/docs/Glossary/Callback_function"
+          }
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "id": "promises-and-async-example",
+        "language": "typescript",
+        "variants": [
+          {
+            "role": "alternative",
+            "code": "loadUser(id, user => {\n  loadOrders(user.id, orders => {\n    render(user, orders);\n  });\n});"
+          },
+          {
+            "role": "prefer",
+            "code": "const user = await loadUser(id);\nconst orders = await loadOrders(user.id);\nrender(user, orders);"
+          }
+        ],
+        "explanation": "Illustrative API alternatives. The first uses callback-based loadUser and loadOrders APIs; the second assumes promise-returning versions inside an async context. Wrapping or changing those APIs is required before switching between forms.",
+        "verification": {
+          "status": "illustrative"
+        }
+      }
+    ],
+    "relations": [
+      {
+        "practiceId": "handle-errors",
+        "kind": "complements",
+        "reason": "Explicit failure handling keeps boundary assumptions from turning into silent errors."
+      },
+      {
+        "practiceId": "web-workers",
+        "kind": "complements",
+        "reason": "A worker is a separate execution option when browser CPU work blocks interaction."
+      },
+      {
+        "practiceId": "callback-return-void",
+        "kind": "complements",
+        "reason": "A void callback contract specifies that the API discards the callback’s result."
+      }
+    ]
   },
   {
     "id": "avoid-surprising-features",
     "title": "Avoid unnecessary dynamic behavior",
     "summary": "Prefer explicit code over eval, string timers, and changes to built-in prototypes.",
     "explanation": "Dynamic code evaluation and changes to built-in behavior make programs harder to inspect and can introduce security or compatibility problems. Use ordinary functions and well-defined module APIs.",
-    "category": "Runtime",
-    "source": "community",
-    "sourceUrl": "https://github.com/andredesousa/typescript-best-practices#do-not-use-weird-javascript-features",
-    "sourceTitle": "Do not use weird JavaScript features",
-    "scope": "Application code",
+    "category": "runtime",
+    "applicability": {
+      "contexts": [
+        "application"
+      ],
+      "environments": [
+        "runtime-independent"
+      ],
+      "when": [
+        "Dynamic evaluation or modification of built-in behavior would obscure program behavior."
+      ],
+      "exceptions": []
+    },
     "tags": [
       "eval",
       "prototypes",
       "maintainability"
     ],
-    "related": [
-      "validate-data",
-      "browser-standards"
+    "citations": [
+      {
+        "sourceId": "community",
+        "section": "Do not use weird JavaScript features",
+        "url": "https://github.com/andredesousa/typescript-best-practices#do-not-use-weird-javascript-features",
+        "role": "origin"
+      }
     ],
-    "caveat": "The source groups several language features together. Using array length or the void operator can be intentional and valid; evaluate the specific behavior instead of banning every listed feature.",
-    "bad": "setTimeout(\"refreshReport()\", 1000);",
-    "good": "setTimeout(refreshReport, 1000);"
+    "notes": [
+      {
+        "kind": "editorial-correction",
+        "text": "The community source groups several JavaScript features into a broad warning. This reference focuses on unnecessary dynamic evaluation and changes to built-in behavior; the void operator or an intentional array-length change can have valid uses.",
+        "references": []
+      }
+    ],
+    "examples": [
+      {
+        "id": "avoid-surprising-features-example",
+        "language": "javascript",
+        "variants": [
+          {
+            "role": "avoid",
+            "code": "setTimeout(\"refreshReport()\", 1000);"
+          },
+          {
+            "role": "prefer",
+            "code": "setTimeout(refreshReport, 1000);"
+          }
+        ],
+        "explanation": "Illustrative JavaScript fragments assuming a refreshReport function. Passing the function avoids evaluating timer code from a string.",
+        "verification": {
+          "status": "illustrative"
+        }
+      }
+    ],
+    "relations": [
+      {
+        "practiceId": "validate-data",
+        "kind": "complements",
+        "reason": "Runtime validation establishes the shape of values before code relies on their declared types."
+      },
+      {
+        "practiceId": "browser-standards",
+        "kind": "complements",
+        "reason": "Capability checks and standards keep browser behavior independent of brand assumptions."
+      }
+    ]
   },
   {
     "id": "browser-standards",
     "title": "Build against web standards",
     "summary": "Use supported web APIs and feature detection for browser differences.",
     "explanation": "Check for the capability you need rather than identifying a browser by its name. Use progressive enhancement or a suitable fallback when a feature is unavailable to the people using the site.",
-    "category": "Runtime",
-    "source": "community",
-    "sourceUrl": "https://github.com/andredesousa/typescript-best-practices#do-not-yield-to-web-browser-whims",
-    "sourceTitle": "Do not yield to web browser whims",
-    "scope": "Application code",
+    "category": "runtime",
+    "applicability": {
+      "contexts": [
+        "application"
+      ],
+      "environments": [
+        "browser"
+      ],
+      "when": [
+        "A web feature needs to work across supported browsers."
+      ],
+      "exceptions": []
+    },
     "tags": [
       "browser",
       "compatibility",
       "feature-detection"
     ],
-    "related": [
-      "progressive-enhancement",
-      "web-workers"
+    "citations": [
+      {
+        "sourceId": "community",
+        "section": "Do not yield to web browser whims",
+        "url": "https://github.com/andredesousa/typescript-best-practices#do-not-yield-to-web-browser-whims",
+        "role": "origin"
+      }
     ],
-    "bad": "if (navigator.userAgent.includes(\"Chrome\")) {\n  enableWorkerFeature();\n}",
-    "good": "if (typeof Worker !== \"undefined\") {\n  enableWorkerFeature();\n}"
+    "notes": [],
+    "examples": [
+      {
+        "id": "browser-standards-example",
+        "language": "javascript",
+        "variants": [
+          {
+            "role": "avoid",
+            "code": "if (navigator.userAgent.includes(\"Chrome\")) {\n  enableWorkerFeature();\n}"
+          },
+          {
+            "role": "prefer",
+            "code": "if (typeof Worker !== \"undefined\") {\n  enableWorkerFeature();\n}"
+          }
+        ],
+        "explanation": "Illustrative browser fragments assuming an enableWorkerFeature function. Test for Worker support rather than using a browser name as a capability check.",
+        "verification": {
+          "status": "illustrative"
+        }
+      }
+    ],
+    "relations": [
+      {
+        "practiceId": "progressive-enhancement",
+        "kind": "complements",
+        "reason": "Useful native HTML behavior provides a baseline when optional script features fail."
+      },
+      {
+        "practiceId": "web-workers",
+        "kind": "complements",
+        "reason": "A worker is a separate execution option when browser CPU work blocks interaction."
+      }
+    ]
   },
   {
     "id": "script-loading",
     "title": "Avoid unnecessary parser-blocking scripts",
     "summary": "Choose module, defer, or async according to the script’s dependencies.",
     "explanation": "Module scripts defer by default. Classic external scripts with defer run after parsing, in document order; async scripts run when ready. Use async only when execution order is independent.",
-    "category": "Runtime",
-    "source": "community",
-    "sourceUrl": "https://github.com/andredesousa/typescript-best-practices#place-scripts-at-the-bottom-of-the-page",
-    "sourceTitle": "Place scripts at the bottom of the page",
-    "scope": "Application code",
+    "category": "runtime",
+    "applicability": {
+      "contexts": [
+        "application"
+      ],
+      "environments": [
+        "browser"
+      ],
+      "when": [
+        "Loading scripts in a browser document."
+      ],
+      "exceptions": []
+    },
     "tags": [
       "scripts",
       "loading",
       "performance"
     ],
-    "related": [
-      "lazy-loading",
-      "progressive-enhancement"
+    "citations": [
+      {
+        "sourceId": "community",
+        "section": "Place scripts at the bottom of the page",
+        "url": "https://github.com/andredesousa/typescript-best-practices#place-scripts-at-the-bottom-of-the-page",
+        "role": "origin"
+      }
     ],
-    "caveat": "The source recommends putting every script before the closing body tag. Modern loading attributes and module scripts offer more precise control; moving a script is not the only solution.",
-    "bad": "<head>\n  <script src=\"report.js\"></script>\n</head>",
-    "good": "<head>\n  <script type=\"module\" src=\"report.js\"></script>\n</head>"
+    "notes": [
+      {
+        "kind": "editorial-correction",
+        "text": "The community source recommends putting scripts before the closing body tag. This reference instead describes loading attributes and module scripts: modules defer by default, defer preserves classic-script order, and async is for independent execution.",
+        "references": [
+          {
+            "title": "MDN: The script element and loading attributes",
+            "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/script"
+          }
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "id": "script-loading-example",
+        "language": "html",
+        "variants": [
+          {
+            "role": "avoid",
+            "code": "<head>\n  <script src=\"report.js\"></script>\n</head>"
+          },
+          {
+            "role": "prefer",
+            "code": "<head>\n  <script type=\"module\" src=\"report.js\"></script>\n</head>"
+          }
+        ],
+        "explanation": "Illustrative HTML document fragments. Use type=module when the external script is a module; converting a classic script may require changing its loading assumptions.",
+        "verification": {
+          "status": "illustrative"
+        }
+      }
+    ],
+    "relations": [
+      {
+        "practiceId": "lazy-loading",
+        "kind": "complements",
+        "reason": "Loading optional code later can reduce the initial work before a feature is needed."
+      },
+      {
+        "practiceId": "progressive-enhancement",
+        "kind": "complements",
+        "reason": "Useful native HTML behavior provides a baseline when optional script features fail."
+      }
+    ]
   },
   {
     "id": "dom-access",
     "title": "Batch expensive DOM work",
     "summary": "Avoid repeated layout work in hot paths.",
     "explanation": "Keep DOM reads and writes organized and update only what changed. Profile rendering when it affects responsiveness. Use safe DOM construction or framework rendering rather than inserting untrusted HTML strings.",
-    "category": "Runtime",
-    "source": "community",
-    "sourceUrl": "https://github.com/andredesousa/typescript-best-practices#keep-dom-access-to-a-minimum",
-    "sourceTitle": "Keep DOM access to a minimum",
-    "scope": "Application code",
+    "category": "runtime",
+    "applicability": {
+      "contexts": [
+        "application"
+      ],
+      "environments": [
+        "browser"
+      ],
+      "when": [
+        "DOM changes or layout work affect responsiveness."
+      ],
+      "exceptions": []
+    },
     "tags": [
       "dom",
       "layout",
       "performance"
     ],
-    "related": [
-      "validate-data",
-      "lighthouse",
-      "web-workers"
+    "citations": [
+      {
+        "sourceId": "community",
+        "section": "Keep DOM access to a minimum",
+        "url": "https://github.com/andredesousa/typescript-best-practices#keep-dom-access-to-a-minimum",
+        "role": "origin"
+      }
     ],
-    "caveat": "Not every DOM access is expensive. Layout-triggering reads mixed with writes deserve attention; the source’s string-to-DOM suggestion must not become unsafe HTML insertion.",
-    "bad": "for (const row of rows) {\n  row.style.width = `${container.offsetWidth}px`;\n}",
-    "good": "const width = container.offsetWidth;\nfor (const row of rows) {\n  row.style.width = `${width}px`;\n}"
+    "notes": [
+      {
+        "kind": "editorial-correction",
+        "text": "The community source broadly labels DOM access expensive and suggests string-to-DOM construction. This reference focuses on measured layout and rendering work and preserves the need to keep untrusted HTML out of unsafe insertion paths.",
+        "references": [
+          {
+            "title": "Chrome DevTools: Analyze runtime performance",
+            "url": "https://developer.chrome.com/docs/devtools/performance"
+          }
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "id": "dom-access-example",
+        "language": "javascript",
+        "variants": [
+          {
+            "role": "avoid",
+            "code": "for (const row of rows) {\n  row.style.width = `${container.offsetWidth}px`;\n}"
+          },
+          {
+            "role": "prefer",
+            "code": "const width = container.offsetWidth;\nfor (const row of rows) {\n  row.style.width = `${width}px`;\n}"
+          }
+        ],
+        "explanation": "Illustrative JavaScript fragments assuming existing rows and container DOM elements. Read the container width once before applying repeated writes.",
+        "verification": {
+          "status": "illustrative"
+        }
+      }
+    ],
+    "relations": [
+      {
+        "practiceId": "validate-data",
+        "kind": "complements",
+        "reason": "Runtime validation establishes the shape of values before code relies on their declared types."
+      },
+      {
+        "practiceId": "lighthouse",
+        "kind": "complements",
+        "reason": "Audits help identify page-level issues worth investigating with direct measurements."
+      },
+      {
+        "practiceId": "web-workers",
+        "kind": "complements",
+        "reason": "A worker is a separate execution option when browser CPU work blocks interaction."
+      }
+    ]
   },
   {
     "id": "configuration",
     "title": "Separate changeable settings from logic",
     "summary": "Keep configuration and translated text easy to find and override.",
     "explanation": "Use clear configuration types and an explicit source of values. Separate user-visible messages from application logic when the product supports translation. Validate configuration at its boundary.",
-    "category": "Code structure",
-    "source": "community",
-    "sourceUrl": "https://github.com/andredesousa/typescript-best-practices#allow-configuration-and-translation",
-    "sourceTitle": "Allow configuration and translation",
-    "scope": "Application code",
+    "category": "code-structure",
+    "applicability": {
+      "contexts": [
+        "application",
+        "public-api"
+      ],
+      "environments": [
+        "runtime-independent"
+      ],
+      "when": [
+        "Settings or user-visible messages need to change independently from application logic."
+      ],
+      "exceptions": []
+    },
     "tags": [
       "configuration",
       "localization",
       "maintenance"
     ],
-    "related": [
-      "magic-numbers",
-      "validate-data",
-      "separate-concerns"
+    "citations": [
+      {
+        "sourceId": "community",
+        "section": "Allow configuration and translation",
+        "url": "https://github.com/andredesousa/typescript-best-practices#allow-configuration-and-translation",
+        "role": "origin"
+      }
     ],
-    "caveat": "Public client configuration must not contain secrets. Put credentials and private service keys on the server."
+    "notes": [
+      {
+        "kind": "exception",
+        "text": "Public client configuration must not contain secrets. Put credentials and private service keys on the server.",
+        "references": []
+      }
+    ],
+    "examples": [],
+    "relations": [
+      {
+        "practiceId": "magic-numbers",
+        "kind": "complements",
+        "reason": "Named constants explain the policy behind otherwise unexplained values."
+      },
+      {
+        "practiceId": "validate-data",
+        "kind": "complements",
+        "reason": "Runtime validation establishes the shape of values before code relies on their declared types."
+      },
+      {
+        "practiceId": "separate-concerns",
+        "kind": "complements",
+        "reason": "Responsibility boundaries keep related domain, rendering, and I/O logic changeable."
+      }
+    ]
   },
   {
     "id": "progressive-enhancement",
     "title": "Start with useful HTML behavior",
     "summary": "Use native controls and links so core interactions have a solid baseline.",
     "explanation": "A link should remain a real link, and a form should expose clear fields and submission behavior. Add JavaScript to improve the experience while keeping accessibility and failure paths in view.",
-    "category": "Runtime",
-    "source": "community",
-    "sourceUrl": "https://github.com/andredesousa/typescript-best-practices#progressive-enhancement",
-    "sourceTitle": "Progressive Enhancement",
-    "scope": "Application code",
+    "category": "runtime",
+    "applicability": {
+      "contexts": [
+        "application"
+      ],
+      "environments": [
+        "browser"
+      ],
+      "when": [
+        "Building navigation, forms, or controls for a web interface."
+      ],
+      "exceptions": []
+    },
     "tags": [
       "html",
       "accessibility",
       "resilience"
     ],
-    "related": [
-      "browser-standards",
-      "script-loading"
+    "citations": [
+      {
+        "sourceId": "community",
+        "section": "Progressive Enhancement",
+        "url": "https://github.com/andredesousa/typescript-best-practices#progressive-enhancement",
+        "role": "origin"
+      }
     ],
-    "bad": "<span onclick=\"location.href='/guides'\">Guides</span>",
-    "good": "<a href=\"/guides\">Guides</a>"
+    "notes": [],
+    "examples": [
+      {
+        "id": "progressive-enhancement-example",
+        "language": "html",
+        "variants": [
+          {
+            "role": "avoid",
+            "code": "<span onclick=\"location.href='/guides'\">Guides</span>"
+          },
+          {
+            "role": "prefer",
+            "code": "<a href=\"/guides\">Guides</a>"
+          }
+        ],
+        "explanation": "Illustrative HTML fragments. A native link exposes navigation behavior to browsers, keyboard users, and assistive technology.",
+        "verification": {
+          "status": "illustrative"
+        }
+      }
+    ],
+    "relations": [
+      {
+        "practiceId": "browser-standards",
+        "kind": "complements",
+        "reason": "Capability checks and standards keep browser behavior independent of brand assumptions."
+      },
+      {
+        "practiceId": "script-loading",
+        "kind": "complements",
+        "reason": "Script-loading semantics determine when browser code can execute safely."
+      }
+    ]
   },
   {
     "id": "raw-javascript-is-faster",
     "title": "Measure before replacing a library",
     "summary": "Use native APIs when they meet the need; compare performance using the real workload.",
     "explanation": "A dependency can add download, initialization, and runtime costs, but it may also implement useful optimizations or remove substantial maintenance work. Compare the complete behavior, bundle impact, and measured bottleneck before replacing it.",
-    "category": "Runtime",
-    "source": "community",
-    "sourceUrl": "https://github.com/andredesousa/typescript-best-practices#raw-javascript-is-faster",
-    "sourceTitle": "Raw JavaScript is faster",
-    "scope": "Application code",
+    "category": "runtime",
+    "applicability": {
+      "contexts": [
+        "application"
+      ],
+      "environments": [
+        "runtime-independent"
+      ],
+      "when": [
+        "Choosing a dependency or replacing one to address a measured performance problem."
+      ],
+      "exceptions": [
+        "Use a library when its needed functionality or measured benefits justify its dependency and maintenance costs."
+      ]
+    },
     "tags": [
       "performance",
       "libraries",
       "native-api",
       "profiling"
     ],
-    "related": [
-      "measure-loops",
-      "array-methods",
-      "lazy-loading",
-      "lighthouse"
+    "citations": [
+      {
+        "sourceId": "community",
+        "section": "Raw JavaScript is faster",
+        "url": "https://github.com/andredesousa/typescript-best-practices#raw-javascript-is-faster",
+        "role": "origin"
+      }
     ],
-    "caveat": "The original heading makes an absolute claim. Native JavaScript is not universally faster than every library implementation. TypeScript type checking also does not run in the browser; compare the emitted JavaScript and actual workload.",
-    "bad": "// Assumption: every library call must be replaced to be fast.\n// No profile or equivalent-behavior comparison has been made.",
-    "good": "// For a simple DOM query, the native API is enough.\nconst buttons = document.querySelectorAll<HTMLButtonElement>(\"button\");\nfor (const button of buttons) {\n  button.disabled = true;\n}"
+    "notes": [
+      {
+        "kind": "editorial-correction",
+        "text": "The community source makes an absolute claim that libraries cannot be as fast as raw JavaScript. This reference replaces that claim with a measurement decision: compare equivalent behavior, dependency cost, and the actual workload. The browser executes the emitted JavaScript rather than TypeScript’s static type checks.",
+        "references": [
+          {
+            "title": "Chrome DevTools: Analyze runtime performance",
+            "url": "https://developer.chrome.com/docs/devtools/performance"
+          },
+          {
+            "title": "TypeScript Handbook: Erased types",
+            "url": "https://www.typescriptlang.org/docs/handbook/2/basic-types.html#erased-types"
+          }
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "id": "raw-javascript-is-faster-example",
+        "language": "typescript",
+        "variants": [
+          {
+            "role": "prefer",
+            "code": "// For a simple DOM query, the native API is enough.\nconst buttons = document.querySelectorAll<HTMLButtonElement>(\"button\");\nfor (const button of buttons) {\n  button.disabled = true;\n}"
+          }
+        ],
+        "explanation": "Illustrative browser TypeScript fragment showing a native API that meets a simple DOM need. It is not a benchmark or evidence that replacing a library is faster.",
+        "verification": {
+          "status": "illustrative"
+        }
+      }
+    ],
+    "relations": [
+      {
+        "practiceId": "measure-loops",
+        "kind": "complements",
+        "reason": "Loop choice depends on the required semantics and measured workload."
+      },
+      {
+        "practiceId": "array-methods",
+        "kind": "complements",
+        "reason": "Array methods describe common transformations and selections directly."
+      },
+      {
+        "practiceId": "lazy-loading",
+        "kind": "complements",
+        "reason": "Loading optional code later can reduce the initial work before a feature is needed."
+      },
+      {
+        "practiceId": "lighthouse",
+        "kind": "complements",
+        "reason": "Audits help identify page-level issues worth investigating with direct measurements."
+      }
+    ]
   },
   {
     "id": "organize-imports",
     "title": "Keep imports useful and organized",
     "summary": "Remove unused imports and group dependencies consistently.",
     "explanation": "Imports should make the module’s dependencies easy to scan. Use the editor, formatter, or current lint tooling to keep them tidy, and use import type when a dependency is needed only for types.",
-    "category": "Tooling",
-    "source": "community",
-    "sourceUrl": "https://github.com/andredesousa/typescript-best-practices#organize-and-remove-unused-imports",
-    "sourceTitle": "Organize and remove unused imports",
-    "scope": "Application code",
+    "category": "tooling",
+    "applicability": {
+      "contexts": [
+        "application",
+        "declaration-file"
+      ],
+      "environments": [
+        "runtime-independent"
+      ],
+      "when": [
+        "Maintaining a module’s import list."
+      ],
+      "exceptions": [
+        "Preserve an import whose purpose is an intentional side effect even when it imports no used binding."
+      ]
+    },
     "tags": [
       "imports",
       "lint",
       "dependencies"
     ],
-    "related": [
-      "follow-conventions",
-      "modularization"
+    "citations": [
+      {
+        "sourceId": "community",
+        "section": "Organize and remove unused imports",
+        "url": "https://github.com/andredesousa/typescript-best-practices#organize-and-remove-unused-imports",
+        "role": "origin"
+      }
     ],
-    "caveat": "The source links to TSLint rules. TSLint is legacy tooling; use the tools supported by the current project. Preserve imports whose purpose is an intentional side effect.",
-    "bad": "import { readFile, writeFile } from \"node:fs/promises\";\nexport const load = readFile;",
-    "good": "import { readFile } from \"node:fs/promises\";\nexport const load = readFile;"
+    "notes": [
+      {
+        "kind": "historical-context",
+        "text": "The community source links to TSLint rules. TSLint is deprecated; this reference recommends the editor, formatter, and lint tooling supported by the project while preserving intentional side-effect imports.",
+        "references": [
+          {
+            "title": "TSLint repository: Deprecation notice",
+            "url": "https://github.com/palantir/tslint"
+          }
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "id": "organize-imports-example",
+        "language": "typescript",
+        "variants": [
+          {
+            "role": "avoid",
+            "code": "import { readFile, writeFile } from \"node:fs/promises\";\nexport const load = readFile;"
+          },
+          {
+            "role": "prefer",
+            "code": "import { readFile } from \"node:fs/promises\";\nexport const load = readFile;"
+          }
+        ],
+        "explanation": "Illustrative Node.js module fragments. The preferred import includes only the readFile binding used in the module.",
+        "verification": {
+          "status": "illustrative"
+        }
+      }
+    ],
+    "relations": [
+      {
+        "practiceId": "follow-conventions",
+        "kind": "complements",
+        "reason": "Shared conventions keep routine readability decisions consistent across a project."
+      },
+      {
+        "practiceId": "modularization",
+        "kind": "complements",
+        "reason": "Clear module boundaries make responsibilities and dependencies easier to maintain."
+      }
+    ]
   },
   {
     "id": "modularization",
     "title": "Organize code into clear modules",
     "summary": "Group related behavior and expose a small, intentional API.",
     "explanation": "A module should make a responsibility easy to find and change. Extract shared behavior when it has a stable purpose, and avoid adding layers that merely forward a call without clarifying ownership.",
-    "category": "Code structure",
-    "source": "community",
-    "sourceUrl": "https://github.com/andredesousa/typescript-best-practices#modularization",
-    "sourceTitle": "Modularization",
-    "scope": "Application code",
+    "category": "code-structure",
+    "applicability": {
+      "contexts": [
+        "application",
+        "declaration-file",
+        "public-api"
+      ],
+      "environments": [
+        "runtime-independent"
+      ],
+      "when": [
+        "Responsibilities or stable shared behavior need a clear ownership boundary."
+      ],
+      "exceptions": []
+    },
     "tags": [
       "modules",
       "architecture",
       "reuse"
     ],
-    "related": [
-      "separate-concerns",
-      "small-functions",
-      "organize-imports"
+    "citations": [
+      {
+        "sourceId": "community",
+        "section": "Modularization",
+        "url": "https://github.com/andredesousa/typescript-best-practices#modularization",
+        "role": "origin"
+      }
+    ],
+    "notes": [],
+    "examples": [],
+    "relations": [
+      {
+        "practiceId": "separate-concerns",
+        "kind": "complements",
+        "reason": "Responsibility boundaries keep related domain, rendering, and I/O logic changeable."
+      },
+      {
+        "practiceId": "small-functions",
+        "kind": "complements",
+        "reason": "Focused helpers give a name and boundary to independently meaningful behavior."
+      },
+      {
+        "practiceId": "organize-imports",
+        "kind": "complements",
+        "reason": "Import cleanup is a concrete convention that can be automated consistently."
+      }
     ]
   },
   {
@@ -1014,324 +3140,1007 @@
     "title": "Load optional code when it is needed",
     "summary": "Use logical code-splitting boundaries to reduce initial work.",
     "explanation": "Dynamically import an expensive feature when the user requests it, or prefetch it when the need is predictable. Provide a loading state and handle import failures so the feature does not appear unresponsive.",
-    "category": "Runtime",
-    "source": "community",
-    "sourceUrl": "https://github.com/andredesousa/typescript-best-practices#lazy-loading",
-    "sourceTitle": "Lazy-Loading",
-    "scope": "Application code",
+    "category": "runtime",
+    "applicability": {
+      "contexts": [
+        "application"
+      ],
+      "environments": [
+        "browser",
+        "node"
+      ],
+      "when": [
+        "An optional feature can be loaded separately from the first useful work."
+      ],
+      "exceptions": [
+        "Load functionality needed for the first useful view eagerly rather than deferring it behind a later interaction."
+      ]
+    },
     "tags": [
       "dynamic-import",
       "bundles",
       "performance"
     ],
-    "related": [
-      "raw-javascript-is-faster",
-      "script-loading",
-      "compression"
+    "citations": [
+      {
+        "sourceId": "community",
+        "section": "Lazy-Loading",
+        "url": "https://github.com/andredesousa/typescript-best-practices#lazy-loading",
+        "role": "origin"
+      }
     ],
-    "caveat": "Too many tiny splits add request and coordination overhead. Do not delay code that is necessary for the first useful view.",
-    "bad": "import { buildChart } from \"./large-chart-library\";\nexport function openChart(data: number[]) {\n  buildChart(data);\n}",
-    "good": "export async function openChart(data: number[]) {\n  const { buildChart } = await import(\"./large-chart-library\");\n  buildChart(data);\n}"
+    "notes": [
+      {
+        "kind": "exception",
+        "text": "Too many tiny splits add request and coordination overhead. Do not delay code that is necessary for the first useful view.",
+        "references": []
+      }
+    ],
+    "examples": [
+      {
+        "id": "lazy-loading-example",
+        "language": "typescript",
+        "variants": [
+          {
+            "role": "avoid",
+            "code": "import { buildChart } from \"./large-chart-library\";\nexport function openChart(data: number[]) {\n  buildChart(data);\n}"
+          },
+          {
+            "role": "prefer",
+            "code": "export async function openChart(data: number[]) {\n  const { buildChart } = await import(\"./large-chart-library\");\n  buildChart(data);\n}"
+          }
+        ],
+        "explanation": "Illustrative TypeScript module fragments assuming a local large-chart-library module. The dynamic import delays loading until openChart runs; a complete feature also needs loading and error behavior.",
+        "verification": {
+          "status": "illustrative"
+        }
+      }
+    ],
+    "relations": [
+      {
+        "practiceId": "raw-javascript-is-faster",
+        "kind": "complements",
+        "reason": "Dependency choices should be based on equivalent behavior and measured costs."
+      },
+      {
+        "practiceId": "script-loading",
+        "kind": "complements",
+        "reason": "Script-loading semantics determine when browser code can execute safely."
+      },
+      {
+        "practiceId": "compression",
+        "kind": "complements",
+        "reason": "HTTP compression reduces transferred asset bytes separately from runtime execution."
+      }
+    ]
   },
   {
     "id": "compression",
     "title": "Compress transferred assets",
     "summary": "Use HTTP compression for text assets when the hosting platform supports it.",
     "explanation": "Brotli or gzip can reduce transferred JavaScript, CSS, and HTML bytes. Verify the deployed response headers and transferred size instead of assuming a build artifact is compressed in transit.",
-    "category": "Tooling",
-    "source": "community",
-    "sourceUrl": "https://github.com/andredesousa/typescript-best-practices#compress-the-files",
-    "sourceTitle": "Compress the files",
-    "scope": "Application code",
+    "category": "tooling",
+    "applicability": {
+      "contexts": [
+        "application"
+      ],
+      "environments": [
+        "browser",
+        "node"
+      ],
+      "when": [
+        "Serving text assets over HTTP."
+      ],
+      "exceptions": []
+    },
     "tags": [
       "compression",
       "brotli",
       "gzip",
       "performance"
     ],
-    "related": [
-      "minification",
-      "lazy-loading",
-      "lighthouse"
+    "citations": [
+      {
+        "sourceId": "community",
+        "section": "Compress the files",
+        "url": "https://github.com/andredesousa/typescript-best-practices#compress-the-files",
+        "role": "origin"
+      }
     ],
-    "caveat": "Savings depend on the asset and compression settings. Compression reduces transfer size; it does not directly reduce the JavaScript work the browser executes."
+    "notes": [
+      {
+        "kind": "exception",
+        "text": "Savings depend on the asset and compression settings. Compression reduces transfer size; it does not directly reduce the JavaScript work the browser executes.",
+        "references": []
+      }
+    ],
+    "examples": [],
+    "relations": [
+      {
+        "practiceId": "minification",
+        "kind": "complements",
+        "reason": "Production minification reduces source bytes and complements transfer compression."
+      },
+      {
+        "practiceId": "lazy-loading",
+        "kind": "complements",
+        "reason": "Loading optional code later can reduce the initial work before a feature is needed."
+      },
+      {
+        "practiceId": "lighthouse",
+        "kind": "complements",
+        "reason": "Audits help identify page-level issues worth investigating with direct measurements."
+      }
+    ]
   },
   {
     "id": "minification",
     "title": "Minify production assets",
     "summary": "Use the production build to remove unnecessary source characters and optimize output.",
     "explanation": "Let the build tool handle minification rather than manually shortening source code. Keep source maps according to the project’s debugging and disclosure needs, and check the resulting bundle size.",
-    "category": "Tooling",
-    "source": "community",
-    "sourceUrl": "https://github.com/andredesousa/typescript-best-practices#minify-the-code",
-    "sourceTitle": "Minify the code",
-    "scope": "Application code",
+    "category": "tooling",
+    "applicability": {
+      "contexts": [
+        "application"
+      ],
+      "environments": [
+        "browser",
+        "node"
+      ],
+      "when": [
+        "Producing JavaScript or other text assets for deployment."
+      ],
+      "exceptions": []
+    },
     "tags": [
       "minification",
       "build",
       "bundles"
     ],
-    "related": [
-      "compression",
-      "lazy-loading"
+    "citations": [
+      {
+        "sourceId": "community",
+        "section": "Minify the code",
+        "url": "https://github.com/andredesousa/typescript-best-practices#minify-the-code",
+        "role": "origin"
+      }
     ],
-    "caveat": "Minification and HTTP compression are different steps. Compression should still be configured at the serving layer."
+    "notes": [
+      {
+        "kind": "exception",
+        "text": "Minification and HTTP compression are different steps. Compression should still be configured at the serving layer.",
+        "references": []
+      }
+    ],
+    "examples": [],
+    "relations": [
+      {
+        "practiceId": "compression",
+        "kind": "complements",
+        "reason": "HTTP compression reduces transferred asset bytes separately from runtime execution."
+      },
+      {
+        "practiceId": "lazy-loading",
+        "kind": "complements",
+        "reason": "Loading optional code later can reduce the initial work before a feature is needed."
+      }
+    ]
   },
   {
     "id": "lighthouse",
     "title": "Use Lighthouse as one quality check",
     "summary": "Audit the deployed page and investigate the findings that affect users.",
     "explanation": "Lighthouse can identify performance, accessibility, and other web quality issues in a controlled run. Combine it with manual interaction checks and, when available, real-user measurements.",
-    "category": "Tooling",
-    "source": "community",
-    "sourceUrl": "https://github.com/andredesousa/typescript-best-practices#use-google-lighthouse",
-    "sourceTitle": "Use Google LightHouse",
-    "scope": "Application code",
+    "category": "tooling",
+    "applicability": {
+      "contexts": [
+        "application"
+      ],
+      "environments": [
+        "browser"
+      ],
+      "when": [
+        "Auditing a deployed web page."
+      ],
+      "exceptions": []
+    },
     "tags": [
       "lighthouse",
       "performance",
       "accessibility",
       "audits"
     ],
-    "related": [
-      "dom-access",
-      "raw-javascript-is-faster",
-      "testing"
+    "citations": [
+      {
+        "sourceId": "community",
+        "section": "Use Google LightHouse",
+        "url": "https://github.com/andredesousa/typescript-best-practices#use-google-lighthouse",
+        "role": "origin"
+      }
     ],
-    "caveat": "A score is a diagnostic signal. Run conditions and tool versions affect it, and an automated accessibility audit does not cover every accessibility requirement."
+    "notes": [
+      {
+        "kind": "exception",
+        "text": "A score is a diagnostic signal. Run conditions and tool versions affect it, and an automated accessibility audit does not cover every accessibility requirement.",
+        "references": []
+      }
+    ],
+    "examples": [],
+    "relations": [
+      {
+        "practiceId": "dom-access",
+        "kind": "complements",
+        "reason": "Organizing DOM reads and writes can reduce avoidable layout work."
+      },
+      {
+        "practiceId": "raw-javascript-is-faster",
+        "kind": "complements",
+        "reason": "Dependency choices should be based on equivalent behavior and measured costs."
+      },
+      {
+        "practiceId": "testing",
+        "kind": "complements",
+        "reason": "Behavior-focused tests verify contracts and important failure paths."
+      }
+    ]
   },
   {
     "id": "web-workers",
     "title": "Move suitable CPU work off the main thread",
     "summary": "Use a worker when a heavy calculation would block interaction.",
     "explanation": "A worker runs JavaScript in a separate execution context and communicates through messages. Keep the input and output contract clear, handle worker errors, and clean up workers when the work is finished.",
-    "category": "Runtime",
-    "source": "community",
-    "sourceUrl": "https://github.com/andredesousa/typescript-best-practices#use-web-workers",
-    "sourceTitle": "Use Web Workers",
-    "scope": "Application code",
+    "category": "runtime",
+    "applicability": {
+      "contexts": [
+        "application"
+      ],
+      "environments": [
+        "browser"
+      ],
+      "when": [
+        "CPU-intensive browser work blocks useful interaction on the main thread."
+      ],
+      "exceptions": [
+        "Keep a small task on the main thread when worker startup and message-transfer costs outweigh the responsiveness benefit."
+      ]
+    },
     "tags": [
       "workers",
       "cpu",
       "responsiveness"
     ],
-    "related": [
-      "promises-and-async",
-      "dom-access",
-      "measure-loops"
+    "citations": [
+      {
+        "sourceId": "community",
+        "section": "Use Web Workers",
+        "url": "https://github.com/andredesousa/typescript-best-practices#use-web-workers",
+        "role": "origin"
+      }
     ],
-    "caveat": "Workers cannot directly access the DOM. Startup, message transfer, and serialization have costs, so a worker is not automatically faster for small tasks."
+    "notes": [
+      {
+        "kind": "exception",
+        "text": "Workers cannot directly access the DOM. Startup, message transfer, and serialization have costs, so a worker is not automatically faster for small tasks.",
+        "references": [
+          {
+            "title": "MDN: Using Web Workers",
+            "url": "https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers"
+          }
+        ]
+      }
+    ],
+    "examples": [],
+    "relations": [
+      {
+        "practiceId": "promises-and-async",
+        "kind": "complements",
+        "reason": "Promise-based results make asynchronous sequencing and failure propagation explicit."
+      },
+      {
+        "practiceId": "dom-access",
+        "kind": "complements",
+        "reason": "Organizing DOM reads and writes can reduce avoidable layout work."
+      },
+      {
+        "practiceId": "measure-loops",
+        "kind": "complements",
+        "reason": "Loop choice depends on the required semantics and measured workload."
+      }
+    ]
   },
   {
     "id": "primitive-types",
     "title": "Use primitive type names",
     "summary": "Use string, number, boolean, and symbol instead of their boxed type names.",
     "explanation": "Boxed object types describe wrapper objects and rarely match what an API intends to accept. Use object for a non-primitive value, or a more specific object shape when its properties are known.",
-    "category": "Types",
-    "source": "handbook",
-    "sourceUrl": "https://www.typescriptlang.org/docs/handbook/declaration-files/do-s-and-don-ts.html#number-string-boolean-symbol-and-object",
-    "sourceTitle": "Number, String, Boolean, Symbol and Object",
-    "scope": "Declaration files and general type annotations",
+    "category": "types",
+    "applicability": {
+      "contexts": [
+        "application",
+        "declaration-file",
+        "public-api"
+      ],
+      "environments": [
+        "runtime-independent"
+      ],
+      "when": [
+        "Annotating primitive values or designing their public type contracts."
+      ],
+      "exceptions": []
+    },
     "tags": [
       "primitives",
       "boxed-types",
       "declarations"
     ],
-    "related": [
-      "literal-syntax",
-      "unknown-over-any"
+    "citations": [
+      {
+        "sourceId": "handbook",
+        "section": "Number, String, Boolean, Symbol and Object",
+        "url": "https://www.typescriptlang.org/docs/handbook/declaration-files/do-s-and-don-ts.html#number-string-boolean-symbol-and-object",
+        "role": "origin"
+      }
     ],
-    "caveat": "object means non-primitive. It is not a replacement for unknown when the input may be a primitive, and it does not describe a specific property shape.",
-    "bad": "declare function normalize(value: String): String;",
-    "good": "declare function normalize(value: string): string;"
+    "notes": [
+      {
+        "kind": "exception",
+        "text": "object means non-primitive. It is not a replacement for unknown when the input may be a primitive, and it does not describe a specific property shape.",
+        "references": [
+          {
+            "title": "TypeScript Handbook: Object types",
+            "url": "https://www.typescriptlang.org/docs/handbook/2/objects.html"
+          }
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "id": "primitive-types-example",
+        "language": "typescript",
+        "variants": [
+          {
+            "role": "avoid",
+            "code": "declare function normalize(value: String): String;"
+          },
+          {
+            "role": "prefer",
+            "code": "declare function normalize(value: string): string;"
+          }
+        ],
+        "explanation": "Illustrative TypeScript declaration signatures. The contract uses primitive string types instead of boxed String types.",
+        "verification": {
+          "status": "illustrative"
+        }
+      }
+    ],
+    "relations": [
+      {
+        "practiceId": "literal-syntax",
+        "kind": "complements",
+        "reason": "Literal values avoid unnecessary constructors and make the intended value apparent."
+      },
+      {
+        "practiceId": "unknown-over-any",
+        "kind": "complements",
+        "reason": "Unknown preserves checking while an unspecified input is narrowed or validated."
+      }
+    ]
   },
   {
     "id": "used-type-parameters",
     "title": "Make generic parameters meaningful",
     "summary": "A generic parameter should participate in the type relationship.",
     "explanation": "Use the parameter in members, arguments, or results so the type carries information. If the parameter has no role, remove it or model the relationship that the API actually needs.",
-    "category": "Types",
-    "source": "handbook",
-    "sourceUrl": "https://www.typescriptlang.org/docs/handbook/declaration-files/do-s-and-don-ts.html#generics",
-    "sourceTitle": "Generics",
-    "scope": "Declaration files and generic API design",
+    "category": "types",
+    "applicability": {
+      "contexts": [
+        "application",
+        "declaration-file",
+        "public-api"
+      ],
+      "environments": [
+        "runtime-independent"
+      ],
+      "when": [
+        "Designing a generic type or API."
+      ],
+      "exceptions": []
+    },
     "tags": [
       "generics",
       "type-parameters",
       "declarations"
     ],
-    "related": [
-      "avoid-any",
-      "utility-types"
+    "citations": [
+      {
+        "sourceId": "handbook",
+        "section": "Generics",
+        "url": "https://www.typescriptlang.org/docs/handbook/declaration-files/do-s-and-don-ts.html#generics",
+        "role": "origin"
+      }
     ],
-    "bad": "interface Result<T> {\n  status: string;\n}",
-    "good": "interface Result<T> {\n  status: \"ok\";\n  value: T;\n}"
+    "notes": [],
+    "examples": [
+      {
+        "id": "used-type-parameters-example",
+        "language": "typescript",
+        "variants": [
+          {
+            "role": "avoid",
+            "code": "interface Result<T> {\n  status: string;\n}"
+          },
+          {
+            "role": "prefer",
+            "code": "interface Result<T> {\n  status: \"ok\";\n  value: T;\n}"
+          }
+        ],
+        "explanation": "Illustrative TypeScript interfaces. Result<T> carries T in its value member rather than declaring an unused type parameter.",
+        "verification": {
+          "status": "illustrative"
+        }
+      }
+    ],
+    "relations": [
+      {
+        "practiceId": "avoid-any",
+        "kind": "complements",
+        "reason": "Useful inferred types and deliberate annotations preserve checking without redundant declarations."
+      },
+      {
+        "practiceId": "utility-types",
+        "kind": "complements",
+        "reason": "Utility types express reusable compile-time relationships without duplicating properties."
+      }
+    ]
   },
   {
     "id": "unknown-over-any",
     "title": "Use unknown for unspecified inputs",
     "summary": "Keep an unknown value checked until its type has been established.",
     "explanation": "Any disables checking through subsequent uses. Unknown accepts an unspecified value but requires narrowing before reading properties or calling it. Keep unavoidable any at a deliberate, documented boundary during migration.",
-    "category": "Types",
-    "source": "handbook",
-    "sourceUrl": "https://www.typescriptlang.org/docs/handbook/declaration-files/do-s-and-don-ts.html#any",
-    "sourceTitle": "any",
-    "scope": "Declaration files and general type annotations",
+    "category": "types",
+    "applicability": {
+      "contexts": [
+        "application",
+        "declaration-file",
+        "public-api"
+      ],
+      "environments": [
+        "runtime-independent"
+      ],
+      "when": [
+        "A value’s type is unspecified or a public API accepts untrusted input."
+      ],
+      "exceptions": [
+        "An unmigrated boundary may temporarily use any during a deliberate JavaScript-to-TypeScript migration."
+      ]
+    },
     "tags": [
       "unknown",
       "any",
       "narrowing",
       "migration"
     ],
-    "related": [
-      "avoid-any",
-      "validate-data"
+    "citations": [
+      {
+        "sourceId": "handbook",
+        "section": "any",
+        "url": "https://www.typescriptlang.org/docs/handbook/declaration-files/do-s-and-don-ts.html#any",
+        "role": "origin"
+      },
+      {
+        "sourceId": "community",
+        "section": "Avoid any. Type everything",
+        "url": "https://github.com/andredesousa/typescript-best-practices#avoid-any-type-everything",
+        "role": "supports"
+      }
     ],
-    "caveat": "The handbook specifically allows any as a migration aid. Unknown still requires runtime validation when external data must match a particular shape.",
-    "bad": "declare function decode(text: string): any;\nconst result = decode(\"{}\");\nresult.missing.call();",
-    "good": "declare function decode(text: string): unknown;\nconst result = decode(\"{}\");\nif (typeof result === \"string\") {\n  console.log(result.toUpperCase());\n}"
+    "notes": [
+      {
+        "kind": "exception",
+        "text": "The handbook specifically allows any as a migration aid. Unknown still requires runtime validation when external data must match a particular shape.",
+        "references": [
+          {
+            "title": "TypeScript Handbook: Declaration-file dos and don’ts",
+            "url": "https://www.typescriptlang.org/docs/handbook/declaration-files/do-s-and-don-ts.html"
+          }
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "id": "unknown-over-any-example",
+        "language": "typescript",
+        "variants": [
+          {
+            "role": "avoid",
+            "code": "declare function decode(text: string): any;\nconst result = decode(\"{}\");\nresult.missing.call();"
+          },
+          {
+            "role": "prefer",
+            "code": "declare function decode(text: string): unknown;\nconst result = decode(\"{}\");\nif (typeof result === \"string\") {\n  console.log(result.toUpperCase());\n}"
+          }
+        ],
+        "explanation": "Illustrative TypeScript fragments. decode is a declared API, not an implementation; the unknown result must be narrowed before string operations.",
+        "verification": {
+          "status": "illustrative"
+        }
+      }
+    ],
+    "relations": [
+      {
+        "practiceId": "avoid-any",
+        "kind": "related",
+        "reason": "These entries overlap on any and unknown while preserving project-inference and declaration-contract contexts from their different originating sources."
+      },
+      {
+        "practiceId": "validate-data",
+        "kind": "complements",
+        "reason": "Runtime validation establishes the shape of values before code relies on their declared types."
+      }
+    ]
   },
   {
     "id": "callback-return-void",
     "title": "Use void for ignored callback results",
     "summary": "Declare a callback result as void when the caller does not use it.",
     "explanation": "Void expresses that the API discards the returned value and prevents the implementation from treating that value as unchecked data. It describes how the result is used, rather than forbidding the callback from returning a value.",
-    "category": "Declarations",
-    "source": "handbook",
-    "sourceUrl": "https://www.typescriptlang.org/docs/handbook/declaration-files/do-s-and-don-ts.html#return-types-of-callbacks",
-    "sourceTitle": "Return Types of Callbacks",
-    "scope": "Callback contracts in declaration files",
+    "category": "declarations",
+    "applicability": {
+      "contexts": [
+        "declaration-file",
+        "public-api"
+      ],
+      "environments": [
+        "runtime-independent"
+      ],
+      "when": [
+        "The API ignores a callback’s returned value."
+      ],
+      "exceptions": [
+        "Use a meaningful return type when the API consumes the callback’s result."
+      ]
+    },
     "tags": [
       "callbacks",
       "void",
       "return-types",
       "declarations"
     ],
-    "related": [
-      "callback-parameters",
-      "callback-arity",
-      "promises-and-async"
+    "citations": [
+      {
+        "sourceId": "handbook",
+        "section": "Return Types of Callbacks",
+        "url": "https://www.typescriptlang.org/docs/handbook/declaration-files/do-s-and-don-ts.html#return-types-of-callbacks",
+        "role": "origin"
+      }
     ],
-    "bad": "declare function onReady(callback: () => any): void;",
-    "good": "declare function onReady(callback: () => void): void;"
+    "notes": [],
+    "examples": [
+      {
+        "id": "callback-return-void-example",
+        "language": "typescript",
+        "variants": [
+          {
+            "role": "avoid",
+            "code": "declare function onReady(callback: () => any): void;"
+          },
+          {
+            "role": "prefer",
+            "code": "declare function onReady(callback: () => void): void;"
+          }
+        ],
+        "explanation": "Illustrative TypeScript declaration signatures. Use void when onReady ignores the callback result.",
+        "verification": {
+          "status": "illustrative"
+        }
+      }
+    ],
+    "relations": [
+      {
+        "practiceId": "callback-parameters",
+        "kind": "complements",
+        "reason": "Callback parameter optionality describes what arguments the API may actually omit."
+      },
+      {
+        "practiceId": "callback-arity",
+        "kind": "complements",
+        "reason": "A callback can ignore supplied arguments without needing an extra shorter signature."
+      },
+      {
+        "practiceId": "promises-and-async",
+        "kind": "complements",
+        "reason": "Promise-based results make asynchronous sequencing and failure propagation explicit."
+      }
+    ]
   },
   {
     "id": "callback-parameters",
     "title": "Make callback parameters optional only when they can be absent",
     "summary": "Describe the arguments the API actually supplies to the callback.",
     "explanation": "A callback parameter marked optional means the callback may be invoked without that argument. Callers can already supply a callback that ignores extra arguments, so optionality is not needed just to let a callback accept fewer parameters.",
-    "category": "Declarations",
-    "source": "handbook",
-    "sourceUrl": "https://www.typescriptlang.org/docs/handbook/declaration-files/do-s-and-don-ts.html#optional-parameters-in-callbacks",
-    "sourceTitle": "Optional Parameters in Callbacks",
-    "scope": "Callback contracts in declaration files",
+    "category": "declarations",
+    "applicability": {
+      "contexts": [
+        "declaration-file",
+        "public-api"
+      ],
+      "environments": [
+        "runtime-independent"
+      ],
+      "when": [
+        "The API supplies an argument whenever it invokes a callback."
+      ],
+      "exceptions": [
+        "Make a callback parameter optional if the API really can omit that argument."
+      ]
+    },
     "tags": [
       "callbacks",
       "optional-parameters",
       "declarations"
     ],
-    "related": [
-      "callback-return-void",
-      "callback-arity",
-      "optional-overloads"
+    "citations": [
+      {
+        "sourceId": "handbook",
+        "section": "Optional Parameters in Callbacks",
+        "url": "https://www.typescriptlang.org/docs/handbook/declaration-files/do-s-and-don-ts.html#optional-parameters-in-callbacks",
+        "role": "origin"
+      }
     ],
-    "caveat": "Use an optional callback parameter when the API really can omit that argument. The example assumes elapsedMs is always supplied.",
-    "bad": "interface Loader {\n  load(done: (data: unknown, elapsedMs?: number) => void): void;\n}",
-    "good": "interface Loader {\n  load(done: (data: unknown, elapsedMs: number) => void): void;\n}"
+    "notes": [
+      {
+        "kind": "exception",
+        "text": "Use an optional callback parameter when the API really can omit that argument. The example assumes elapsedMs is always supplied.",
+        "references": [
+          {
+            "title": "TypeScript Handbook: Declaration-file dos and don’ts",
+            "url": "https://www.typescriptlang.org/docs/handbook/declaration-files/do-s-and-don-ts.html"
+          }
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "id": "callback-parameters-example",
+        "language": "typescript",
+        "variants": [
+          {
+            "role": "avoid",
+            "code": "interface Loader {\n  load(done: (data: unknown, elapsedMs?: number) => void): void;\n}"
+          },
+          {
+            "role": "prefer",
+            "code": "interface Loader {\n  load(done: (data: unknown, elapsedMs: number) => void): void;\n}"
+          }
+        ],
+        "explanation": "Illustrative TypeScript declarations assuming load always supplies elapsedMs. If that argument can be absent, the optional variant correctly describes a different contract.",
+        "verification": {
+          "status": "illustrative"
+        }
+      }
+    ],
+    "relations": [
+      {
+        "practiceId": "callback-return-void",
+        "kind": "complements",
+        "reason": "A void callback contract specifies that the API discards the callback’s result."
+      },
+      {
+        "practiceId": "callback-arity",
+        "kind": "complements",
+        "reason": "A callback can ignore supplied arguments without needing an extra shorter signature."
+      },
+      {
+        "practiceId": "optional-overloads",
+        "kind": "complements",
+        "reason": "Optional trailing parameters can replace overloads with the same result contract."
+      }
+    ]
   },
   {
     "id": "callback-arity",
     "title": "Avoid overloads that only change callback arity",
     "summary": "Use one callback signature with the arguments the API provides.",
     "explanation": "A callback can ignore arguments, so separate signatures for a zero-argument callback and a one-argument callback are usually redundant. The shorter overload can also admit callbacks that should have been checked against the fuller contract.",
-    "category": "Declarations",
-    "source": "handbook",
-    "sourceUrl": "https://www.typescriptlang.org/docs/handbook/declaration-files/do-s-and-don-ts.html#overloads-and-callbacks",
-    "sourceTitle": "Overloads and Callbacks",
-    "scope": "Callback overloads in declaration files",
+    "category": "declarations",
+    "applicability": {
+      "contexts": [
+        "declaration-file",
+        "public-api"
+      ],
+      "environments": [
+        "runtime-independent"
+      ],
+      "when": [
+        "Overloads differ only in how many callback arguments callers choose to accept."
+      ],
+      "exceptions": [
+        "Keep separate signatures when the API contracts differ beyond the callback’s unused trailing arguments."
+      ]
+    },
     "tags": [
       "callbacks",
       "overloads",
       "arity",
       "declarations"
     ],
-    "related": [
-      "callback-parameters",
-      "overload-order"
+    "citations": [
+      {
+        "sourceId": "handbook",
+        "section": "Overloads and Callbacks",
+        "url": "https://www.typescriptlang.org/docs/handbook/declaration-files/do-s-and-don-ts.html#overloads-and-callbacks",
+        "role": "origin"
+      }
     ],
-    "bad": "declare function beforeTask(action: () => void): void;\ndeclare function beforeTask(action: (done: () => void) => void): void;",
-    "good": "declare function beforeTask(\n  action: (done: () => void) => void\n): void;"
+    "notes": [],
+    "examples": [
+      {
+        "id": "callback-arity-example",
+        "language": "typescript",
+        "variants": [
+          {
+            "role": "avoid",
+            "code": "declare function beforeTask(action: () => void): void;\ndeclare function beforeTask(action: (done: () => void) => void): void;"
+          },
+          {
+            "role": "prefer",
+            "code": "declare function beforeTask(\n  action: (done: () => void) => void\n): void;"
+          }
+        ],
+        "explanation": "Illustrative TypeScript declarations assuming beforeTask supplies a done callback. A caller can ignore that argument without requiring a second zero-argument callback overload.",
+        "verification": {
+          "status": "illustrative"
+        }
+      }
+    ],
+    "relations": [
+      {
+        "practiceId": "callback-parameters",
+        "kind": "complements",
+        "reason": "Callback parameter optionality describes what arguments the API may actually omit."
+      },
+      {
+        "practiceId": "overload-order",
+        "kind": "complements",
+        "reason": "Specific overloads must remain reachable before general fallbacks."
+      }
+    ]
   },
   {
     "id": "overload-order",
     "title": "Put specific overloads first",
     "summary": "Place narrower call signatures before general fallback signatures.",
     "explanation": "TypeScript resolves calls using matching overload signatures, so an early broad signature can hide a later specific case. Order signatures so the intended return type is selected for specific inputs.",
-    "category": "Declarations",
-    "source": "handbook",
-    "sourceUrl": "https://www.typescriptlang.org/docs/handbook/declaration-files/do-s-and-don-ts.html#ordering",
-    "sourceTitle": "Ordering",
-    "scope": "Function overloads in declaration files",
+    "category": "declarations",
+    "applicability": {
+      "contexts": [
+        "declaration-file",
+        "public-api"
+      ],
+      "environments": [
+        "runtime-independent"
+      ],
+      "when": [
+        "A function exposes both specific and general overload signatures."
+      ],
+      "exceptions": []
+    },
     "tags": [
       "overloads",
       "ordering",
       "return-types",
       "declarations"
     ],
-    "related": [
-      "optional-overloads",
-      "union-overloads"
+    "citations": [
+      {
+        "sourceId": "handbook",
+        "section": "Ordering",
+        "url": "https://www.typescriptlang.org/docs/handbook/declaration-files/do-s-and-don-ts.html#ordering",
+        "role": "origin"
+      }
     ],
-    "bad": "declare function describe(value: unknown): string;\ndeclare function describe(value: Date): \"date\";\nconst result = describe(new Date()); // string",
-    "good": "declare function describe(value: Date): \"date\";\ndeclare function describe(value: unknown): string;\nconst result = describe(new Date()); // \"date\""
+    "notes": [],
+    "examples": [
+      {
+        "id": "overload-order-example",
+        "language": "typescript",
+        "variants": [
+          {
+            "role": "avoid",
+            "code": "declare function describe(value: unknown): string;\ndeclare function describe(value: Date): \"date\";\nconst result = describe(new Date()); // string"
+          },
+          {
+            "role": "prefer",
+            "code": "declare function describe(value: Date): \"date\";\ndeclare function describe(value: unknown): string;\nconst result = describe(new Date()); // \"date\""
+          }
+        ],
+        "explanation": "Illustrative TypeScript declarations. The specific Date overload appears before the unknown fallback to preserve the intended narrow result type.",
+        "verification": {
+          "status": "illustrative"
+        }
+      }
+    ],
+    "relations": [
+      {
+        "practiceId": "optional-overloads",
+        "kind": "complements",
+        "reason": "Optional trailing parameters can replace overloads with the same result contract."
+      },
+      {
+        "practiceId": "union-overloads",
+        "kind": "complements",
+        "reason": "Union parameters express accepted alternatives without redundant equivalent overloads."
+      }
+    ]
   },
   {
     "id": "optional-overloads",
     "title": "Replace trailing-argument overloads with optional parameters",
     "summary": "Collapse equivalent signatures when their return type is the same.",
     "explanation": "If the only difference is the presence of trailing arguments, a single signature with optional parameters is usually clearer. Preserve required relationships between arguments and keep separate signatures when their behavior or return types differ.",
-    "category": "Declarations",
-    "source": "handbook",
-    "sourceUrl": "https://www.typescriptlang.org/docs/handbook/declaration-files/do-s-and-don-ts.html#use-optional-parameters",
-    "sourceTitle": "Use Optional Parameters",
-    "scope": "Function overloads in declaration files",
+    "category": "declarations",
+    "applicability": {
+      "contexts": [
+        "declaration-file",
+        "public-api"
+      ],
+      "environments": [
+        "runtime-independent"
+      ],
+      "when": [
+        "Overloads differ only in trailing parameters and all return the same type."
+      ],
+      "exceptions": [
+        "Keep separate signatures when return types differ or combining signatures would allow unsupported argument combinations."
+      ]
+    },
     "tags": [
       "overloads",
       "optional-parameters",
       "declarations"
     ],
-    "related": [
-      "default-parameters",
-      "callback-parameters",
-      "union-overloads"
+    "citations": [
+      {
+        "sourceId": "handbook",
+        "section": "Use Optional Parameters",
+        "url": "https://www.typescriptlang.org/docs/handbook/declaration-files/do-s-and-don-ts.html#use-optional-parameters",
+        "role": "origin"
+      }
     ],
-    "caveat": "The handbook’s rule applies when all collapsed overloads have the same return type. Making an earlier parameter optional must not accidentally permit an unsupported argument combination.",
-    "bad": "declare function compare(left: string): number;\ndeclare function compare(left: string, right: string): number;",
-    "good": "declare function compare(left: string, right?: string): number;"
+    "notes": [
+      {
+        "kind": "exception",
+        "text": "The handbook’s rule applies when all collapsed overloads have the same return type. Making an earlier parameter optional must not accidentally permit an unsupported argument combination.",
+        "references": [
+          {
+            "title": "TypeScript Handbook: Declaration-file dos and don’ts",
+            "url": "https://www.typescriptlang.org/docs/handbook/declaration-files/do-s-and-don-ts.html"
+          }
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "id": "optional-overloads-example",
+        "language": "typescript",
+        "variants": [
+          {
+            "role": "avoid",
+            "code": "declare function compare(left: string): number;\ndeclare function compare(left: string, right: string): number;"
+          },
+          {
+            "role": "prefer",
+            "code": "declare function compare(left: string, right?: string): number;"
+          }
+        ],
+        "explanation": "Illustrative TypeScript declarations. Both original signatures return number, so the trailing parameter can be optional without changing the result contract.",
+        "verification": {
+          "status": "illustrative"
+        }
+      }
+    ],
+    "relations": [
+      {
+        "practiceId": "default-parameters",
+        "kind": "complements",
+        "reason": "Defaults document a meaningful omitted-argument contract."
+      },
+      {
+        "practiceId": "callback-parameters",
+        "kind": "complements",
+        "reason": "Callback parameter optionality describes what arguments the API may actually omit."
+      },
+      {
+        "practiceId": "union-overloads",
+        "kind": "complements",
+        "reason": "Union parameters express accepted alternatives without redundant equivalent overloads."
+      }
+    ]
   },
   {
     "id": "union-overloads",
     "title": "Use unions for equivalent overload inputs",
     "summary": "Combine one-position input alternatives when they share the same result contract.",
     "explanation": "A union parameter lets callers pass a value that is already a union. Keep an overload when a different input shape determines a different return type or enforces an important argument relationship.",
-    "category": "Declarations",
-    "source": "handbook",
-    "sourceUrl": "https://www.typescriptlang.org/docs/handbook/declaration-files/do-s-and-don-ts.html#use-union-types",
-    "sourceTitle": "Use Union Types",
-    "scope": "Function overloads in declaration files",
+    "category": "declarations",
+    "applicability": {
+      "contexts": [
+        "declaration-file",
+        "public-api"
+      ],
+      "environments": [
+        "runtime-independent"
+      ],
+      "when": [
+        "Overloads differ at one argument position and share a result contract."
+      ],
+      "exceptions": [
+        "Keep the zero-argument signature separate when its return type differs."
+      ]
+    },
     "tags": [
       "unions",
       "overloads",
       "return-types",
       "declarations"
     ],
-    "related": [
-      "optional-overloads",
-      "overload-order",
-      "string-unions"
+    "citations": [
+      {
+        "sourceId": "handbook",
+        "section": "Use Union Types",
+        "url": "https://www.typescriptlang.org/docs/handbook/declaration-files/do-s-and-don-ts.html#use-union-types",
+        "role": "origin"
+      }
     ],
-    "caveat": "Do not make the parameter optional if the zero-argument form returns a different type. The handbook deliberately keeps that signature separate.",
-    "bad": "interface Offset {\n  value(): number;\n  value(input: number): Offset;\n  value(input: string): Offset;\n}",
-    "good": "interface Offset {\n  value(): number;\n  value(input: number | string): Offset;\n}"
+    "notes": [
+      {
+        "kind": "exception",
+        "text": "Do not make the parameter optional if the zero-argument form returns a different type. The handbook deliberately keeps that signature separate.",
+        "references": [
+          {
+            "title": "TypeScript Handbook: Declaration-file dos and don’ts",
+            "url": "https://www.typescriptlang.org/docs/handbook/declaration-files/do-s-and-don-ts.html"
+          }
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "id": "union-overloads-example",
+        "language": "typescript",
+        "variants": [
+          {
+            "role": "avoid",
+            "code": "interface Offset {\n  value(): number;\n  value(input: number): Offset;\n  value(input: string): Offset;\n}"
+          },
+          {
+            "role": "prefer",
+            "code": "interface Offset {\n  value(): number;\n  value(input: number | string): Offset;\n}"
+          }
+        ],
+        "explanation": "Illustrative TypeScript interfaces. The one-argument forms share the Offset result and can use a union; the zero-argument number-returning form remains separate.",
+        "verification": {
+          "status": "illustrative"
+        }
+      }
+    ],
+    "relations": [
+      {
+        "practiceId": "optional-overloads",
+        "kind": "complements",
+        "reason": "Optional trailing parameters can replace overloads with the same result contract."
+      },
+      {
+        "practiceId": "overload-order",
+        "kind": "complements",
+        "reason": "Specific overloads must remain reachable before general fallbacks."
+      },
+      {
+        "practiceId": "string-unions",
+        "kind": "complements",
+        "reason": "A closed set of string values expresses a more specific domain contract."
+      }
+    ]
   }
 ]
