@@ -80,7 +80,7 @@ export default function Sources({
               <p className="sources-author">By {source.author}</p>
               <p className="sources-description">
                 {isPersonal
-                  ? `${count} opinionated ${count === 1 ? "practice" : "practices"} based on Viraj’s approved configuration.`
+                  ? `${count} opinionated ${count === 1 ? "practice" : "practices"} based on Viraj’s approved configurations.`
                   : isHandbook
                   ? `${count} guidelines for declaration files, callback contracts, and function overloads.`
                   : `${count} practices for project conventions, maintainable code, and runtime behavior.`}
@@ -92,7 +92,7 @@ export default function Sources({
                 target="_blank"
                 rel="noreferrer"
               >
-                {isPersonal ? "View approved configuration" : "Read the original"}
+                {isPersonal ? "View approved configurations" : "Read the original"}
               </a>
 
               <dl className="sources-metadata">
@@ -188,7 +188,7 @@ export default function Sources({
             notes. Keep the attribution, source links, license notices, and
             modification details when redistributing the content.
           </p>
-          <p>Viraj Shah’s personal configuration is included with his approval. A separate content license has not been specified.</p>
+          <p>Viraj Shah’s personal configurations are included with his approval. A separate content license has not been specified.</p>
           <div className="sources-notice-links">
             <a
               href={`${REPOSITORY}/blob/main/THIRD_PARTY_NOTICES.md`}

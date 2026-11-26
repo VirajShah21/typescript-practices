@@ -12,6 +12,6 @@
   {
     "sourceId": "viraj",
     "license": "LicenseRef-Unspecified",
-    "text": "Viraj Shah — personal Prettier configuration. Provided and approved by Viraj Shah on 2026-11-26 for inclusion in this reference. Based on the management-ui configuration with endOfLine changed from auto to lf; all other settings preserved. These settings are opinionated preferences. No separate content license has been specified. This notice does not grant the project’s MIT license to this source."
+    "text": "Viraj Shah — personal Prettier and ESLint configurations. Provided and approved by Viraj Shah on 2026-11-26 for inclusion in this reference. Based on management-ui: Prettier changes endOfLine from auto to lf and printWidth from 180 to 80; ESLint changes complexity from 35 to 20, max-lines from 500 to 300, and max-len from 180 to 80. Curly multi and all other semantic settings are preserved, including project-specific presets, paths, restrictions, and overrides. The ESLint snapshot is reformatted using the approved Prettier configuration. These settings are opinionated preferences. No separate content license has been specified. This notice does not grant the project’s MIT license to this source."
   }
 ]

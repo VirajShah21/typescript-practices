@@ -26,11 +26,11 @@
     "kind": "personal",
     "title": "Viraj Shah",
     "author": "Viraj Shah",
-    "url": "https://github.com/VirajShah21/typescript-practices/blob/73b2b813f75f0d5793c8ce624319d294a45f6d74/configs/viraj.prettierrc.json",
+    "url": "https://github.com/VirajShah21/typescript-practices/blob/ee429626453692474cc78591eb90cf140d17b14b/configs/README.md",
     "license": "LicenseRef-Unspecified",
     "licenseUrl": null,
-    "revision": "73b2b813f75f0d5793c8ce624319d294a45f6d74",
+    "revision": "ee429626453692474cc78591eb90cf140d17b14b",
     "checkedAt": "2026-11-26",
-    "provenance": "Personal, opinionated preferences approved by Viraj Shah on 2026-11-26. Imported from the management-ui Prettier configuration with endOfLine changed from auto to lf. All other settings are preserved. ESLint configuration is not included."
+    "provenance": "Personal, opinionated preferences approved by Viraj Shah on 2026-11-26. Imported from management-ui. Prettier uses LF line endings and printWidth 80. ESLint uses complexity 20, max-lines 300, max-len 80, and curly multi. Other semantic settings are preserved, including the original ESLint presets, project-specific paths, restrictions, and overrides. Setup instructions and dependency versions accompany both snapshots."
   }
 ]

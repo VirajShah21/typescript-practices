@@ -8,7 +8,7 @@ A searchable TypeScript reference with a REST API, an MCP server, and downloadab
 
 The reference site retains its own access settings. The separate public API and MCP service can be used without signing in to the Site.
 
-The catalogue contains 60 practices: 50 originating in André de Sousa’s guide, nine originating in the TypeScript Handbook’s declaration-file guidelines, and Viraj Shah’s personal Prettier configuration. Supporting citations can connect practices to overlapping sources. Personal guidance is identified as opinionated. Each practice includes structured applicability, conditions and exceptions, citations, editorial notes, examples, and related practices.
+The catalogue contains 61 practices: 50 originating in André de Sousa’s guide, nine originating in the TypeScript Handbook’s declaration-file guidelines, and Viraj Shah’s personal Prettier and ESLint configurations. Supporting citations can connect practices to overlapping sources. Personal guidance is identified as opinionated. Each practice includes structured applicability, conditions and exceptions, citations, editorial notes, examples, and related practices.
 
 ## Install and run
 
@@ -240,6 +240,6 @@ Rewritten summaries, editorial notes, and project examples are adaptations. Neit
 
 ## Viraj Shah’s personal source
 
-The `viraj` source contains opinionated preferences approved by Viraj Shah. Start with [the complete Prettier configuration](configs/viraj.prettierrc.json), imported from management-ui with `endOfLine: "lf"`. The other ten settings are preserved. ESLint has not been imported.
+The `viraj` source contains opinionated preferences approved by Viraj Shah. The [approved configurations](configs/README.md) contain a complete [Prettier configuration](configs/viraj.prettierrc.json) and [ESLint flat configuration](configs/viraj.eslint.config.cts), imported from management-ui. Prettier uses `endOfLine: "lf"` and `printWidth: 80`. ESLint warns above complexity 20, limits files to 300 lines excluding blank lines and comments, limits lines to 80 characters, and retains `curly: "multi"`. The other settings are preserved; the ESLint snapshot retains its project-specific presets, paths, and overrides. Setup instructions and dependency versions are in configs/README.md.
 
-Search with `source=viraj` or retrieve `viraj-prettier-configuration` by ID through REST or MCP. Sources expose `kind` (`community`, `official`, or `personal`), and can include `provenance`. Personal source content has no separately specified license (`LicenseRef-Unspecified`, `licenseUrl: null`); the application MIT license does not silently replace it. Source links are pinned to the approved configuration’s public Git revision.
+Search with `source=viraj` or retrieve `viraj-prettier-configuration` or `viraj-eslint-configuration` by ID through REST or MCP. Sources expose `kind` (`community`, `official`, or `personal`), and can include `provenance`. Personal source content has no separately specified license (`LicenseRef-Unspecified`, `licenseUrl: null`); the application MIT license does not silently replace it. Source links are pinned to the approved configuration’s public Git revision.

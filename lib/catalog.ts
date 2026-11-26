@@ -119,7 +119,7 @@ export function catalogueMarkdown(): string {
     }
     if (practice.relations.length) lines.push("", "### Related practices", "", ...practice.relations.map(relation => `- ${relation.practiceId} (${relation.kind}): ${relation.reason}`));
   }
-  lines.push("", "## Redistribution and modifications", "", "Community-origin practices retain André de Sousa’s MIT notice. Handbook-origin practices are adapted under CC BY 4.0 and credited to Microsoft and TypeScript contributors. Changes include rewritten summaries and explanations, new examples, grouping, structured applicability, and editorial corrections. Viraj Shah’s personal configuration is included with his approval and has no separately specified content license. Supporting citations do not imply endorsement. Keep all source attribution, license notices, and modification details when redistributing.", "", "## Full license notices");
+  lines.push("", "## Redistribution and modifications", "", "Community-origin practices retain André de Sousa’s MIT notice. Handbook-origin practices are adapted under CC BY 4.0 and credited to Microsoft and TypeScript contributors. Changes include rewritten summaries and explanations, new examples, grouping, structured applicability, and editorial corrections. Viraj Shah’s personal configurations are included with his approval and has no separately specified content license. Supporting citations do not imply endorsement. Keep all source attribution, license notices, and modification details when redistributing.", "", "## Full license notices");
   for (const notice of licenseNotices) lines.push("", `### ${notice.sourceId}: ${notice.license}`, "", fence(notice.text));
   return `${lines.join("\n")}\n`;
 }

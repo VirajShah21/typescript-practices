@@ -39,7 +39,7 @@ test('search filters match structured applicability and the same ranked results 
 test('compact results omit full content and pagination is deterministic', () => {
   const first = listPractices({limit: 2});
   const next = listPractices({limit: 2, offset: first.meta.nextOffset});
-  assert.equal(first.meta.total, 60);
+  assert.equal(first.meta.total, 61);
   assert.equal(first.meta.hasMore, true);
   assert.equal(first.meta.nextOffset, 2);
   assert.equal(new Set([...first.data, ...next.data].map(item => item.id)).size, 4);
@@ -66,7 +66,7 @@ test('snapshot metadata hashes the actual catalogue and exported notices travel 
   assert.ok(markdown.includes('Creative Commons'));
   assert.ok(markdown.includes('Verification: illustrative.'));
   const taxonomy = listTaxonomy();
-  assert.equal(taxonomy.data.categories.reduce((sum, item) => sum+item.count, 0), 60);
+  assert.equal(taxonomy.data.categories.reduce((sum, item) => sum+item.count, 0), 61);
   assert.ok(taxonomy.data.contexts.every(item => typeof item.label === 'string'));
 });
 

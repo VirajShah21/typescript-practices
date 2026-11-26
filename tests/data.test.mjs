@@ -46,7 +46,7 @@ test("the migrated catalogue validates and preserves all original practice IDs",
   assert.equal(SCHEMA_VERSION, "2");
   assert.deepEqual(PracticesSchema.parse(practices), practices);
   assert.deepEqual(practices.slice(0, originalIds.length).map((practice) => practice.id), originalIds);
-  assert.deepEqual(practices.slice(originalIds.length).map((practice) => practice.id), ["viraj-prettier-configuration"]);
+  assert.deepEqual(practices.slice(originalIds.length).map((practice) => practice.id), ["viraj-prettier-configuration", "viraj-eslint-configuration"]);
   for (const practice of practices) {
     for (const legacyField of ["source", "sourceTitle", "sourceUrl", "scope", "caveat", "bad", "good", "related"]) {
       assert.equal(Object.hasOwn(practice, legacyField), false, `${practice.id} retained ${legacyField}`);
@@ -70,7 +70,7 @@ test("source snapshots and origin attribution remain distinct from supporting ci
       assert.ok(citation.url.includes("#"), `${practice.id} lacks a section link`);
     }
   }
-  assert.deepEqual(originCounts, { community: 50, handbook: 9, viraj: 1 });
+  assert.deepEqual(originCounts, { community: 50, handbook: 9, viraj: 2 });
   assert.deepEqual(byId.get("avoid-any").citations.map(({ sourceId, role }) => [sourceId, role]), [
     ["community", "origin"], ["handbook", "supports"],
   ]);
@@ -101,7 +101,7 @@ test("applicability distinguishes browser behavior, compiler settings, and condi
 
 test("examples describe their actual language, assumptions, and illustrative status", () => {
   const examples = practices.flatMap((practice) => practice.examples);
-  assert.equal(examples.length, 49);
+  assert.equal(examples.length, 50);
   for (const example of examples) assert.deepEqual(example.verification, { status: "illustrative" });
   for (const id of ["script-loading", "progressive-enhancement"]) {
     assert.equal(byId.get(id).examples[0].language, "html");
@@ -204,7 +204,7 @@ test("published schema structure exposes taxonomy and array constraints", () => 
 test("personal Prettier snapshot preserves the approved settings and LF line endings", () => {
   const expected = {
     endOfLine: "lf",
-    printWidth: 180,
+    printWidth: 80,
     tabWidth: 4,
     useTabs: false,
     singleQuote: true,
@@ -233,4 +233,34 @@ test("personal Prettier snapshot preserves the approved settings and LF line end
   assert.match(source.revision, /^[a-f0-9]{40}$/);
   assert.equal(source.checkedAt, "2026-11-26");
   assert.ok(source.url.includes(source.revision));
+});
+
+
+test("personal ESLint snapshot preserves approved thresholds and the inherited configuration", () => {
+  const config = readFileSync(new URL("../configs/viraj.eslint.config.cts", import.meta.url), "utf8");
+  assert.equal(config.includes("\r"), false);
+  assert.match(config, /complexity:\s*\['warn',\s*20\]/);
+  assert.match(config, /'max-len':\s*\['error',\s*80\]/);
+  assert.match(config, /'max-lines':\s*\[\s*'error',\s*\{\s*max:\s*300,\s*skipBlankLines:\s*true,\s*skipComments:\s*true\s*\},?\s*\]/);
+  assert.match(config, /curly:\s*\['error',\s*'multi'\]/);
+  assert.match(config, /compat\.extends\(\s*'next',\s*'next\/core-web-vitals',\s*'prettier',\s*'plugin:@typescript-eslint\/recommended',\s*'plugin:eslint-comments\/recommended',?\s*\)/);
+  assert.match(config, /'@typescript-eslint\/consistent-type-imports':\s*\[\s*'error',\s*\{ prefer: 'type-imports', fixStyle: 'separate-type-imports' \}/);
+  assert.match(config, /'@typescript-eslint\/no-explicit-any':\s*'error'/);
+  assert.match(config, /'react-hooks\/exhaustive-deps':\s*'error'/);
+  assert.match(config, /'jsdoc\/require-jsdoc':\s*\[/);
+  assert.match(config, /noInlineConfig:\s*true/);
+  assert.match(config, /'no-restricted-imports':\s*\[\s*'error',\s*\{ patterns: \['\.\.\/\*',\s*'@mui\/icons-material\*'\] \}/);
+  assert.match(config, /'apps\/edx-mgmtlsp\/\*\*\/\*\.js'/);
+  const practice = byId.get("viraj-eslint-configuration");
+  assert.equal(practice.category, "tooling");
+  assert.deepEqual(practice.citations.map(({sourceId, role}) => ({sourceId, role})), [{sourceId: "viraj", role: "origin"}]);
+  const example = practice.examples.find(example => example.language === "typescript");
+  const preferred = example.variants.find(variant => variant.role === "prefer");
+  assert.equal(preferred.code.trimEnd(), config.trimEnd());
+  const source = sources.find(source => source.id === "viraj");
+  assert.equal(source.kind, "personal");
+  assert.ok(source.url.includes(source.revision));
+  for (const id of ["viraj-prettier-configuration", "viraj-eslint-configuration"]) {
+    assert.ok(byId.get(id).citations[0].url.includes(source.revision), `${id} must cite the approved source revision`);
+  }
 });

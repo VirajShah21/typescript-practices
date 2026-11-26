@@ -4146,8 +4146,8 @@
   {
     "id": "viraj-prettier-configuration",
     "title": "Prettier configuration",
-    "summary": "Viraj Shah’s opinionated Prettier configuration: LF line endings, four spaces, single quotes, no semicolons, and a print width of 180.",
-    "explanation": "These are Viraj Shah’s personal formatting preferences. They are not universal TypeScript rules or recommendations from the TypeScript Handbook. Save the complete JSON example as .prettierrc in a project that chooses this style.\n\nendOfLine: \"lf\" standardizes line endings to LF across operating systems. This is the only change from the imported management-ui configuration.\n\nprintWidth: 180 sets the preferred wrapping width. It is a target, not a hard maximum; some strings and other constructs can remain longer.\n\ntabWidth: 4 and useTabs: false use four spaces per indentation level.\n\nsingleQuote: true prefers single quotes in JavaScript and TypeScript strings. Prettier can choose double quotes to reduce escaping. jsxSingleQuote: true uses single quotes for JSX attributes.\n\ntrailingComma: \"es5\" adds trailing commas in multiline objects and arrays, without trailing commas in function parameters or calls.\n\nbracketSpacing: true adds spaces inside object braces. arrowParens: \"avoid\" omits parentheses around a single arrow parameter when possible.\n\nsemi: false omits statement-ending semicolons; Prettier still inserts protective semicolons where needed. quoteProps: \"as-needed\" quotes object property names only when required.\n\nThe configuration contains 11 settings. No ESLint rules or project-specific lint configuration are imported.",
+    "summary": "Viraj Shah’s opinionated Prettier configuration: LF line endings, four spaces, single quotes, no semicolons, and a print width of 80.",
+    "explanation": "These are Viraj Shah’s personal formatting preferences. They are not universal TypeScript rules or recommendations from the TypeScript Handbook. Save the complete JSON example as .prettierrc in a project that chooses this style.\n\nendOfLine: \"lf\" standardizes line endings to LF across operating systems. The imported management-ui configuration used auto line endings and printWidth 180; this approved snapshot uses LF and printWidth 80.\n\nprintWidth: 80 sets the preferred wrapping width. It is a target, not a hard maximum; some strings and other constructs can remain longer.\n\ntabWidth: 4 and useTabs: false use four spaces per indentation level.\n\nsingleQuote: true prefers single quotes in JavaScript and TypeScript strings. Prettier can choose double quotes to reduce escaping. jsxSingleQuote: true uses single quotes for JSX attributes.\n\ntrailingComma: \"es5\" adds trailing commas in multiline objects and arrays, without trailing commas in function parameters or calls.\n\nbracketSpacing: true adds spaces inside object braces. arrowParens: \"avoid\" omits parentheses around a single arrow parameter when possible.\n\nsemi: false omits statement-ending semicolons; Prettier still inserts protective semicolons where needed. quoteProps: \"as-needed\" quotes object property names only when required.\n\nThe configuration contains 11 formatting settings. The companion ESLint entry defines the matching 80-character hard line limit.",
     "category": "tooling",
     "applicability": {
       "contexts": [
@@ -4176,7 +4176,7 @@
       {
         "sourceId": "viraj",
         "section": "Approved Prettier configuration",
-        "url": "https://github.com/VirajShah21/typescript-practices/blob/73b2b813f75f0d5793c8ce624319d294a45f6d74/configs/viraj.prettierrc.json#L1-L13",
+        "url": "https://github.com/VirajShah21/typescript-practices/blob/ee429626453692474cc78591eb90cf140d17b14b/configs/viraj.prettierrc.json#L1-L13",
         "role": "origin"
       }
     ],
@@ -4188,10 +4188,10 @@
         "variants": [
           {
             "role": "prefer",
-            "code": "{\n  \"endOfLine\": \"lf\",\n  \"printWidth\": 180,\n  \"tabWidth\": 4,\n  \"useTabs\": false,\n  \"singleQuote\": true,\n  \"trailingComma\": \"es5\",\n  \"bracketSpacing\": true,\n  \"arrowParens\": \"avoid\",\n  \"semi\": false,\n  \"quoteProps\": \"as-needed\",\n  \"jsxSingleQuote\": true\n}"
+            "code": "{\n  \"endOfLine\": \"lf\",\n  \"printWidth\": 80,\n  \"tabWidth\": 4,\n  \"useTabs\": false,\n  \"singleQuote\": true,\n  \"trailingComma\": \"es5\",\n  \"bracketSpacing\": true,\n  \"arrowParens\": \"avoid\",\n  \"semi\": false,\n  \"quoteProps\": \"as-needed\",\n  \"jsxSingleQuote\": true\n}"
           }
         ],
-        "explanation": "Complete approved .prettierrc. All 11 settings match the imported configuration except endOfLine, which is intentionally set to lf. Formatting output depends on the installed Prettier version.",
+        "explanation": "Complete approved .prettierrc. endOfLine is lf and printWidth is 80; the other nine settings match the imported management-ui configuration. Formatting output depends on the installed Prettier version.",
         "verification": {
           "status": "illustrative"
         }
@@ -4207,6 +4207,80 @@
         "practiceId": "configuration",
         "kind": "complements",
         "reason": "Keep the chosen formatting preferences in a shared project configuration."
+      },
+      {
+        "practiceId": "viraj-eslint-configuration",
+        "kind": "complements",
+        "reason": "The companion ESLint configuration enforces an 80-character maximum alongside this formatter’s 80-character wrapping target."
+      }
+    ]
+  },
+  {
+    "id": "viraj-eslint-configuration",
+    "title": "ESLint configuration",
+    "summary": "Viraj Shah’s opinionated ESLint configuration: complexity 20, files up to 300 code lines, an 80-character line limit, and curly multi.",
+    "explanation": "This is Viraj Shah’s personal ESLint configuration, imported from management-ui and updated with his approved limits. It is an opinionated project-derived snapshot, not a universal TypeScript rule set.\n\ncomplexity: [\"warn\", 20] warns when a function’s cyclomatic complexity exceeds 20. The warning severity is retained from the original configuration.\n\nmax-lines: [\"error\", { max: 300, skipBlankLines: true, skipComments: true }] limits files to 300 counted lines, excluding blank lines and comment-only lines.\n\nmax-len: [\"error\", 80] enforces a hard 80-character line limit. The companion Prettier configuration uses printWidth 80 as a wrapping target, so some strings, URLs, or comments can still exceed the lint limit after formatting.\n\ncurly: [\"error\", \"multi\"] is preserved. It requires braces for multiple statements and rejects unnecessary braces around a single statement. It is based on statement count rather than line count.\n\nThe other settings are retained from management-ui: TypeScript recommended checks, separate type imports, no explicit any, React and hook checks, JSDoc requirements, import restrictions, and ESLint-comment restrictions. The configuration also retains the Next.js presets, Prettier integration, Mira Pro ignore paths, monorepo overrides, and MUI icon restriction. Review these project-specific parts when using the configuration elsewhere.\n\nCopy the full snapshot as eslint.config.cts beside the approved .prettierrc in a target project. Follow the accompanying setup instructions for the matching dependency versions and TypeScript configuration loader. The imported file is reference content; it does not configure this reference website’s tooling.\n\nThe original core max-len rule is retained. It is deprecated in ESLint in favor of the Stylistic equivalent; no plugin migration is part of this approved snapshot.",
+    "category": "tooling",
+    "applicability": {
+      "contexts": [
+        "application",
+        "declaration-file",
+        "public-api"
+      ],
+      "environments": [
+        "runtime-independent"
+      ],
+      "when": [
+        "The project adopts Viraj Shah’s personal linting preferences and adapts the retained framework and path settings to its own structure."
+      ],
+      "exceptions": [
+        "Follow the project’s established lint configuration when contributing to a project with different conventions.",
+        "Remove or adapt framework-specific presets and repository-specific paths when the target project does not use the same stack or directory structure."
+      ]
+    },
+    "tags": [
+      "eslint",
+      "linting",
+      "configuration",
+      "personal-preferences",
+      "complexity",
+      "formatting"
+    ],
+    "citations": [
+      {
+        "sourceId": "viraj",
+        "section": "Approved ESLint configuration",
+        "url": "https://github.com/VirajShah21/typescript-practices/blob/ee429626453692474cc78591eb90cf140d17b14b/configs/viraj.eslint.config.cts#L1-L226",
+        "role": "origin"
+      }
+    ],
+    "notes": [],
+    "examples": [
+      {
+        "id": "viraj-eslint-flat-config",
+        "language": "typescript",
+        "variants": [
+          {
+            "role": "prefer",
+            "code": "import { createRequire } from 'node:module'\nimport type { ESLint } from 'eslint'\nimport { defineConfig } from 'eslint/config'\n\n// Use native CommonJS loading so FlatCompat and this config share\n// plugin identities.\nconst requirePlugin = createRequire(__filename)\nconst { FlatCompat }: typeof import('@eslint/eslintrc') =\n    requirePlugin('@eslint/eslintrc')\nconst typescript: typeof import('@typescript-eslint/eslint-plugin') =\n    requirePlugin('@typescript-eslint/eslint-plugin')\nconst typescriptParser: typeof import('@typescript-eslint/parser') =\n    requirePlugin('@typescript-eslint/parser')\n// These plugin versions do not ship TypeScript declarations.\nconst eslintComments: ESLint.Plugin = requirePlugin(\n    'eslint-plugin-eslint-comments'\n)\nconst prettier: ESLint.Plugin = requirePlugin('eslint-plugin-prettier')\nconst reactPerf: ESLint.Plugin = requirePlugin('eslint-plugin-react-perf')\nconst importPlugin: typeof import('eslint-plugin-import') = requirePlugin(\n    'eslint-plugin-import'\n)\nconst jsdoc: typeof import('eslint-plugin-jsdoc').default = requirePlugin(\n    'eslint-plugin-jsdoc'\n)\nconst react: typeof import('eslint-plugin-react') = requirePlugin(\n    'eslint-plugin-react'\n)\nconst reactHooks: typeof import('eslint-plugin-react-hooks') = requirePlugin(\n    'eslint-plugin-react-hooks'\n)\n\n// The installed Next.js preset still uses the legacy shared-config format.\nconst compat = new FlatCompat({\n    baseDirectory: __dirname,\n    resolvePluginsRelativeTo: __dirname,\n})\n\nexport = defineConfig([\n    {\n        ignores: [\n            '**/.*',\n            '!**/.eslintrc.*',\n            '**/.next',\n            '**/dist',\n            '**/node_modules',\n            'apps/edx-mgmt/src/mira-pro/components/guards',\n            'apps/edx-mgmt/src/mira-pro/components/navbar',\n            'apps/edx-mgmt/src/mira-pro/components/pages',\n            'apps/edx-mgmt/src/mira-pro/components/sidebar',\n            'apps/edx-mgmt/src/mira-pro/contexts',\n            'apps/edx-mgmt/src/mira-pro/hooks',\n            'apps/edx-mgmt/src/mira-pro/layouts',\n            'apps/edx-mgmt/src/mira-pro/mocks',\n            'apps/edx-mgmt/src/mira-pro/redux',\n            'apps/edx-mgmt/src/mira-pro/theme',\n            'apps/edx-mgmt/src/mira-pro/types',\n            'apps/edx-mgmt/src/mira-pro/utils',\n            'apps/edx-mgmt/src/mira-pro/vendor',\n            'src/mira-pro/components/guards',\n            'src/mira-pro/components/navbar',\n            'src/mira-pro/components/pages',\n            'src/mira-pro/components/sidebar',\n            'src/mira-pro/contexts',\n            'src/mira-pro/hooks',\n            'src/mira-pro/layouts',\n            'src/mira-pro/mocks',\n            'src/mira-pro/redux',\n            'src/mira-pro/theme',\n            'src/mira-pro/types',\n            'src/mira-pro/utils',\n            'src/mira-pro/vendor',\n        ],\n    },\n    {\n        files: ['**/*.{cjs,cts,js,jsx,mjs,ts,tsx}'],\n        extends: compat.extends(\n            'next',\n            'next/core-web-vitals',\n            'prettier',\n            'plugin:@typescript-eslint/recommended',\n            'plugin:eslint-comments/recommended'\n        ),\n        languageOptions: {\n            // Preserve the legacy defaults. TypeScript parsing still\n            // supports modern syntax.\n            ecmaVersion: 5,\n            parser: typescriptParser,\n            parserOptions: {\n                ecmaFeatures: {\n                    globalReturn: false,\n                },\n            },\n        },\n        linterOptions: {\n            noInlineConfig: true,\n            reportUnusedDisableDirectives: 'off',\n        },\n        plugins: {\n            // The plugin's legacy config types allow null parsers;\n            // ESLint's types do not.\n            '@typescript-eslint': typescript as unknown as ESLint.Plugin,\n            'eslint-comments': eslintComments,\n            import: importPlugin,\n            jsdoc,\n            prettier,\n            react,\n            'react-hooks': reactHooks,\n            'react-perf': reactPerf,\n        },\n        rules: {\n            '@typescript-eslint/consistent-type-imports': [\n                'error',\n                { prefer: 'type-imports', fixStyle: 'separate-type-imports' },\n            ],\n            complexity: ['warn', 20],\n            'max-len': ['error', 80],\n            'max-lines': [\n                'error',\n                { max: 300, skipBlankLines: true, skipComments: true },\n            ],\n            'prettier/prettier': 'error',\n            '@next/next/link-passhref': 'off',\n            '@next/next/no-html-link-for-pages': 'off',\n            'react/no-unescaped-entities': 'off',\n            '@typescript-eslint/no-explicit-any': 'error',\n            'react-hooks/exhaustive-deps': 'error',\n            curly: ['error', 'multi'],\n            'no-restricted-imports': [\n                'error',\n                { patterns: ['../*', '@mui/icons-material*'] },\n            ],\n            'jsdoc/require-jsdoc': [\n                'error',\n                {\n                    publicOnly: {\n                        ancestorsOnly: true,\n                        esm: true,\n                        cjs: true,\n                        window: true,\n                    },\n                    require: {\n                        FunctionDeclaration: true,\n                        MethodDefinition: true,\n                        ClassDeclaration: true,\n                        ArrowFunctionExpression: false,\n                    },\n                    contexts: [\n                        'TSInterfaceDeclaration',\n                        'TSTypeAliasDeclaration',\n                        'TSEnumDeclaration',\n                    ],\n                },\n            ],\n            'jsdoc/require-hyphen-before-param-description': [\n                'error',\n                'always',\n                {\n                    tags: {\n                        param: 'always',\n                        returns: 'never',\n                        property: 'always',\n                    },\n                },\n            ],\n            'jsdoc/require-throws': 'error',\n            'jsdoc/require-description': 'error',\n            'jsdoc/require-description-complete-sentence': 'error',\n            'jsdoc/check-indentation': 'error',\n            'jsdoc/sort-tags': 'error',\n            'jsdoc/check-access': 'error',\n            'jsdoc/check-alignment': 'error',\n            'jsdoc/check-param-names': ['error', { checkDestructured: false }],\n            'jsdoc/check-property-names': 'error',\n            'jsdoc/check-tag-names': 'error',\n            'jsdoc/check-types': 'error',\n            'jsdoc/check-values': 'error',\n            'jsdoc/empty-tags': 'error',\n            'jsdoc/implements-on-classes': 'error',\n            'jsdoc/multiline-blocks': 'error',\n            'jsdoc/no-multi-asterisks': 'error',\n            'jsdoc/no-undefined-types': 'error',\n            'jsdoc/require-param': ['error', { checkDestructuredRoots: false }],\n            'jsdoc/require-param-description': 'error',\n            'jsdoc/require-param-name': 'error',\n            'jsdoc/require-property': 'error',\n            'jsdoc/require-property-description': 'error',\n            'jsdoc/require-property-name': 'error',\n            'jsdoc/require-returns': 'error',\n            'jsdoc/require-returns-check': 'error',\n            'jsdoc/require-returns-description': 'error',\n            'jsdoc/require-yields': 'error',\n            'jsdoc/require-yields-check': 'error',\n            'jsdoc/tag-lines': 'error',\n            'jsdoc/valid-types': 'error',\n            'jsdoc/no-types': 'error',\n            'jsdoc/require-template': 'error',\n            'import/exports-last': 'off',\n            'import/no-absolute-path': 'error',\n            'react/jsx-no-bind': 'error',\n            'react/no-multi-comp': ['error', { ignoreStateless: true }],\n            'eslint-comments/no-use': 'error',\n        },\n    },\n    {\n        files: ['apps/edx-mgmtlsp/**/*.js'],\n        rules: {\n            '@next/next/no-html-link-for-pages': 'off',\n            '@typescript-eslint/no-require-imports': 'off',\n            'jsdoc/require-jsdoc': 'off',\n        },\n    },\n    {\n        files: ['packages/**/*.{ts,cjs}'],\n        rules: {\n            '@next/next/no-html-link-for-pages': 'off',\n        },\n    },\n    {\n        files: ['apps/*/test/**/*.cjs', 'packages/*/test/**/*.cjs'],\n        rules: {\n            '@typescript-eslint/no-require-imports': 'off',\n            'jsdoc/require-jsdoc': 'off',\n        },\n    },\n])"
+          }
+        ],
+        "explanation": "Complete eslint.config.cts snapshot. The approved complexity, file-length, and line-length limits are applied; curly multi and the other semantic settings are preserved. The file is formatted with the approved Prettier configuration. Matching dependencies and project adaptation are described in the source setup instructions.",
+        "verification": {
+          "status": "illustrative"
+        }
+      }
+    ],
+    "relations": [
+      {
+        "practiceId": "viraj-prettier-configuration",
+        "kind": "complements",
+        "reason": "Pair the 80-character ESLint hard limit with the approved Prettier configuration’s 80-character wrapping target and LF line endings."
+      },
+      {
+        "practiceId": "follow-conventions",
+        "kind": "complements",
+        "reason": "Adopt these opinionated rules deliberately and respect existing conventions in other projects."
       }
     ]
   }
