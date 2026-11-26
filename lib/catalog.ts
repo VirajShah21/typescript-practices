@@ -94,7 +94,11 @@ function fence(code: string, language = "") {
 }
 export function catalogueMarkdown(): string {
   const lines = ["# TypeScript Practices", "", `Schema version: ${metadata.schemaVersion}`, `Dataset version: ${metadata.datasetVersion}`, "", "This is a reviewed snapshot. Examples are illustrative fragments, not verified executable programs.", "", "## Sources", ""];
-  for (const source of sources) lines.push(`- [${source.title}](${source.url}), by ${source.author}. License: [${source.license}](${source.licenseUrl}). Revision: ${source.revision}. Source checked: ${source.checkedAt}.`);
+  for (const source of sources) {
+    const license = source.licenseUrl ? `[${source.license}](${source.licenseUrl})` : "Not specified";
+    lines.push(`- [${source.title}](${source.url}), by ${source.author}. Kind: ${source.kind}${source.kind === "personal" ? " (opinionated preferences)" : ""}. License: ${license}. Revision: ${source.revision}. Source checked: ${source.checkedAt}.`);
+    if (source.provenance) lines.push(`  ${source.provenance}`);
+  }
   for (const practice of practices) {
     lines.push("", `## ${practice.title}`, "", `ID: ${practice.id}`, `Category: ${label(categories, practice.category)}`, "", practice.summary, "", practice.explanation, "", `Contexts: ${practice.applicability.contexts.map(id => label(contexts, id)).join(", ")}`, `Environments: ${practice.applicability.environments.map(id => label(environments, id)).join(", ")}`);
     if (practice.applicability.when.length) lines.push("", "### Applies when", "", ...practice.applicability.when.map(text => `- ${text}`));
@@ -110,11 +114,12 @@ export function catalogueMarkdown(): string {
     lines.push("", "### Citations", "");
     for (const citation of practice.citations) {
       const source = sources.find(item => item.id === citation.sourceId)!;
-      lines.push(`- [${citation.section}](${citation.url}) — ${source.title}; ${citation.role}; [${source.license}](${source.licenseUrl}).`);
+      const license = source.licenseUrl ? `[${source.license}](${source.licenseUrl})` : "License not specified";
+      lines.push(`- [${citation.section}](${citation.url}) — ${source.title}; ${citation.role}; ${license}.`);
     }
     if (practice.relations.length) lines.push("", "### Related practices", "", ...practice.relations.map(relation => `- ${relation.practiceId} (${relation.kind}): ${relation.reason}`));
   }
-  lines.push("", "## Redistribution and modifications", "", "Community-origin practices retain André de Sousa’s MIT notice. Handbook-origin practices are adapted under CC BY 4.0 and credited to Microsoft and TypeScript contributors. Changes include rewritten summaries and explanations, new examples, grouping, structured applicability, and editorial corrections. Supporting citations do not imply endorsement. Keep all source attribution, license notices, and modification details when redistributing.", "", "## Full license notices");
+  lines.push("", "## Redistribution and modifications", "", "Community-origin practices retain André de Sousa’s MIT notice. Handbook-origin practices are adapted under CC BY 4.0 and credited to Microsoft and TypeScript contributors. Changes include rewritten summaries and explanations, new examples, grouping, structured applicability, and editorial corrections. Viraj Shah’s personal configuration is included with his approval and has no separately specified content license. Supporting citations do not imply endorsement. Keep all source attribution, license notices, and modification details when redistributing.", "", "## Full license notices");
   for (const notice of licenseNotices) lines.push("", `### ${notice.sourceId}: ${notice.license}`, "", fence(notice.text));
   return `${lines.join("\n")}\n`;
 }

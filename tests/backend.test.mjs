@@ -44,9 +44,9 @@ test('compact search has versioned metadata, useful matches, and no full content
   const result = await request('/api/v1/practices?limit=100');
   assert.equal(result.response.status, 200);
   const { data, meta } = SearchResponseSchema.parse(result.body);
-  assert.equal(meta.total, 59);
-  assert.equal(data.length, 59);
-  assert.equal(new Set(data.map(item => item.id)).size, 59);
+  assert.equal(meta.total, 60);
+  assert.equal(data.length, 60);
+  assert.equal(new Set(data.map(item => item.id)).size, 60);
   assert.equal(meta.schemaVersion, '2');
   assert.match(meta.datasetVersion, /^sha256:[a-f0-9]{64}$/);
   assert.equal(meta.hasMore, false);
@@ -118,12 +118,12 @@ test('detail, batch, taxonomy, and sources conform to their shared schemas', asy
   assert.equal(Object.hasOwn(practice, 'good'), false);
   const taxonomy = TaxonomyResponseSchema.parse((await request('/api/v1/taxonomy')).body);
   assert.equal(taxonomy.data.categories.length, 6);
-  assert.equal(taxonomy.data.categories.reduce((sum, item) => sum + item.count, 0), 59);
+  assert.equal(taxonomy.data.categories.reduce((sum, item) => sum + item.count, 0), 60);
   const declarationContext = await request('/api/v1/practices?context=declaration-file&limit=100');
   assert.equal(taxonomy.data.contexts.find(item => item.id === 'declaration-file').count, declarationContext.body.meta.total);
   assert.ok(declarationContext.body.meta.total >= 9);
   const sources = SourcesResponseSchema.parse((await request('/api/v1/sources')).body);
-  assert.equal(sources.data.length, 2);
+  assert.equal(sources.data.length, 3);
   const firstIds = (await request('/api/v1/practices?limit=2')).body.data.map(item => item.id);
   const result = await batch([firstIds[1], 'nonexistent-practice', firstIds[0]]);
   assert.equal(result.response.status, 200);
@@ -139,16 +139,16 @@ test('detail, batch, taxonomy, and sources conform to their shared schemas', asy
 
 test('manifest links, JSON/Markdown exports, and generated schemas retain attribution', async () => {
   const manifest = ManifestSchema.parse((await request('/api/v1/catalogue/manifest')).body);
-  assert.equal(manifest.practiceCount, 59);
-  assert.equal(manifest.sourceCount, 2);
+  assert.equal(manifest.practiceCount, 60);
+  assert.equal(manifest.sourceCount, 3);
   for (const link of Object.values(manifest.links)) assert.ok(new URL(link).pathname.startsWith('/api/v1/'));
   const json = await request('/api/v1/catalogue');
   assert.match(json.response.headers.get('content-disposition'), /attachment; filename="typescript-practices.json"/);
   const catalogue = CatalogueSchema.parse(json.body);
-  assert.equal(catalogue.practices.length, 59);
-  assert.equal(catalogue.sources.length, 2);
-  assert.equal(catalogue.licenseNotices.length, 2);
-  assert.ok(catalogue.licenseNotices.every(notice => notice.text.length > 1000));
+  assert.equal(catalogue.practices.length, 60);
+  assert.equal(catalogue.sources.length, 3);
+  assert.equal(catalogue.licenseNotices.length, 3);
+  assert.ok(catalogue.licenseNotices.filter(notice => notice.sourceId !== 'viraj').every(notice => notice.text.length > 1000));
   const markdown = await request('/api/v1/catalogue?format=markdown');
   assert.match(markdown.response.headers.get('content-type'), /text\/markdown/);
   assert.match(markdown.response.headers.get('content-disposition'), /attachment; filename="typescript-practices.md"/);
@@ -243,4 +243,27 @@ test('MCP transport rejects foreign origins, unsupported media, oversized bodies
   assert.equal((await rpc('x'.repeat(65537))).response.status, 413);
   assert.equal((await rpc(payload, { headers: { 'mcp-protocol-version': '1900-01-01' } })).response.status, 400);
   assert.equal((await request('/mcp')).response.status, 405);
+});
+
+
+test('personal Prettier preferences are discoverable through REST and MCP', async () => {
+  const filtered = await request('/api/v1/practices?source=viraj');
+  assert.equal(filtered.response.status, 200);
+  const results = SearchResponseSchema.parse(filtered.body);
+  assert.equal(results.meta.total, 1);
+  assert.deepEqual(results.data.map(item => item.id), ['viraj-prettier-configuration']);
+  assert.deepEqual(results.data[0].sourceIds, ['viraj']);
+  const detail = PracticeResponseSchema.parse((await request('/api/v1/practices/viraj-prettier-configuration')).body).data;
+  assert.equal(detail.category, 'tooling');
+  assert.equal(JSON.parse(detail.examples[0].variants.find(variant => variant.role === 'prefer').code).endOfLine, 'lf');
+  const personalSearch = (await call('search_practices', { source: 'viraj' })).body.result;
+  assert.equal(personalSearch.isError, false);
+  assert.deepEqual(personalSearch.structuredContent.data.map(item => item.id), ['viraj-prettier-configuration']);
+  const sourceResult = (await call('list_sources')).body.result;
+  assert.equal(sourceResult.isError, false);
+  const personal = SourcesResponseSchema.parse(sourceResult.structuredContent).data.find(source => source.id === 'viraj');
+  assert.equal(personal.kind, 'personal');
+  assert.equal(personal.author, 'Viraj Shah');
+  assert.equal(personal.license, 'LicenseRef-Unspecified');
+  assert.equal(personal.licenseUrl, null);
 });

@@ -92,18 +92,20 @@ export const PracticeSchema = z.strictObject({
 
 export const SourceSchema = z.strictObject({
   id: SourceIdSchema,
+  kind: z.enum(["community", "official", "personal"]).describe("Personal sources express the named author's preferences, not universal TypeScript recommendations."),
   title: TextSchema,
   author: TextSchema,
   url: HttpsUrlSchema,
-  license: z.enum(["MIT", "CC-BY-4.0"]),
-  licenseUrl: HttpsUrlSchema,
+  license: z.enum(["MIT", "CC-BY-4.0", "LicenseRef-Unspecified"]),
+  licenseUrl: HttpsUrlSchema.nullable(),
   revision: z.string().regex(/^[a-f0-9]{40}$/, "Must be a full Git commit SHA."),
   checkedAt: z.iso.date(),
+  provenance: TextSchema.optional(),
 });
 
 export const LicenseNoticeSchema = z.strictObject({
   sourceId: SourceIdSchema,
-  license: z.enum(["MIT", "CC-BY-4.0"]),
+  license: z.enum(["MIT", "CC-BY-4.0", "LicenseRef-Unspecified"]),
   text: TextSchema,
 });
 

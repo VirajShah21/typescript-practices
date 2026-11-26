@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { BookOpen, Braces, ChevronDown, Code2, Download, ExternalLink, FileCode2, Info, Layers, ListFilter, Menu, Plug, Search, SlidersHorizontal, X } from "lucide-react";
+import { BookOpen, Braces, ChevronDown, Code2, Download, ExternalLink, FileCode2, Info, Layers, ListFilter, Menu, Plug, Search, SlidersHorizontal, UserRound, X } from "lucide-react";
 import type { Practice, Source } from "../../lib/models.ts";
 import { categories, contexts, environments } from "../../lib/taxonomy.ts";
 import { searchCatalogue } from "../../lib/search.ts";
@@ -28,6 +28,11 @@ const emptyFilters: Filters = { q: "", category: "", source: "", context: "", en
 const noteLabels = { "editorial-correction": "Editorial correction", exception: "Exception", "historical-context": "Historical context" };
 const variantLabels = { avoid: "Avoid", prefer: "Prefer", alternative: "Alternative", tradeoff: "Tradeoff" };
 const relationLabels = { related: "Related", complements: "Complements", alternative: "Alternative", prerequisite: "Prerequisite" };
+
+function sourceLabel(source: Source | undefined) {
+  if (source?.id === "handbook") return "TypeScript Handbook";
+  return source?.kind === "personal" ? `${source.title} · Opinionated` : source?.title || "Unknown source";
+}
 
 function labelFor(items: readonly { id: string; label: string }[], id: string) {
   return items.find(item => item.id === id)?.label || id;
@@ -233,15 +238,15 @@ export default function Reference({
             })}
             <div className="sidebar-bottom">
               <div className="connection-note"><span className="connection-icon"><Plug size={19} /></span><strong>In your workflow</strong><p>Reference the same guidance from your editor or agent.</p><button onClick={() => navigate("integrations")}>Connect your tools</button></div>
-              <button className="source-note" onClick={() => navigate("sources")}><span className="source-mini-icons"><Github size={14} /><FileCode2 size={14} /></span><span>Two sources. One reference.</span><span className="source-note-detail">View sources & licenses</span></button>
+              <button className="source-note" onClick={() => navigate("sources")}><span className="source-mini-icons"><Github size={14} /><FileCode2 size={14} /></span><span>{sources.length} sources. One reference.</span><span className="source-note-detail">View sources & licenses</span></button>
             </div>
           </aside>
         </> : null}
         <main id="main-content" className={`main-content ${view !== "reference" ? "document-main" : "reference-main"}`}>
           {view === "reference" ? <>
             <section className="page-intro">
-              <div><div className="intro-title-row"><h1>TypeScript practices</h1><span className="reference-badge">{practices.length} practices</span></div><p>Project conventions and declaration-file guidelines, together.</p></div>
-              <div className="intro-source"><div className="source-symbols"><span>TS</span><Github size={18} /></div><span>Community guide<br />& TypeScript Handbook</span></div>
+              <div><div className="intro-title-row"><h1>TypeScript practices</h1><span className="reference-badge">{practices.length} practices</span></div><p>Project conventions, declaration-file guidelines, and personal preferences.</p></div>
+              <div className="intro-source"><div className="source-symbols"><span>TS</span><Github size={18} /></div><span>Community, Handbook<br />& personal preferences</span></div>
             </section>
             <div className="search-toolbar">
               <div className="search-field"><Search size={19} /><input ref={searchRef} type="search" aria-label="Search practices" placeholder="Search practices, types, or patterns" value={filters.q} maxLength={300} onChange={event => changeFilters({ ...filters, q: event.target.value })} /><kbd>/</kbd></div>
@@ -263,23 +268,23 @@ export default function Reference({
                     const source = sources.find(item => item.id === originCitation?.sourceId);
                     return <button key={practice.id} data-practice={practice.id} className={`practice-item ${selected?.id === practice.id ? "current" : ""}`} onClick={() => openPractice(practice.id)} aria-pressed={selected?.id === practice.id}>
                       <span className="item-title">{practice.title}</span><span className="item-summary">{filters.q && match.snippet ? match.snippet : practice.summary}</span>
-                      <span className={`source-tag ${source?.id}`}>{source?.id === "handbook" ? <FileCode2 size={12} /> : <Github size={12} />}{source?.id === "handbook" ? "TypeScript Handbook" : "Community guide"}</span>
+                      <span className={`source-tag ${source?.id}`}>{source?.id === "handbook" ? <FileCode2 size={12} /> : source?.kind === "personal" ? <UserRound size={12} /> : <Github size={12} />}{sourceLabel(source)}</span>
                     </button>;
                   }) : <div className="empty-results"><Search size={27} /><h2>No practices found</h2><p>Try another phrase or clear the filters.</p><button className="primary-button" onClick={() => changeFilters(emptyFilters)}>Clear filters</button></div>}
                 </div>
               </section>
               {search.matches.length && selected ? <article className="reader-pane" ref={readerRef} key={selected.id} aria-label={selected.title}>
                 <button className="back-button" onClick={backToResults}>Back to results</button>
-                <div className="reader-meta"><span>{labelFor(categories, selected.category)}</span><span>{selected.citations.map(citation => citation.sourceId === "handbook" ? "TypeScript Handbook" : "Community guide").filter((name, index, names) => names.indexOf(name) === index).join(" + ")}</span></div>
+                <div className="reader-meta"><span>{labelFor(categories, selected.category)}</span><span>{selected.citations.map(citation => sourceLabel(sources.find(source => source.id === citation.sourceId))).filter((name, index, names) => names.indexOf(name) === index).join(" + ")}</span></div>
                 <h2 ref={headingRef} tabIndex={-1}>{selected.title}</h2><p className="reader-summary">{selected.summary}</p>
                 <div className="reference-applicability"><span>Applies to</span><div>{selected.applicability.contexts.map(id => <span key={id}>{labelFor(contexts, id)}</span>)}{selected.applicability.environments.map(id => <span className="environment-chip" key={id}>{labelFor(environments, id)}</span>)}</div></div>
-                <p className="explanation">{selected.explanation}</p>
+                {selected.explanation.split(/\n\n+/).map((paragraph, index) => <p className="explanation" key={`${selected.id}-explanation-${index}`}>{paragraph}</p>)}
                 {selected.applicability.when.length || selected.applicability.exceptions.length ? <section className="reference-conditions"><h3>When to apply this</h3>{selected.applicability.when.length ? <ul>{selected.applicability.when.map(condition => <li key={condition}>{condition}</li>)}</ul> : null}{selected.applicability.exceptions.length ? <><h4>Exceptions</h4><ul>{selected.applicability.exceptions.map(exception => <li key={exception}>{exception}</li>)}</ul></> : null}</section> : null}
                 {selected.notes.map((note, index) => <aside className={`context-note reference-note ${note.kind}`} key={`${note.kind}-${index}`}><Info size={17} /><div><strong>{noteLabels[note.kind]}</strong><p>{note.text}</p>{note.references.length ? <div className="reference-note-links">{note.references.map(reference => <a key={reference.url} href={reference.url} target="_blank" rel="noreferrer">{reference.title}<ExternalLink size={12} /></a>)}</div> : null}</div></aside>)}
                 {selected.examples.length ? <section className="example-section"><h3>Examples</h3>{selected.examples.map(example => <div className="reference-example" key={example.id}><div className="reference-example-heading"><span>{example.language}</span><span>Illustrative example</span></div>{example.variants.map(variant => <CodeBlock key={variant.role} code={variant.code} label={variantLabels[variant.role]} kind={variant.role === "avoid" ? "bad" : variant.role === "prefer" ? "good" : undefined} />)}<p>{example.explanation}</p></div>)}</section> : null}
                 <section className="reader-source reference-citations"><h3>Sources & citations</h3>{selected.citations.map(citation => {
                   const source = sources.find(item => item.id === citation.sourceId);
-                  return <div key={`${citation.sourceId}-${citation.url}`}><a href={citation.url} target="_blank" rel="noreferrer">{citation.section}<ExternalLink size={13} /></a><p>{source?.title}. {citation.role === "origin" ? "Original guidance" : "Supporting reference"}.{source ? <> <a href={source.licenseUrl} target="_blank" rel="noreferrer">{source.license}</a></> : null}</p></div>;
+                  return <div key={`${citation.sourceId}-${citation.url}`}><a href={citation.url} target="_blank" rel="noreferrer">{citation.section}<ExternalLink size={13} /></a><p>{source?.title}. {citation.role === "origin" ? "Original guidance" : "Supporting reference"}.{source ? source.licenseUrl ? <> <a href={source.licenseUrl} target="_blank" rel="noreferrer">{source.license}</a></> : <> License not specified.</> : null}</p></div>;
                 })}<button className="reference-attribution-link" onClick={() => navigate("sources")}>Attribution & license notices</button></section>
                 {selected.relations.length ? <section className="related reference-relations"><h3>Related practices</h3><div>{selected.relations.map(relation => {
                   const practice = practices.find(item => item.id === relation.practiceId);
@@ -289,7 +294,7 @@ export default function Reference({
                 <div className="reader-footer"><a href={`${PUBLIC_API_URL}/api/v1/practices/${selected.id}`} target="_blank" rel="noreferrer"><Braces size={15} />View JSON</a><a href={`${PUBLIC_API_URL}/api/v1/catalogue?format=markdown`}><Download size={14} />Download catalogue</a><CopyButton text={`${origin}/?practice=${selected.id}`} label="Copy link" /></div>
               </article> : <div className="reader-placeholder"><BookOpen size={32} /><p>Try another search or clear the filters.</p></div>}
             </div>
-          </> : view === "integrations" ? <Integrations origin={origin} metadata={metadata} /> : <Sources sources={sources} practices={practices} metadata={metadata} />}
+          </> : view === "integrations" ? <Integrations origin={origin} metadata={metadata} sources={sources} /> : <Sources sources={sources} practices={practices} metadata={metadata} />}
         </main>
       </div>
     </div>

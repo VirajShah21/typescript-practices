@@ -46,7 +46,7 @@ const definitions: ToolDefinition[] = [
   },
   {
     name: "list_sources", title: "List reference sources",
-    description: "Read original source attribution, licenses, immutable source revisions, and source check dates.",
+    description: "Read source attribution, kind, licenses, immutable revisions, and check dates. Personal sources contain opinionated preferences from the named author. LicenseRef-Unspecified means no separate content license has been specified; licenseUrl is null in that case.",
     input: EmptyInputSchema, output: SourcesResponseSchema, run: () => listSources(),
   },
   {

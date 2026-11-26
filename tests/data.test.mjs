@@ -45,7 +45,8 @@ const originalIds = [
 test("the migrated catalogue validates and preserves all original practice IDs", () => {
   assert.equal(SCHEMA_VERSION, "2");
   assert.deepEqual(PracticesSchema.parse(practices), practices);
-  assert.deepEqual(practices.map((practice) => practice.id), originalIds);
+  assert.deepEqual(practices.slice(0, originalIds.length).map((practice) => practice.id), originalIds);
+  assert.deepEqual(practices.slice(originalIds.length).map((practice) => practice.id), ["viraj-prettier-configuration"]);
   for (const practice of practices) {
     for (const legacyField of ["source", "sourceTitle", "sourceUrl", "scope", "caveat", "bad", "good", "related"]) {
       assert.equal(Object.hasOwn(practice, legacyField), false, `${practice.id} retained ${legacyField}`);
@@ -55,11 +56,11 @@ test("the migrated catalogue validates and preserves all original practice IDs",
 
 test("source snapshots and origin attribution remain distinct from supporting citations", () => {
   assert.deepEqual(SourcesSchema.parse(sources), sources);
-  assert.deepEqual(sources.map(({ id, revision, checkedAt, license }) => ({ id, revision, checkedAt, license })), [
+  assert.deepEqual(sources.filter(source => source.id !== "viraj").map(({ id, revision, checkedAt, license }) => ({ id, revision, checkedAt, license })), [
     { id: "community", revision: "aaedb9fadd42711e30a9eb984c2b10d4abaab71c", checkedAt: "2026-11-25", license: "MIT" },
     { id: "handbook", revision: "a03790f13df45ca6302abae688432762121db3c8", checkedAt: "2026-11-25", license: "CC-BY-4.0" },
   ]);
-  const originCounts = { community: 0, handbook: 0 };
+  const originCounts = { community: 0, handbook: 0, viraj: 0 };
   for (const practice of practices) {
     const origins = practice.citations.filter((citation) => citation.role === "origin");
     assert.equal(origins.length, 1, practice.id);
@@ -69,7 +70,7 @@ test("source snapshots and origin attribution remain distinct from supporting ci
       assert.ok(citation.url.includes("#"), `${practice.id} lacks a section link`);
     }
   }
-  assert.deepEqual(originCounts, { community: 50, handbook: 9 });
+  assert.deepEqual(originCounts, { community: 50, handbook: 9, viraj: 1 });
   assert.deepEqual(byId.get("avoid-any").citations.map(({ sourceId, role }) => [sourceId, role]), [
     ["community", "origin"], ["handbook", "supports"],
   ]);
@@ -100,7 +101,7 @@ test("applicability distinguishes browser behavior, compiler settings, and condi
 
 test("examples describe their actual language, assumptions, and illustrative status", () => {
   const examples = practices.flatMap((practice) => practice.examples);
-  assert.equal(examples.length, 48);
+  assert.equal(examples.length, 49);
   for (const example of examples) assert.deepEqual(example.verification, { status: "illustrative" });
   for (const id of ["script-loading", "progressive-enhancement"]) {
     assert.equal(byId.get(id).examples[0].language, "html");
@@ -142,8 +143,13 @@ test("offline notices preserve the complete upstream license text", () => {
   const paths = { community: "andredesousa-MIT.txt", handbook: "typescript-website-CC-BY-4.0.txt" };
   for (const notice of licenseNotices) {
     assert.equal(notice.license, sources.find((source) => source.id === notice.sourceId).license);
-    const fullText = readFileSync(new URL(`../licenses/${paths[notice.sourceId]}`, import.meta.url), "utf8");
-    assert.equal(notice.text, fullText);
+    if (notice.sourceId === "viraj") {
+      assert.equal(notice.license, "LicenseRef-Unspecified");
+      assert.match(notice.text, /Viraj Shah/);
+    } else {
+      const fullText = readFileSync(new URL(`../licenses/${paths[notice.sourceId]}`, import.meta.url), "utf8");
+      assert.equal(notice.text, fullText);
+    }
   }
   assert.equal(licenseNotices.length, sources.length);
 });
@@ -192,4 +198,39 @@ test("published schema structure exposes taxonomy and array constraints", () => 
   assert.equal(schema.properties.applicability.properties.contexts.minItems, 1);
   assert.equal(schema.properties.applicability.properties.contexts.uniqueItems, true);
   assert.equal(schema.properties.tags.uniqueItems, true);
+});
+
+
+test("personal Prettier snapshot preserves the approved settings and LF line endings", () => {
+  const expected = {
+    endOfLine: "lf",
+    printWidth: 180,
+    tabWidth: 4,
+    useTabs: false,
+    singleQuote: true,
+    trailingComma: "es5",
+    bracketSpacing: true,
+    arrowParens: "avoid",
+    semi: false,
+    quoteProps: "as-needed",
+    jsxSingleQuote: true,
+  };
+  const configPath = new URL("../configs/viraj.prettierrc.json", import.meta.url);
+  const configText = readFileSync(configPath, "utf8");
+  assert.equal(configText.includes("\r"), false);
+  assert.deepEqual(JSON.parse(configText), expected);
+  const practice = byId.get("viraj-prettier-configuration");
+  assert.equal(practice.category, "tooling");
+  assert.deepEqual(practice.citations.map(({sourceId, role}) => ({sourceId, role})), [{sourceId: "viraj", role: "origin"}]);
+  const example = practice.examples.find(example => example.language === "json");
+  const preferred = example.variants.find(variant => variant.role === "prefer");
+  assert.deepEqual(JSON.parse(preferred.code), expected);
+  const source = sources.find(source => source.id === "viraj");
+  assert.equal(source.kind, "personal");
+  assert.equal(source.author, "Viraj Shah");
+  assert.equal(source.license, "LicenseRef-Unspecified");
+  assert.equal(source.licenseUrl, null);
+  assert.match(source.revision, /^[a-f0-9]{40}$/);
+  assert.equal(source.checkedAt, "2026-11-26");
+  assert.ok(source.url.includes(source.revision));
 });

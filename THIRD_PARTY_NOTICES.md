@@ -32,7 +32,7 @@ This project is an independent reference. The source authors do not endorse it.
 
 ## Editorial updates
 
-Both sources were checked on 2026-11-25. This is a curated snapshot, not an automatically synchronized copy. The revision for the handbook identifies the last change to that source file, rather than the latest commit of the entire website repository.
+The community and Handbook sources were checked on 2026-11-25. This is a curated snapshot, not an automatically synchronized copy. The revision for the handbook identifies the last change to that source file, rather than the latest commit of the entire website repository.
 
 The catalogue covers all 50 community practices and all 9 actionable handbook subsections. It preserves source links while qualifying absolute or dated claims. In particular:
 
@@ -51,3 +51,9 @@ Notes distinguish source exceptions, historical context, and editorial correctio
 Examples are original illustrative fragments and have `verification.status: "illustrative"`. Their explanations record relevant surrounding context, API assumptions, and cases where both variants may be valid. No compiler version, successful compilation, benchmark result, or runtime execution is implied by that status.
 
 Full upstream license texts are also included in [data/license-notices.json](data/license-notices.json) for offline exports. Each notice identifies its source and license. A copy of the catalogue should carry both its source metadata and the complete applicable notices, even when there is no network access to follow a source link.
+
+## Viraj Shah — personal preferences
+
+The `viraj` source and `viraj-prettier-configuration` entry contain Viraj Shah’s opinionated Prettier preferences, approved on 2026-11-26. The configuration was imported from management-ui with `endOfLine` changed from `auto` to `lf`. All other settings are preserved; ESLint configuration is not included.
+
+The complete approved JSON is in [configs/viraj.prettierrc.json](configs/viraj.prettierrc.json). Its immutable public revision is recorded in data/sources.json. This source has no separate content license specified (`LicenseRef-Unspecified`); the application MIT license does not grant a license to this source.

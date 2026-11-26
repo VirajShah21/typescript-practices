@@ -4142,5 +4142,72 @@
         "reason": "A closed set of string values expresses a more specific domain contract."
       }
     ]
+  },
+  {
+    "id": "viraj-prettier-configuration",
+    "title": "Prettier configuration",
+    "summary": "Viraj Shah’s opinionated Prettier configuration: LF line endings, four spaces, single quotes, no semicolons, and a print width of 180.",
+    "explanation": "These are Viraj Shah’s personal formatting preferences. They are not universal TypeScript rules or recommendations from the TypeScript Handbook. Save the complete JSON example as .prettierrc in a project that chooses this style.\n\nendOfLine: \"lf\" standardizes line endings to LF across operating systems. This is the only change from the imported management-ui configuration.\n\nprintWidth: 180 sets the preferred wrapping width. It is a target, not a hard maximum; some strings and other constructs can remain longer.\n\ntabWidth: 4 and useTabs: false use four spaces per indentation level.\n\nsingleQuote: true prefers single quotes in JavaScript and TypeScript strings. Prettier can choose double quotes to reduce escaping. jsxSingleQuote: true uses single quotes for JSX attributes.\n\ntrailingComma: \"es5\" adds trailing commas in multiline objects and arrays, without trailing commas in function parameters or calls.\n\nbracketSpacing: true adds spaces inside object braces. arrowParens: \"avoid\" omits parentheses around a single arrow parameter when possible.\n\nsemi: false omits statement-ending semicolons; Prettier still inserts protective semicolons where needed. quoteProps: \"as-needed\" quotes object property names only when required.\n\nThe configuration contains 11 settings. No ESLint rules or project-specific lint configuration are imported.",
+    "category": "tooling",
+    "applicability": {
+      "contexts": [
+        "application",
+        "declaration-file",
+        "public-api"
+      ],
+      "environments": [
+        "runtime-independent"
+      ],
+      "when": [
+        "The project chooses to follow Viraj Shah’s personal formatting conventions."
+      ],
+      "exceptions": [
+        "Follow the established formatting configuration when contributing to a project that uses another style."
+      ]
+    },
+    "tags": [
+      "prettier",
+      "formatting",
+      "personal-preferences",
+      "configuration",
+      "line-endings"
+    ],
+    "citations": [
+      {
+        "sourceId": "viraj",
+        "section": "Approved Prettier configuration",
+        "url": "https://github.com/VirajShah21/typescript-practices/blob/73b2b813f75f0d5793c8ce624319d294a45f6d74/configs/viraj.prettierrc.json#L1-L13",
+        "role": "origin"
+      }
+    ],
+    "notes": [],
+    "examples": [
+      {
+        "id": "viraj-prettierrc",
+        "language": "json",
+        "variants": [
+          {
+            "role": "prefer",
+            "code": "{\n  \"endOfLine\": \"lf\",\n  \"printWidth\": 180,\n  \"tabWidth\": 4,\n  \"useTabs\": false,\n  \"singleQuote\": true,\n  \"trailingComma\": \"es5\",\n  \"bracketSpacing\": true,\n  \"arrowParens\": \"avoid\",\n  \"semi\": false,\n  \"quoteProps\": \"as-needed\",\n  \"jsxSingleQuote\": true\n}"
+          }
+        ],
+        "explanation": "Complete approved .prettierrc. All 11 settings match the imported configuration except endOfLine, which is intentionally set to lf. Formatting output depends on the installed Prettier version.",
+        "verification": {
+          "status": "illustrative"
+        }
+      }
+    ],
+    "relations": [
+      {
+        "practiceId": "follow-conventions",
+        "kind": "complements",
+        "reason": "Use this personal style when the project adopts it; respect existing project conventions elsewhere."
+      },
+      {
+        "practiceId": "configuration",
+        "kind": "complements",
+        "reason": "Keep the chosen formatting preferences in a shared project configuration."
+      }
+    ]
   }
 ]

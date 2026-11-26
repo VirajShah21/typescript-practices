@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { CodeBlock, CopyButton, Github } from "./primitives";
 import { PUBLIC_API_URL, PUBLIC_MCP_URL } from "../../lib/config.ts";
+import type { Source } from "../../lib/models.ts";
 import "./integrations.css";
 
 const REPO_URL = "https://github.com/VirajShah21/typescript-practices";
@@ -88,7 +89,7 @@ function responseMessage(value: unknown): string | undefined {
   return [value.detail, ...errors].join(" ");
 }
 
-export default function Integrations({ origin, metadata }: { origin: string; metadata: CatalogueMetadata }) {
+export default function Integrations({ origin, metadata, sources }: { origin: string; metadata: CatalogueMetadata; sources: Source[] }) {
   const [tab, setTab] = useState<Tab>("rest");
   const [query, setQuery] = useState("unknown");
   const [source, setSource] = useState("all");
@@ -226,7 +227,7 @@ export default function Integrations({ origin, metadata }: { origin: string; met
                 <dl className="integration-parameters">
                   <div><dt><code>q</code></dt><dd>Search text, up to 300 characters.</dd></div>
                   <div><dt><code>category</code></dt><dd>A stable topic ID, such as <code>types</code> or <code>declarations</code>.</dd></div>
-                  <div><dt><code>source</code></dt><dd><code>community</code> or <code>handbook</code>.</dd></div>
+                  <div><dt><code>source</code></dt><dd>{sources.map((item, index) => <span key={item.id}>{index ? ", " : ""}<code>{item.id}</code></span>)}. Use <code>viraj</code> for personal preferences.</dd></div>
                   <div><dt><code>context</code></dt><dd>Filter by where the guidance applies.</dd></div>
                   <div><dt><code>environment</code></dt><dd>Filter by runtime or environment.</dd></div>
                   <div><dt><code>tag</code></dt><dd>Filter by an exact tag ID.</dd></div>
@@ -262,8 +263,7 @@ export default function Integrations({ origin, metadata }: { origin: string; met
                     <div>
                       <select id="api-search-source" value={source} onChange={event => setSource(event.target.value)}>
                         <option value="all">All sources</option>
-                        <option value="community">Community guide</option>
-                        <option value="handbook">TypeScript Handbook</option>
+                        {sources.map(item => <option key={item.id} value={item.id}>{item.title}{item.kind === "personal" ? " (opinionated)" : ""}</option>)}
                       </select>
                       <ChevronDown size={15} aria-hidden="true" />
                     </div>
@@ -353,7 +353,7 @@ export default function Integrations({ origin, metadata }: { origin: string; met
                 <h2>Open source</h2>
                 <p>The website, API, and MCP server are in one repository. Original application and server code is MIT licensed.</p>
                 <a className="integration-primary-button" href={REPO_URL} target="_blank" rel="noreferrer">View source code</a>
-                <p className="integration-small-print">Handbook-derived content remains CC BY 4.0. Community guide content retains its MIT notice. Review the source notices before redistributing.</p>
+                <p className="integration-small-print">Handbook-derived content remains CC BY 4.0. Community guide content retains its MIT notice. Viraj Shah’s personal configuration has no separate content license specified. Review the source notices before redistributing.</p>
               </section>
             </div>
           </div>

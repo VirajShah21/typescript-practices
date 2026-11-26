@@ -15,7 +15,7 @@ export const contextIds = [
 ] as const;
 
 export const environmentIds = ["browser", "node", "runtime-independent"] as const;
-export const sourceIds = ["community", "handbook"] as const;
+export const sourceIds = ["community", "handbook", "viraj"] as const;
 
 export const categories = [
   { id: "types", label: "Types" },

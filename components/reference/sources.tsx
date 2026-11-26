@@ -1,3 +1,4 @@
+import { UserRound } from "lucide-react";
 import { Github } from "./primitives";
 import "./sources.css";
 
@@ -18,6 +19,7 @@ function checkedDate(value: string) {
 }
 
 function revisionUrl(source: Source) {
+  if (source.id === "viraj") return `${REPOSITORY}/commit/${source.revision}`;
   return source.id === "handbook"
     ? `https://github.com/microsoft/TypeScript-Website/commit/${source.revision}`
     : `https://github.com/andredesousa/typescript-best-practices/commit/${source.revision}`;
@@ -37,7 +39,7 @@ export default function Sources({
       <header className="sources-intro">
         <h1>Sources &amp; licenses</h1>
         <p>
-          Two sources, brought together with the context to use them well.
+          Official guidance, community conventions, and personal preferences, with their original sources.
           Every practice links to its original guidance.
         </p>
       </header>
@@ -55,45 +57,49 @@ export default function Sources({
       <div className="sources-grid">
         {sources.map((source) => {
           const isHandbook = source.id === "handbook";
+          const isPersonal = source.kind === "personal";
           const count = practices.filter(
             (practice) => practice.citations.some(citation => citation.sourceId === source.id && citation.role === "origin"),
           ).length;
 
           return (
-            <section className="sources-card" key={source.id}>
+            <section className="sources-card" id={`source-${source.id}`} key={source.id}>
               <div className="sources-identity">
                 <div
-                  className={`sources-icon ${isHandbook ? "sources-icon-typescript" : "sources-icon-github"}`}
+                  className={`sources-icon ${isHandbook ? "sources-icon-typescript" : isPersonal ? "sources-icon-personal" : "sources-icon-github"}`}
                   aria-hidden="true"
                 >
-                  {isHandbook ? <span>TS</span> : <Github size={34} />}
+                  {isHandbook ? <span>TS</span> : isPersonal ? <UserRound size={30} /> : <Github size={34} />}
                 </div>
                 <span>
-                  {isHandbook ? "Official documentation" : "Community guide"}
+                  {isPersonal ? "Personal preferences · Opinionated" : isHandbook ? "Official documentation" : "Community guide"}
                 </span>
               </div>
 
               <h2>{source.title}</h2>
               <p className="sources-author">By {source.author}</p>
               <p className="sources-description">
-                {isHandbook
+                {isPersonal
+                  ? `${count} opinionated ${count === 1 ? "practice" : "practices"} based on Viraj’s approved configuration.`
+                  : isHandbook
                   ? `${count} guidelines for declaration files, callback contracts, and function overloads.`
                   : `${count} practices for project conventions, maintainable code, and runtime behavior.`}
               </p>
+              {source.provenance ? <p className="sources-description">{source.provenance}</p> : null}
               <a
                 className="sources-original"
                 href={source.url}
                 target="_blank"
                 rel="noreferrer"
               >
-                Read the original
+                {isPersonal ? "View approved configuration" : "Read the original"}
               </a>
 
               <dl className="sources-metadata">
                 <div>
                   <dt>License</dt>
                   <dd>
-                    <a
+                    {source.licenseUrl ? <a
                       href={source.licenseUrl}
                       target="_blank"
                       rel="noreferrer"
@@ -101,7 +107,7 @@ export default function Sources({
                       {source.license === "CC-BY-4.0"
                         ? "Creative Commons Attribution 4.0"
                         : source.license}
-                    </a>
+                    </a> : "Not specified"}
                   </dd>
                 </div>
                 <div>
@@ -145,7 +151,8 @@ export default function Sources({
           </p>
           <p>
             The Handbook guidance applies to declaration files and public API
-            design. The community guide describes project conventions. Use each
+            design. The community guide describes project conventions. Viraj Shah’s
+            source records personal, opinionated preferences. Use each
             practice in the context of your project’s requirements.
           </p>
         </section>
@@ -181,6 +188,7 @@ export default function Sources({
             notes. Keep the attribution, source links, license notices, and
             modification details when redistributing the content.
           </p>
+          <p>Viraj Shah’s personal configuration is included with his approval. A separate content license has not been specified.</p>
           <div className="sources-notice-links">
             <a
               href={`${REPOSITORY}/blob/main/THIRD_PARTY_NOTICES.md`}

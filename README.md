@@ -8,7 +8,7 @@ A searchable TypeScript reference with a REST API, an MCP server, and downloadab
 
 The reference site retains its own access settings. The separate public API and MCP service can be used without signing in to the Site.
 
-The catalogue contains 59 practices: 50 originating in André de Sousa’s guide and nine originating in the TypeScript Handbook’s declaration-file guidelines. Supporting citations can connect a practice to either source. Each practice includes structured applicability, conditions and exceptions, citations, editorial notes, examples, and related practices.
+The catalogue contains 60 practices: 50 originating in André de Sousa’s guide, nine originating in the TypeScript Handbook’s declaration-file guidelines, and Viraj Shah’s personal Prettier configuration. Supporting citations can connect practices to overlapping sources. Personal guidance is identified as opinionated. Each practice includes structured applicability, conditions and exceptions, citations, editorial notes, examples, and related practices.
 
 ## Install and run
 
@@ -58,7 +58,7 @@ Supported query parameters:
 | --- | --- |
 | `q` | Search text, up to 300 characters |
 | `category` | `types`, `functions`, `code-structure`, `runtime`, `tooling`, `declarations` |
-| `source` | `community` or `handbook`; matches any citation to that source |
+| `source` | `community`, `handbook`, or `viraj`; matches any citation to that source |
 | `context` | `application`, `declaration-file`, `public-api`, `compiler-configuration` |
 | `environment` | `browser`, `node`, `runtime-independent` |
 | `tag` | An exact tag ID; discover IDs through `/taxonomy` |
@@ -237,3 +237,9 @@ The source snapshot was reviewed on November 25, 2026. It does not synchronize a
 Original application, API, and MCP server code is available under the [MIT license](LICENSE). Community-derived guidance retains André de Sousa’s MIT notice. Handbook-derived guidance is adapted under CC BY 4.0 and retains that license. Attribution, modification notices, and full third-party licenses are in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md), `licenses/`, and the downloadable catalogue.
 
 Rewritten summaries, editorial notes, and project examples are adaptations. Neither upstream author has endorsed this project. Framework and package dependencies retain their own licenses.
+
+## Viraj Shah’s personal source
+
+The `viraj` source contains opinionated preferences approved by Viraj Shah. Start with [the complete Prettier configuration](configs/viraj.prettierrc.json), imported from management-ui with `endOfLine: "lf"`. The other ten settings are preserved. ESLint has not been imported.
+
+Search with `source=viraj` or retrieve `viraj-prettier-configuration` by ID through REST or MCP. Sources expose `kind` (`community`, `official`, or `personal`), and can include `provenance`. Personal source content has no separately specified license (`LicenseRef-Unspecified`, `licenseUrl: null`); the application MIT license does not silently replace it. Source links are pinned to the approved configuration’s public Git revision.

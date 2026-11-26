@@ -39,7 +39,7 @@ test('search filters match structured applicability and the same ranked results 
 test('compact results omit full content and pagination is deterministic', () => {
   const first = listPractices({limit: 2});
   const next = listPractices({limit: 2, offset: first.meta.nextOffset});
-  assert.equal(first.meta.total, 59);
+  assert.equal(first.meta.total, 60);
   assert.equal(first.meta.hasMore, true);
   assert.equal(first.meta.nextOffset, 2);
   assert.equal(new Set([...first.data, ...next.data].map(item => item.id)).size, 4);
@@ -59,14 +59,14 @@ test('compact results omit full content and pagination is deterministic', () => 
 test('snapshot metadata hashes the actual catalogue and exported notices travel with it', () => {
   const expected = `sha256:${createHash('sha256').update(canonicalJson({schemaVersion:'2',sources,practices,licenseNotices})).digest('hex')}`;
   assert.equal(metadata.datasetVersion, expected);
-  assert.equal(getCatalogue().licenseNotices.length, 2);
+  assert.equal(getCatalogue().licenseNotices.length, 3);
   const markdown = catalogueMarkdown();
   assert.ok(markdown.includes(metadata.datasetVersion));
   assert.ok(markdown.includes('Copyright (c) 2021 André de Sousa'));
   assert.ok(markdown.includes('Creative Commons'));
   assert.ok(markdown.includes('Verification: illustrative.'));
   const taxonomy = listTaxonomy();
-  assert.equal(taxonomy.data.categories.reduce((sum, item) => sum+item.count, 0), 59);
+  assert.equal(taxonomy.data.categories.reduce((sum, item) => sum+item.count, 0), 60);
   assert.ok(taxonomy.data.contexts.every(item => typeof item.label === 'string'));
 });
 

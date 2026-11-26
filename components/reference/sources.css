@@ -323,3 +323,6 @@
 .sources-dataset summary { cursor: pointer; width: fit-content; }
 .sources-dataset details code { display: block; margin-top: 9px; overflow-wrap: anywhere; line-height: 1.7; }
 @media (max-width: 760px) { .sources-dataset { margin-top: -5px; padding: 20px; } }
+
+.sources-icon-personal { color: #0071e3; border-radius: 12px; background: #edf5ff; }
+.sources-card > .sources-description + .sources-description { margin-top: 12px; color: #6e6e73; }
